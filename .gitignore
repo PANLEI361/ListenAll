@@ -32,6 +32,11 @@ proguard/
 # Android Studio captures folder
 captures/
 
+# Test
+/app/src/androidTest
+/app/src/test
+
+
 # Intellij
 *.iml
 .idea/workspace.xml
@@ -53,3 +58,4 @@ google-services.json
 freeline.py
 freeline/
 freeline_project_description.json
+/app/proguard-rules.pro
