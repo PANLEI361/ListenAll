@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--main-->
+    <dimen name="main_tab_btn_text_size">18sp</dimen>
+    <dimen name="main_song_type_btn_size">75dp</dimen>
+    <dimen name="main_song_type_tab_height">95dp</dimen>
+    <dimen name="main_bottom_play_bar_height">55dp</dimen>
+
+    <!--slide menu-->
+    <dimen name="slide_menu_text_size">20sp</dimen>
+</resources>

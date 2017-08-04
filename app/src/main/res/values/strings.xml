@@ -1,3 +1,29 @@
 <resources>
+    <!--app-->
     <string name="app_name">Listen All</string>
+
+    <!--slide menu-->
+    <string name="slide_menu_only_wifi">仅 Wifi 联网</string>
+    <string name="slide_menu_set_close_time">定时关闭</string>
+    <string name="slide_menu_clean_storage">清理占用空间</string>
+    <string name="slide_menu_about_app">关于</string>
+    <string name="slide_menu_quit">退出</string>
+    <string name="slide_menu_open_source_libs">开源框架</string>
+    <string name="slide_menu_set_cache_size">设置缓存空间</string>
+
+    <!--main-->
+    <string name="main_mine">我的</string>
+    <string name="main_song_on_net">发现音乐</string>
+    <string name="main_song_list">歌单</string>
+    <string name="main_album">专辑</string>
+    <string name="main_local_songs">本地歌曲</string>
+    <string name="main_recent_play">最近播放</string>
+    <string name="main_singer">歌手</string>
+    <string name="main_collect">歌单</string>
+    <string name="main_ranking_list">排行</string>
+    <string name="main_hot_collect">热门歌单</string>
+    <string name="main_new_songs">最新音乐</string>
+    <string name="main_i_like">我喜欢</string>
+
+
 </resources>

@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="265dp"
+    android:layout_height="match_parent"
+    android:layout_gravity="start"
+    android:background="@color/colorWhite"
+    android:orientation="vertical">
+    <!--侧滑菜单-->
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="130dp"
+        android:layout_marginTop="15dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_main_android" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:gravity="center_horizontal"
+        android:text="@string/app_name"
+        android:textColor="@color/colorBlack"
+        android:textSize="@dimen/main_tab_btn_text_size" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:gravity="center_horizontal"
+        android:text="V 1.0.0"
+        android:id="@+id/slide_menu_app_version"
+        android:textColor="@color/colorDivider"
+        android:textSize="17sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="15dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="4dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/slide_menu_only_wifi"
+                android:textColor="@color/colorBlack"
+                android:textSize="@dimen/slide_menu_text_size" />
+
+            <Switch
+                android:id="@+id/slide_only_wifi_switcher"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="10dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="4dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/slide_menu_set_close_time"
+                android:textColor="@color/colorBlack"
+                android:textSize="@dimen/slide_menu_text_size" />
+
+            <Switch
+                android:id="@+id/slide_set_time_close_switcher"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <!--清理占用空间-->
+        <LinearLayout
+            android:id="@+id/slide_menu_clean_cache"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="10dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="4dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/slide_menu_clean_storage"
+                android:textColor="@color/colorBlack"
+                android:textSize="@dimen/slide_menu_text_size" />
+
+            <TextView
+                android:id="@+id/slide_menu_tv_used_cache"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="5dp"
+                android:text="20 M" />
+        </LinearLayout>
+
+        <!--设置缓存大小-->
+        <LinearLayout
+            android:id="@+id/slide_menu_set_cache_size"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="10dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="4dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/slide_menu_set_cache_size"
+                android:textColor="@color/colorBlack"
+                android:textSize="@dimen/slide_menu_text_size" />
+
+            <TextView
+                android:id="@+id/slide_menu_tv_allowed_cache"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="5dp"
+                android:text="500 M" />
+        </LinearLayout>
+
+        <!--开源框架-->
+        <LinearLayout
+            android:id="@+id/slide_menu_open_source"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="10dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="4dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/slide_menu_open_source_libs"
+                android:textColor="@color/colorBlack"
+                android:textSize="@dimen/slide_menu_text_size" />
+
+        </LinearLayout>
+
+        <!--关于-->
+        <LinearLayout
+            android:id="@+id/slide_menu_about_app"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="10dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="4dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/slide_menu_about_app"
+                android:textColor="@color/colorBlack"
+                android:textSize="@dimen/slide_menu_text_size" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!--divider-->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:background="@color/colorDivider" />
+
+    <!--退出-->
+    <Button
+        android:id="@+id/slide_menu_quit"
+        style="?android:attr/buttonBarButtonStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/slide_menu_quit"
+        android:textSize="@dimen/slide_menu_text_size" />
+</LinearLayout>

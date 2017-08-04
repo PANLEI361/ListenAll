@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <ScrollView
+        android:id="@+id/main_my_songs_scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="none"
+        tools:ignore="UselessParent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!--button-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/main_song_type_tab_height"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical">
+
+                    <ImageButton
+                        android:id="@+id/main_local_btn_songs"
+                        style="?android:attr/buttonBarButtonStyle"
+                        android:layout_width="@dimen/main_song_type_btn_size"
+                        android:layout_height="@dimen/main_song_type_btn_size"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_main_all_music"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/main_local_songs" />
+                </LinearLayout>
+
+                <android.support.v4.widget.Space
+                    android:layout_width="40dp"
+                    android:layout_height="match_parent" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical">
+
+                    <ImageButton
+                        android:id="@+id/main_local_btn_recent_play"
+                        style="?android:attr/buttonBarButtonStyle"
+                        android:layout_width="@dimen/main_song_type_btn_size"
+                        android:layout_height="@dimen/main_song_type_btn_size"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_main_play_history"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/main_recent_play" />
+
+                </LinearLayout>
+
+                <android.support.v4.widget.Space
+                    android:layout_width="40dp"
+                    android:layout_height="match_parent" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical">
+
+                    <ImageButton
+                        android:id="@+id/main_local_btn_liked"
+                        style="?android:attr/buttonBarButtonStyle"
+                        android:layout_width="@dimen/main_song_type_btn_size"
+                        android:layout_height="@dimen/main_song_type_btn_size"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_liked"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/main_i_like" />
+
+                </LinearLayout>
+            </LinearLayout>
+
+            <!--tab-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/main_local_btn_collect"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="@string/main_song_list"
+                    android:textColor="@color/colorBlack"
+                    android:textSize="@dimen/main_tab_btn_text_size" />
+
+                <Button
+                    android:id="@+id/main_local_btn_album"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="@string/main_album"
+                    android:textColor="@color/colorBlack"
+                    android:textSize="@dimen/main_tab_btn_text_size" />
+            </LinearLayout>
+
+            <!--song list-->
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/main_song_list"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+
+            </android.support.v7.widget.RecyclerView>
+        </LinearLayout>
+
+    </ScrollView>
+</LinearLayout>
