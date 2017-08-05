@@ -6,19 +6,31 @@
     android:orientation="vertical">
 
     <ImageView
-        android:id="@+id/main_iv_hot_collect_cover"
+        android:id="@+id/main_iv_new_album_cover"
         android:layout_width="95dp"
         android:layout_height="95dp"
         android:scaleType="fitCenter"
         android:src="@drawable/ic_main_android" />
 
     <TextView
-        android:id="@+id/main_tv_hot_collect_title"
+        android:id="@+id/main_tv_new_album_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="3dp"
         android:layout_marginTop="2dp"
-        android:maxLines="2"
-        android:text="几分激动的发难"
+        android:maxLines="1"
+        android:text="模特"
+        android:textColor="@color/colorBlack"
         android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/main_tv_new_album_artist"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="3dp"
+        android:layout_marginTop="2dp"
+        android:maxLines="1"
+        android:text="李荣浩"
+        android:textSize="12sp" />
 
 </LinearLayout>

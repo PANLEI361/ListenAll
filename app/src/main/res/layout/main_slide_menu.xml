@@ -28,7 +28,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
         android:gravity="center_horizontal"
-        android:text="V 1.0.0"
         android:id="@+id/slide_menu_app_version"
         android:textColor="@color/colorDivider"
         android:textSize="17sp" />

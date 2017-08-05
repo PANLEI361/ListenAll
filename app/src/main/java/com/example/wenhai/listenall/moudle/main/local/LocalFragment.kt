@@ -1,4 +1,4 @@
-package com.example.wenhai.listenall.main
+package com.example.wenhai.listenall.moudle.main.local
 
 import android.content.Context
 import android.graphics.BitmapFactory
@@ -19,14 +19,13 @@ import butterknife.OnClick
 import butterknife.Unbinder
 import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.TestSongList
-import com.example.wenhai.listenall.base.BaseView
 import com.example.wenhai.listenall.utils.LogUtil
 
 
-class MySongsFragment : android.support.v4.app.Fragment(), BaseView {
+class LocalFragment : android.support.v4.app.Fragment() {
     @BindView(R.id.main_song_list)
     lateinit var mRvSongList: RecyclerView
-    @BindView(R.id.main_my_songs_scroll_view)
+    @BindView(R.id.main_local_scroll)
     lateinit var mScrollView: ScrollView
     @BindView(R.id.main_local_btn_album)
     lateinit var mBtnAlbum: Button
@@ -49,7 +48,7 @@ class MySongsFragment : android.support.v4.app.Fragment(), BaseView {
         return rootView
     }
 
-    override fun initView() {
+    fun initView() {
         mRvSongList.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         val songList = ArrayList<TestSongList>()
         for (i in 1..10) {
