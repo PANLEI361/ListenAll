@@ -2,6 +2,7 @@ package com.example.wenhai.listenall.moudle.main.online
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,19 +14,24 @@ import android.widget.ScrollView
 import android.widget.TextView
 import butterknife.BindView
 import butterknife.ButterKnife
+import butterknife.OnClick
 import butterknife.Unbinder
 import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.data.MusicSupplier
 import com.example.wenhai.listenall.data.bean.Album
 import com.example.wenhai.listenall.data.bean.Collect
+import com.example.wenhai.listenall.moudle.collectlist.CollectListActivity
 import com.example.wenhai.listenall.utils.GlideApp
+import com.example.wenhai.listenall.utils.LogUtil
 import com.youth.banner.Banner
 import com.youth.banner.BannerConfig
 import com.youth.banner.Transformer
 import com.youth.banner.loader.ImageLoader
 
 class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
-
+    companion object {
+        const val TAG = "OnLineFragment"
+    }
 
     @BindView(R.id.main_banner)
     lateinit var mBanner: Banner
@@ -43,11 +49,14 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        mPresenter = OnLinePresenter(this)
+        LogUtil.d(TAG, "onCreate")
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val rootView = inflater !!.inflate(R.layout.fragment_main_online, container, false)
         mUnBinder = ButterKnife.bind(this, rootView)
+        LogUtil.d(TAG, "onCreateView")
         initView()
         return rootView
     }
@@ -69,6 +78,19 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
     override fun onPause() {
         super.onPause()
         mScrollY = mScrollView.scrollY
+    }
+
+    @OnClick(R.id.main_btn_more_collect, R.id.main_btn_more_albums)
+    fun onClick(view: View) {
+        when (view.id) {
+            R.id.main_btn_more_collect -> {
+                val collectListIntent = Intent(activity, CollectListActivity::class.java)
+                startActivity(collectListIntent)
+            }
+            R.id.main_btn_more_albums -> {
+
+            }
+        }
     }
 
     override fun initView() {

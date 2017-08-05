@@ -23,6 +23,10 @@ import com.example.wenhai.listenall.utils.LogUtil
 
 
 class LocalFragment : android.support.v4.app.Fragment() {
+    companion object {
+        val TAG = "LocalFragment"
+    }
+
     @BindView(R.id.main_song_list)
     lateinit var mRvSongList: RecyclerView
     @BindView(R.id.main_local_scroll)
@@ -40,11 +44,17 @@ class LocalFragment : android.support.v4.app.Fragment() {
 
     lateinit var mUnBinder: Unbinder
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        LogUtil.d(TAG, "onCreate")
+    }
+
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val rootView = inflater !!.inflate(R.layout.fragment_main_local, container, false)
         mUnBinder = ButterKnife.bind(this, rootView)
         initView()
+        LogUtil.d(TAG, "onCreateView")
         return rootView
     }
 
@@ -96,11 +106,9 @@ class LocalFragment : android.support.v4.app.Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         mUnBinder.unbind()
+        LogUtil.d(TAG, "onDestroyView")
     }
 
-    companion object {
-        val TAG = "MainMySongsFragment"
-    }
 
 }
 

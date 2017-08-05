@@ -2,10 +2,13 @@ package com.example.wenhai.listenall.data
 
 import com.example.wenhai.listenall.data.online.XiaMiMusicSource
 
-/**
- * Created by Wenhai on 2017/8/4.
- */
 internal class MusicRepository() : MusicSource {
+    override fun loadCollectDetail(id: Long, callback: LoadCollectDetailCallback) {
+        musicSource.loadCollectDetail(id, callback)
+    }
+
+    override fun loadAlbumDetail(id: Long, callback: LoadAlbumDetailCallback) {
+    }
 
 
     var musicSource: MusicSource

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="100dp"
     android:layout_height="140dp"
     android:gravity="center"
@@ -10,7 +11,8 @@
         android:layout_width="95dp"
         android:layout_height="95dp"
         android:scaleType="fitCenter"
-        android:src="@drawable/ic_main_android" />
+        android:src="@drawable/ic_main_android"
+        tools:ignore="ContentDescription" />
 
     <TextView
         android:id="@+id/main_tv_new_album_title"

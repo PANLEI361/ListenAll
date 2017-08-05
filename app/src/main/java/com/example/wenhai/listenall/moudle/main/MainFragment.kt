@@ -5,15 +5,10 @@ import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
 import android.support.v4.view.ViewPager
-import android.support.v4.widget.DrawerLayout
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.LinearLayout
-import android.widget.Switch
-import android.widget.TextView
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
@@ -22,8 +17,6 @@ import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.moudle.main.MainContract.Presenter
 import com.example.wenhai.listenall.moudle.main.local.LocalFragment
 import com.example.wenhai.listenall.moudle.main.online.OnLineFragment
-import com.example.wenhai.listenall.moudle.main.online.OnLinePresenter
-import com.example.wenhai.listenall.utils.AppUtil
 import com.example.wenhai.listenall.utils.LogUtil
 
 /**
@@ -34,56 +27,46 @@ import com.example.wenhai.listenall.utils.LogUtil
 
 
 class MainFragment : Fragment(), MainContract.View {
-    //views of slide menu
-    @BindView(R.id.slide_menu_app_version)
-    lateinit var smTvAppVersion: TextView
-    @BindView(R.id.slide_only_wifi_switcher)
-    lateinit var smSwitchOnlyWifi: Switch
-    @BindView(R.id.slide_set_time_close_switcher)
-    lateinit var smSwitchSetCloseTime: Switch
-    @BindView(R.id.slide_menu_clean_cache)
-    lateinit var smLlCleanCache: LinearLayout
-    @BindView(R.id.slide_menu_tv_used_cache)
-    lateinit var smTvUsedCache: TextView
-    @BindView(R.id.slide_menu_set_cache_size)
-    lateinit var smLlSetCacheSize: LinearLayout
-    @BindView(R.id.slide_menu_tv_allowed_cache)
-    lateinit var smTvAllowedCache: TextView
-    @BindView(R.id.slide_menu_open_source)
-    lateinit var smLlOpenSource: LinearLayout
-    @BindView(R.id.slide_menu_about_app)
-    lateinit var smLlAboutApp: LinearLayout
-    @BindView(R.id.slide_menu_quit)
-    lateinit var smBtnQuit: Button
+    companion object {
+        const val TAG = "MainFragment"
 
-    //views in main
+        const val PAGE_POSITION_MY_SONGS = 0
+        const val PAGE_POSITION_ONLINE_SONGS = 1
+        const val PAGE_COUNT = 2
+
+    }
+
     @BindView(R.id.main_pager)
     lateinit var mPager: ViewPager
     @BindView(R.id.main_btn_local_songs)
     lateinit var mBtnMySongs: Button
     @BindView(R.id.main_btn_online_songs)
     lateinit var mBtnOnlineSongs: Button
-    @BindView(R.id.main_drawer)
-    lateinit var mDrawer: DrawerLayout
 
 
     lateinit var mUnBinder: Unbinder
     lateinit var mPresenter: Presenter
+    lateinit var mPagerAdapter: MainPagerAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
     }
 
     override fun onResume() {
         super.onResume()
-        initSlideMenu()
+        LogUtil.d(TAG, "onResume")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        LogUtil.d(TAG, "onPause")
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val contentView = inflater !!.inflate(R.layout.fragment_main, container, false)
         mUnBinder = ButterKnife.bind(this, contentView)
         initView()
+        LogUtil.d(TAG, "onCreateView")
         return contentView
     }
 
@@ -91,19 +74,20 @@ class MainFragment : Fragment(), MainContract.View {
         mPresenter = presenter
     }
 
-    @Suppress("DEPRECATION")
     override fun initView() {
-        mPager.adapter = MainPagerAdapter(fragmentManager)
+        mPagerAdapter = MainPagerAdapter(fragmentManager)
+        mPager.adapter = mPagerAdapter
         onButtonClick(mBtnMySongs)
         mPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
             override fun onPageScrollStateChanged(state: Int) {
-                LogUtil.d(TAG, "scrollState=$state")
+//                LogUtil.d(TAG, "scrollState=$state")
             }
 
             override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
-                LogUtil.d(TAG, " scrolled position:$position,positionOffset:$positionOffset,positionOffsetPixels:$positionOffsetPixels")
+//                LogUtil.d(TAG, " scrolled position:$position,positionOffset:$positionOffset,positionOffsetPixels:$positionOffsetPixels")
             }
 
+            @Suppress("DEPRECATION")
             override fun onPageSelected(position: Int) {
                 when (position) {
                     PAGE_POSITION_MY_SONGS -> {
@@ -115,32 +99,10 @@ class MainFragment : Fragment(), MainContract.View {
                         mBtnMySongs.setTextColor(resources.getColor(R.color.colorNotSelected))
                     }
                 }
-                LogUtil.d(TAG, "selected:$position")
+                LogUtil.d(TAG, "selected:${mPagerAdapter.getItem(position).javaClass.simpleName},${mPagerAdapter.getItem(position).hashCode()}")
             }
 
         })
-//        mDrawer.addDrawerListener(object : DrawerLayout.DrawerListener {
-//            override fun onDrawerStateChanged(newState: Int) {
-//            }
-//
-//            override fun onDrawerSlide(drawerView: View?, slideOffset: Float) {
-//            }
-//
-//            override fun onDrawerClosed(drawerView: View?) {
-//            }
-//
-//            override fun onDrawerOpened(drawerView: View?) {
-//            }
-//
-//        })
-
-    }
-
-    private fun initSlideMenu() {
-        // TODO: 2017/8/4  初始化侧滑菜单
-        val appVersion = AppUtil.getAppVersionName(context)
-        val displayAppVersion = "V $appVersion"
-        smTvAppVersion.text = displayAppVersion
 
     }
 
@@ -158,45 +120,44 @@ class MainFragment : Fragment(), MainContract.View {
                 mBtnOnlineSongs.setTextColor(resources.getColor(R.color.colorBlack))
                 mBtnMySongs.setTextColor(resources.getColor(R.color.colorNotSelected))
             }
-            R.id.main_btn_slide_menu -> mDrawer.openDrawer(Gravity.START)
+            R.id.main_btn_slide_menu -> (activity as MainActivity).openDrawer()
         }
     }
 
-    @OnClick(R.id.slide_only_wifi_switcher, R.id.slide_set_time_close_switcher, R.id.slide_menu_clean_cache,
-            R.id.slide_menu_set_cache_size, R.id.slide_menu_open_source, R.id.slide_menu_about_app, R.id.slide_menu_quit)
-    fun onSlideMenuItemClick(v: View) {
 
-        when (v.id) {
-            R.id.slide_menu_quit -> {
-                activity.finish()
-            }
-        }
-
+    override fun onStop() {
+        super.onStop()
+        LogUtil.d(TAG, "onDestroyView")
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
+        LogUtil.d(TAG, "onDestroyView")
         mUnBinder.unbind()
     }
 
-    companion object {
-        const val TAG = "MainActivity"
-
-        const val PAGE_POSITION_MY_SONGS = 0
-        const val PAGE_POSITION_ONLINE_SONGS = 1
-        const val PAGE_COUNT = 2
-
-    }
 
     class MainPagerAdapter(fragmentManager: FragmentManager)
         : FragmentPagerAdapter(fragmentManager) {
+        var onlineFragment: OnLineFragment? = null
+        var localFragment: LocalFragment? = null
+
+        init {
+            LogUtil.d("PagerAdapter", "constructor")
+        }
+
         override fun getItem(position: Int): Fragment {
+            LogUtil.d("MainPagerAdapter", "getItem:$position")
             if (position == PAGE_POSITION_ONLINE_SONGS) {
-                val onLineFragment = OnLineFragment()
-                OnLinePresenter(onLineFragment)
-                return onLineFragment
+                if (onlineFragment == null) {
+                    onlineFragment = OnLineFragment()
+                }
+                return onlineFragment as OnLineFragment
             } else {
-                return LocalFragment()
+                if (localFragment == null) {
+                    localFragment = LocalFragment()
+                }
+                return localFragment as LocalFragment
             }
         }
 

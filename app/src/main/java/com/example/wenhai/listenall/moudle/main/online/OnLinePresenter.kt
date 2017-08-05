@@ -9,7 +9,7 @@ import com.example.wenhai.listenall.data.bean.Album
 import com.example.wenhai.listenall.data.bean.Collect
 import com.example.wenhai.listenall.utils.LogUtil
 
-class OnLinePresenter(var view: OnLineContract.View) : OnLineContract.Presenter {
+internal class OnLinePresenter(var view: OnLineContract.View) : OnLineContract.Presenter {
 
     var musicRepository: MusicRepository
 

@@ -1,7 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/container"
+    android:id="@+id/main_drawer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".moudle.main.MainActivity" />
+    tools:context=".moudle.main.MainActivity">
+
+    <!--main content-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:id="@+id/main_container"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+        </FrameLayout>
+        <!--play bar-->
+        <include layout="@layout/include_play_bar" />
+    </LinearLayout>
+
+    <!--navigation drawer-->
+    <include layout="@layout/main_slide_menu" />
+
+</android.support.v4.widget.DrawerLayout>

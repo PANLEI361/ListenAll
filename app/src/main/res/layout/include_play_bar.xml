@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/main_bottom_play_bar_height"
+    android:orientation="vertical">
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:background="@color/colorDivider" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_gravity="bottom"
+        android:layout_weight="1"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:id="@+id/main_iv_cover"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_marginStart="5dp"
+            android:src="@drawable/ic_main_android"
+            tools:ignore="ContentDescription" />
+
+        <LinearLayout
+            android:id="@+id/main_ll_song_info"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="6dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:orientation="vertical"
+            tools:ignore="NestedWeights">
+
+            <TextView
+                android:id="@+id/main_song_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="男女"
+                android:textColor="@color/colorBlack" />
+
+            <TextView
+                android:id="@+id/main_singer_or_lyric"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="李荣浩" />
+
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/main_btn_play_control"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/ic_main_play"
+            tools:ignore="ContentDescription" />
+
+        <ImageButton
+            android:id="@+id/main_song_list"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="1dp"
+            android:src="@drawable/ic_main_play_list"
+            tools:ignore="ContentDescription" />
+
+    </LinearLayout>
+
+
+</LinearLayout>

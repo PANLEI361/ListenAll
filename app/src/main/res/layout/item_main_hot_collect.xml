@@ -18,6 +18,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
         android:maxLines="2"
+        android:textColor="@color/colorBlack"
         android:text="几分激动的发难"
         android:textSize="14sp" />
 

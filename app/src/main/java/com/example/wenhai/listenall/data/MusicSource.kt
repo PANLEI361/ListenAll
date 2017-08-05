@@ -13,6 +13,8 @@ interface MusicSource {
     fun loadBanner(callback: LoadBannerCallback)
     fun loadHotCollect(count: Int = 6, callback: LoadCollectCallback)
     fun loadNewAlbum(count: Int = 6, callback: LoadAlbumCallback)
+    fun loadCollectDetail(id: Long, callback: LoadCollectDetailCallback)
+    fun loadAlbumDetail(id: Long, callback: LoadAlbumDetailCallback)
 }
 
 
@@ -27,4 +29,12 @@ interface LoadCollectCallback : BaseCallBack {
 
 interface LoadAlbumCallback : BaseCallBack {
     fun onSuccess(albumList: List<Album>)
+}
+
+interface LoadCollectDetailCallback : BaseCallBack {
+    fun onSuccess(collect: Collect)
+}
+
+interface LoadAlbumDetailCallback : BaseCallBack {
+    fun onSuccess(album: Album)
 }

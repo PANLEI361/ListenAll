@@ -24,12 +24,12 @@
         android:textSize="@dimen/main_tab_btn_text_size" />
 
     <TextView
+        android:id="@+id/slide_menu_app_version"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
         android:gravity="center_horizontal"
-        android:id="@+id/slide_menu_app_version"
-        android:textColor="@color/colorDivider"
+        android:textColor="@color/colorGray"
         android:textSize="17sp" />
 
     <LinearLayout
@@ -186,7 +186,9 @@
     <!--divider-->
     <View
         android:layout_width="match_parent"
-        android:layout_height="1px"
+        android:layout_height="1dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
         android:background="@color/colorDivider" />
 
     <!--退出-->
@@ -194,7 +196,7 @@
         android:id="@+id/slide_menu_quit"
         style="?android:attr/buttonBarButtonStyle"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/main_bottom_play_bar_height"
         android:text="@string/slide_menu_quit"
         android:textSize="@dimen/slide_menu_text_size" />
 </LinearLayout>

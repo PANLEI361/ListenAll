@@ -1,8 +1,5 @@
 package com.example.wenhai.listenall.utils
 
-import android.app.Fragment
-import android.app.FragmentManager
-
 /**
  * 在 Activity 中对 Fragment 执行操作的工具类
  *
@@ -12,7 +9,7 @@ import android.app.FragmentManager
 object ActivityUtil {
 
     @JvmStatic
-    fun addFragmentToActivity(fragmentManager: FragmentManager, fragment: Fragment, id: Int) {
+    fun addFragmentToActivity(fragmentManager: android.support.v4.app.FragmentManager, fragment: android.support.v4.app.Fragment, id: Int) {
         fragmentManager.beginTransaction().add(id, fragment).commit()
     }
 }

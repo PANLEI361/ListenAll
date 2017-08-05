@@ -15,6 +15,8 @@ public class Album {
     private int songNumber;//包含歌曲数量
     private int songDownloadNumber;//已下载歌曲数量
     private MusicSupplier source;//来源
+    private long publishDate;//发行时间
+    private MusicSupplier supplier;
 
     public String getTitle() {
         return title;

@@ -5,6 +5,7 @@
     <color name="colorAccent">@color/colorBlack</color>
     <color name="colorWhite">#FFFFFF</color>
     <color name="colorBlack">#000000</color>
-    <color name="colorDivider">#7b7a7a</color>
+    <color name="colorGray">#8b8989</color>
+    <color name="colorDivider">#d9d9d9</color>
     <color name="colorNotSelected">#7b7a7a</color>
 </resources>
