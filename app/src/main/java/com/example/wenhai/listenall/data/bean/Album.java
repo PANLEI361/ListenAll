@@ -1,20 +1,20 @@
-package com.example.wenhai.listenall.data;
+package com.example.wenhai.listenall.data.bean;
+
+import com.example.wenhai.listenall.data.MusicSupplier;
 
 /**
- * 歌单对应实体类
- * Created by Wenhai on 2017/7/30.
+ * Created by Wenhai on 2017/8/4.
  */
 
-public class SongCollect {
-
+public class Album {
     private String title;
     private String desc;//简介
-    private long collectId;//歌单 id
+    private long id;//专辑 id
+    private String artist;
     private String coverUrl;//封面 url
     private int songNumber;//包含歌曲数量
     private int songDownloadNumber;//已下载歌曲数量
-    private OnlineMusicSource source;//来源
-    private String playTimes;//播放次数
+    private MusicSupplier source;//来源
 
     public String getTitle() {
         return title;
@@ -32,12 +32,20 @@ public class SongCollect {
         this.desc = desc;
     }
 
-    public long getCollectId() {
-        return collectId;
+    public long getId() {
+        return id;
     }
 
-    public void setCollectId(long collectId) {
-        this.collectId = collectId;
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public String getArtist() {
+        return artist;
+    }
+
+    public void setArtist(String artist) {
+        this.artist = artist;
     }
 
     public String getCoverUrl() {
@@ -64,19 +72,11 @@ public class SongCollect {
         this.songDownloadNumber = songDownloadNumber;
     }
 
-    public OnlineMusicSource getSource() {
+    public MusicSupplier getSource() {
         return source;
     }
 
-    public void setSource(OnlineMusicSource source) {
+    public void setSource(MusicSupplier source) {
         this.source = source;
-    }
-
-    public String getPlayTimes() {
-        return playTimes;
-    }
-
-    public void setPlayTimes(String playTimes) {
-        this.playTimes = playTimes;
     }
 }
