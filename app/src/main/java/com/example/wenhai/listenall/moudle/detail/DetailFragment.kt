@@ -37,9 +37,6 @@ class DetailFragment : Fragment(), DetailContract.View {
     lateinit var mSongListAdapter: SongListAdapter
 
 
-    override fun setAlbumDetail(album: Album) {
-    }
-
     override fun setPresenter(presenter: DetailContract.Presenter) {
         mPresenter = presenter
     }
@@ -50,6 +47,7 @@ class DetailFragment : Fragment(), DetailContract.View {
 
     lateinit var mPresenter: DetailContract.Presenter
     lateinit var mUnBinder: Unbinder
+    lateinit var mLoadType: Type
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,22 +57,27 @@ class DetailFragment : Fragment(), DetailContract.View {
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val contentView = inflater !!.inflate(R.layout.fragment_detail, container, false)
         mUnBinder = ButterKnife.bind(this, contentView)
-        initView()
 
         val id = arguments.getLong("id")
         val type = arguments.getInt("type")
-        val loadType: Type = if (type == Type.COLLECT.ordinal) {
+        mLoadType = if (type == Type.COLLECT.ordinal) {
             Type.COLLECT
         } else {
             Type.ALBUM
         }
-        mPresenter.loadDetails(id, loadType)
+
+        initView()
+        mPresenter.loadDetails(id, mLoadType)
         return contentView
     }
 
 
     override fun initView() {
-        mActionBarTitle.text = "歌单详情"
+        mActionBarTitle.text = if (mLoadType == Type.COLLECT) {
+            "歌单详情"
+        } else {
+            "专辑详情"
+        }
         mSongListAdapter = SongListAdapter(ArrayList<Song>())
         mSongList.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         mSongList.adapter = mSongListAdapter
@@ -100,6 +103,21 @@ class DetailFragment : Fragment(), DetailContract.View {
             mDate.text = displayDate
             mSongListAdapter.setData(collect.songs)
         })
+    }
+
+    override fun setAlbumDetail(album: Album) {
+        activity.runOnUiThread {
+            mTitle.text = album.title
+            mArtist.visibility = View.VISIBLE
+            mArtist.text = album.artist
+            val displayDate = "发行时间：${DateUtil.getDate(album.publishDate)}"
+            GlideApp.with(context).load(album.coverUrl)
+                    .placeholder(R.drawable.ic_main_all_music)
+                    .into(mCover)
+            mDate.text = displayDate
+            mSongListAdapter.setData(album.songs)
+        }
+
     }
 
     override fun onDestroyView() {

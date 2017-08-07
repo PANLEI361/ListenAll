@@ -15,6 +15,7 @@ import com.example.wenhai.listenall.utils.JsonCallback
 import com.example.wenhai.listenall.utils.LogUtil
 import com.example.wenhai.listenall.utils.OkHttpUtil
 import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -32,6 +33,7 @@ internal class XiaMiMusicSource : MusicSource {
         val TAG = "XiaMiMusicSource"
         val BASE_URL = "http://api.xiami.com/web?v=2.0&app_key=1&"
         val SUFFIX_COLLECT_DETAIL = "&callback=jsonp122&r=collect/detail"
+        val SUFFIX_ALBUM_DETAIL = "&page=1&limit=20&callback=jsonp217&r=album/detail"
     }
 
 
@@ -52,13 +54,12 @@ internal class XiaMiMusicSource : MusicSource {
 
     override fun loadCollectDetail(id: Long, callback: LoadCollectDetailCallback) {
         val url = BASE_URL + "id=$id" + SUFFIX_COLLECT_DETAIL
-        OkHttpUtil.get(url, object : JsonCallback {
+        OkHttpUtil.getForXiami(url, object : JsonCallback {
             override fun onStart() {
                 LogUtil.d(TAG, "开始网络请求")
             }
 
             override fun onResponse(data: JSONObject) {
-                LogUtil.d(TAG, "${data.toString().length}")
                 val collect = getCollectFormJson(data)
                 callback.onSuccess(collect)
             }
@@ -98,11 +99,21 @@ internal class XiaMiMusicSource : MusicSource {
             song.albumCoverUrl = jsonSong.getString("album_logo")
             song.artistId = jsonSong.getLong("artist_id")
             song.artistName = jsonSong.getString("singers")
-            song.artistLogo = jsonSong.getString("artist_logo")
-            song.length = jsonSong.getInt("length")
-            song.listenFileUrl = jsonSong.getString("listen_file")
-            song.payFlag = jsonSong.getInt("need_pay_flag")
-            song.lyricUrl = jsonSong.getString("lyric")
+//            song.artistLogo = jsonSong.getString("artist_logo")
+//            song.length = jsonSong.getInt("length")
+            try {
+                song.listenFileUrl = jsonSong.getString("listen_file")
+            } catch (e: JSONException) {
+                LogUtil.e(TAG, e.localizedMessage)
+                song.listenFileUrl = ""
+            }
+//            song.payFlag = jsonSong.getInt("need_pay_flag")
+            try {
+                song.lyricUrl = jsonSong.getString("lyric")
+            } catch (e: JSONException) {
+                song.lyricUrl = ""
+                LogUtil.e(TAG, e.localizedMessage)
+            }
             song.supplier = MusicSupplier.XIAMI
             songList.add(song)
         }
@@ -110,8 +121,34 @@ internal class XiaMiMusicSource : MusicSource {
     }
 
     override fun loadAlbumDetail(id: Long, callback: LoadAlbumDetailCallback) {
-    }
+        val url = BASE_URL + "id=$id" + SUFFIX_ALBUM_DETAIL
+        OkHttpUtil.getForXiami(url, object : JsonCallback {
+            override fun onStart() {
 
+            }
+
+            override fun onResponse(data: JSONObject) {
+                LogUtil.d(TAG, data.toString())
+                val album = Album()
+                album.supplier = MusicSupplier.XIAMI
+                album.id = data.getLong("album_id")
+                album.artist = data.getString("artist_name")
+                album.artistId = data.getLong("artist_id")
+                album.title = data.getString("album_name")
+                album.songNumber = data.getInt("song_count")
+                album.publishDate = data.getLong("gmt_publish")
+                album.coverUrl = data.getString("album_logo")
+                album.songs = getSongsFromJson(data.getJSONArray("songs"))
+                callback.onSuccess(album)
+            }
+
+            override fun onFailure(msg: String) {
+                callback.onFailure()
+                LogUtil.e(TAG, msg)
+            }
+
+        })
+    }
 
     internal class LoadBannerTask(val callback: LoadBannerCallback)
         : AsyncTask<String, Void, List<String>?>() {
@@ -197,8 +234,10 @@ internal class XiaMiMusicSource : MusicSource {
                 val albums = albumElement.getElementsByClass("album")
                 val albumList = ArrayList<Album>(count)
                 for (i in 0..count - 1) {
-                    val coverUrl = albums[i].getElementsByClass("image").first()
-                            .select("img").first().attr("src")
+                    val imgElement = albums[i].getElementsByClass("image").first()
+                    val onclick: String = imgElement.select("b").first().attr("onclick")
+                    val id = onclick.substring(onclick.indexOf('(', 0, false) + 1, onclick.indexOf('(', 0, false) + 11)
+                    val coverUrl = imgElement.select("img").first().attr("src")
                     val title = albums[i].getElementsByClass("info").first()
                             .select("p").first()
                             .select("a").first().attr("title")
@@ -209,6 +248,7 @@ internal class XiaMiMusicSource : MusicSource {
                     album.coverUrl = coverUrl.substring(0, coverUrl.length - 20)
                     album.title = title
                     album.artist = artist
+                    album.id = id.toLong()
                     albumList.add(album)
                 }
                 return albumList

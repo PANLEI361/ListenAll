@@ -8,6 +8,7 @@ internal class MusicRepository() : MusicSource {
     }
 
     override fun loadAlbumDetail(id: Long, callback: LoadAlbumDetailCallback) {
+        musicSource.loadAlbumDetail(id, callback)
     }
 
 

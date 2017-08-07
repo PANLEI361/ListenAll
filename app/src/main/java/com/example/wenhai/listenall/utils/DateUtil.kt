@@ -6,6 +6,7 @@ import java.util.Locale
 
 
 object DateUtil {
+    @JvmStatic
     fun getDate(mills: Long): String {
         val date = Date(mills * 1000)
         val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())

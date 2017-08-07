@@ -42,6 +42,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:layout_marginTop="10dp"
+                    android:layout_marginEnd="5dp"
                     android:layout_toEndOf="@id/detail_cover"
                     android:textColor="@color/colorBlack"
                     android:textSize="20sp" />
@@ -75,7 +76,7 @@
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:layout_marginStart="20dp"
-                    android:src="@drawable/ic_enter" />
+                    android:src="@drawable/ic_play_arrow" />
 
                 <Space
                     android:layout_width="0dp"
@@ -86,7 +87,7 @@
                     style="?android:attr/buttonBarButtonStyle"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:src="@drawable/ic_enter" />
+                    android:src="@drawable/ic_main_download" />
 
                 <Space
                     android:layout_width="0dp"
@@ -97,7 +98,7 @@
                     style="?android:attr/buttonBarButtonStyle"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:src="@drawable/ic_enter" />
+                    android:src="@drawable/ic_detail_add_playlist" />
 
                 <Space
                     android:layout_width="0dp"
@@ -109,7 +110,7 @@
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:layout_marginEnd="20dp"
-                    android:src="@drawable/ic_enter" />
+                    android:src="@drawable/ic_like_border" />
             </LinearLayout>
 
             <android.support.v7.widget.RecyclerView

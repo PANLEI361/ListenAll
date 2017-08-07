@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.BaseAdapter
 import android.widget.GridView
 import android.widget.ImageView
@@ -20,7 +21,10 @@ import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.data.MusicSupplier
 import com.example.wenhai.listenall.data.bean.Album
 import com.example.wenhai.listenall.data.bean.Collect
+import com.example.wenhai.listenall.moudle.albumlist.AlbumListActivity
 import com.example.wenhai.listenall.moudle.collectlist.CollectListActivity
+import com.example.wenhai.listenall.moudle.detail.DetailActivity
+import com.example.wenhai.listenall.moudle.detail.Type
 import com.example.wenhai.listenall.utils.GlideApp
 import com.example.wenhai.listenall.utils.LogUtil
 import com.youth.banner.Banner
@@ -46,6 +50,9 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
     lateinit var mUnBinder: Unbinder
     lateinit var mPresenter: OnLineContract.Presenter
     var isFirstStart = true
+
+    lateinit var mHotCollectList: List<Collect>
+    lateinit var mNewAlbumList: List<Album>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -84,11 +91,10 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
     fun onClick(view: View) {
         when (view.id) {
             R.id.main_btn_more_collect -> {
-                val collectListIntent = Intent(activity, CollectListActivity::class.java)
-                startActivity(collectListIntent)
+                startActivity(Intent(activity, CollectListActivity::class.java))
             }
             R.id.main_btn_more_albums -> {
-
+                startActivity(Intent(context, AlbumListActivity::class.java))
             }
         }
     }
@@ -101,28 +107,43 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
 
     private fun initHotCollectGirdView() {
         mPresenter.loadHotCollects()
+        mHotCollects.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
+            val collect = mHotCollectList[position]
+            val collectId = collect.id
+            val type = Type.COLLECT.ordinal
+            val intent = Intent(context, DetailActivity::class.java)
+            val data = Bundle()
+            data.putLong("id", collectId)
+            data.putInt("type", type)
+            intent.putExtras(data)
+            startActivity(intent)
+        }
     }
 
     override fun setHotCollects(hotCollects: List<Collect>) {
-        mHotCollects.adapter = HotCollectsAdapter(context, hotCollects)
+        mHotCollectList = hotCollects
+        mHotCollects.adapter = HotCollectsAdapter(context, mHotCollectList)
     }
 
     private fun initNewAlbumsGridView() {
         mPresenter.loadNewAlbums()
-
-        val fakeHotCollect = ArrayList<Collect>()
-
-        for (i in 1..6) {
-            val hotCollect = Collect()
-            hotCollect.title = "this is a test"
-            fakeHotCollect.add(hotCollect)
+        mNewAlbums.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
+            val type = Type.ALBUM.ordinal
+            val album = mNewAlbumList[position]
+            val id = album.id
+            val data = Bundle()
+            data.putLong("id", id)
+            data.putInt("type", type)
+            val intent = Intent(context, DetailActivity::class.java)
+            intent.putExtras(data)
+            startActivity(intent)
         }
 
-        mNewAlbums.adapter = HotCollectsAdapter(activity, fakeHotCollect)
     }
 
     override fun setNewAlbums(newAlbums: List<Album>) {
-        mNewAlbums.adapter = NewAlbumAdapter(context, newAlbums)
+        mNewAlbumList = newAlbums
+        mNewAlbums.adapter = NewAlbumAdapter(context, mNewAlbumList)
     }
 
     private fun initBanner() {

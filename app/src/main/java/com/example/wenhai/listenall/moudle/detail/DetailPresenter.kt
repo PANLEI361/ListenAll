@@ -38,7 +38,6 @@ internal class DetailPresenter(val view: DetailContract.View) : DetailContract.P
                 }
 
                 override fun onSuccess(album: Album) {
-
                     view.setAlbumDetail(album)
                 }
 

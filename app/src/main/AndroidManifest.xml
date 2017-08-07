@@ -28,6 +28,7 @@
         <activity
             android:name=".moudle.detail.DetailActivity"
             android:screenOrientation="portrait" />
+        <activity android:name=".moudle.albumlist.AlbumListActivity"></activity>
     </application>
 
 </manifest>
