@@ -2,12 +2,15 @@ package com.example.wenhai.listenall.moudle.detail
 
 import com.example.wenhai.listenall.data.LoadAlbumDetailCallback
 import com.example.wenhai.listenall.data.LoadCollectDetailCallback
+import com.example.wenhai.listenall.data.LoadSongDetailCallback
 import com.example.wenhai.listenall.data.MusicRepository
 import com.example.wenhai.listenall.data.bean.Album
 import com.example.wenhai.listenall.data.bean.Collect
+import com.example.wenhai.listenall.data.bean.Song
 import com.example.wenhai.listenall.utils.LogUtil
 
 internal class DetailPresenter(val view: DetailContract.View) : DetailContract.Presenter {
+
 
     companion object {
         const val TAG = "DetailPresenter"
@@ -19,7 +22,7 @@ internal class DetailPresenter(val view: DetailContract.View) : DetailContract.P
         view.setPresenter(this)
     }
 
-    override fun loadDetails(id: Long, type: Type) {
+    override fun loadSongsDetails(id: Long, type: Type) {
         if (type == Type.COLLECT) {
             musicRepository.loadCollectDetail(id, object : LoadCollectDetailCallback {
                 override fun onFailure() {
@@ -43,6 +46,19 @@ internal class DetailPresenter(val view: DetailContract.View) : DetailContract.P
 
             })
         }
+    }
+
+    override fun loadSongDetail(song: Song) {
+        musicRepository.loadSongDetail(song, object : LoadSongDetailCallback {
+            override fun onFailure() {
+                LogUtil.e(TAG, "load song detail failed")
+            }
+
+            override fun onSuccess(loadedSong: Song) {
+                view.onSongDetailLoaded(loadedSong)
+            }
+
+        })
     }
 
 }

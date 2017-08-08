@@ -18,7 +18,7 @@ import butterknife.ButterKnife
 import butterknife.OnClick
 import butterknife.Unbinder
 import com.example.wenhai.listenall.R
-import com.example.wenhai.listenall.data.MusicSupplier
+import com.example.wenhai.listenall.data.MusicProvider
 import com.example.wenhai.listenall.data.bean.Album
 import com.example.wenhai.listenall.data.bean.Collect
 import com.example.wenhai.listenall.moudle.albumlist.AlbumListActivity
@@ -154,7 +154,7 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
         //设置图片加载器
         mBanner.setImageLoader(GlideLoaderForBanner())
         mBanner.setBannerAnimation(Transformer.Accordion)
-        mPresenter.loadBanner(MusicSupplier.XIAMI)
+        mPresenter.loadBanner(MusicProvider.XIAMI)
     }
 
     override fun setBanner(imgUrlList: List<String>) {

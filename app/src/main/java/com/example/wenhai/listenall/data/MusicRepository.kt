@@ -1,8 +1,11 @@
 package com.example.wenhai.listenall.data
 
-import com.example.wenhai.listenall.data.online.XiaMiMusicSource
+import com.example.wenhai.listenall.data.bean.Song
+import com.example.wenhai.listenall.data.onlineprovider.Xiami
 
 internal class MusicRepository() : MusicSource {
+
+
     override fun loadCollectDetail(id: Long, callback: LoadCollectDetailCallback) {
         musicSource.loadCollectDetail(id, callback)
     }
@@ -11,38 +14,42 @@ internal class MusicRepository() : MusicSource {
         musicSource.loadAlbumDetail(id, callback)
     }
 
+    override fun loadSongDetail(song: Song, callback: LoadSongDetailCallback) {
+        musicSource.loadSongDetail(song, callback)
+    }
+
 
     var musicSource: MusicSource
 
     init {
         //default
-        musicSource = XiaMiMusicSource()
+        musicSource = Xiami()
     }
 
-    constructor(sourceSupplier: MusicSupplier) : this() {
-        when (sourceSupplier) {
-            MusicSupplier.XIAMI -> {
-                musicSource = XiaMiMusicSource()
+    constructor(sourceProvider: MusicProvider) : this() {
+        when (sourceProvider) {
+            MusicProvider.XIAMI -> {
+                musicSource = Xiami()
             }
-            MusicSupplier.QQMUSIC -> {
-//                musicSource = QQMusicSource()
+            MusicProvider.QQMUSIC -> {
+//                musicSource = QQ()
             }
-            MusicSupplier.NETEASE -> {
-//                musicSource = NetEaseMusicSource()
+            MusicProvider.NETEASE -> {
+//                musicSource = NetEase()
             }
         }
     }
 
-    fun changeMusicSource(supplier: MusicSupplier) {
-        when (supplier) {
-            MusicSupplier.XIAMI -> {
-                musicSource = XiaMiMusicSource()
+    fun changeMusicSource(provider: MusicProvider) {
+        when (provider) {
+            MusicProvider.XIAMI -> {
+                musicSource = Xiami()
             }
-            MusicSupplier.QQMUSIC -> {
-//                musicSource = QQMusicSource()
+            MusicProvider.QQMUSIC -> {
+//                musicSource = QQ()
             }
-            MusicSupplier.NETEASE -> {
-//                musicSource = NetEaseMusicSource()
+            MusicProvider.NETEASE -> {
+//                musicSource = NetEase()
             }
         }
     }

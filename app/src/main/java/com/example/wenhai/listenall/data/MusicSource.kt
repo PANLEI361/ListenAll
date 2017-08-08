@@ -3,6 +3,7 @@ package com.example.wenhai.listenall.data
 import com.example.wenhai.listenall.base.BaseCallBack
 import com.example.wenhai.listenall.data.bean.Album
 import com.example.wenhai.listenall.data.bean.Collect
+import com.example.wenhai.listenall.data.bean.Song
 
 /**
  * 音乐数据接口类
@@ -15,6 +16,7 @@ interface MusicSource {
     fun loadNewAlbum(count: Int = 6, callback: LoadAlbumCallback)
     fun loadCollectDetail(id: Long, callback: LoadCollectDetailCallback)
     fun loadAlbumDetail(id: Long, callback: LoadAlbumDetailCallback)
+    fun loadSongDetail(song: Song, callback: LoadSongDetailCallback)
 }
 
 
@@ -37,4 +39,8 @@ interface LoadCollectDetailCallback : BaseCallBack {
 
 interface LoadAlbumDetailCallback : BaseCallBack {
     fun onSuccess(album: Album)
+}
+
+interface LoadSongDetailCallback : BaseCallBack {
+    fun onSuccess(loadedSong: Song)
 }

@@ -1,6 +1,6 @@
 package com.example.wenhai.listenall.data.bean;
 
-import com.example.wenhai.listenall.data.MusicSupplier;
+import com.example.wenhai.listenall.data.MusicProvider;
 
 import java.util.List;
 
@@ -13,9 +13,9 @@ public class Album {
     private String coverUrl;//封面 url
     private int songNumber;//包含歌曲数量
     private int songDownloadNumber;//已下载歌曲数量
-    private MusicSupplier source;//来源
+    private MusicProvider source;//来源
     private long publishDate;//发行时间
-    private MusicSupplier supplier;
+    private MusicProvider supplier;
     private List<Song> songs;
 
     public long getArtistId() {
@@ -98,19 +98,19 @@ public class Album {
         this.publishDate = publishDate;
     }
 
-    public MusicSupplier getSupplier() {
+    public MusicProvider getSupplier() {
         return supplier;
     }
 
-    public void setSupplier(MusicSupplier supplier) {
+    public void setSupplier(MusicProvider supplier) {
         this.supplier = supplier;
     }
 
-    public MusicSupplier getSource() {
+    public MusicProvider getSource() {
         return source;
     }
 
-    public void setSource(MusicSupplier source) {
+    public void setSource(MusicProvider source) {
         this.source = source;
     }
 }

@@ -2,7 +2,7 @@ package com.example.wenhai.listenall.moudle.main.online
 
 import com.example.wenhai.listenall.base.BasePresenter
 import com.example.wenhai.listenall.base.BaseView
-import com.example.wenhai.listenall.data.MusicSupplier
+import com.example.wenhai.listenall.data.MusicProvider
 import com.example.wenhai.listenall.data.bean.Album
 import com.example.wenhai.listenall.data.bean.Collect
 
@@ -15,7 +15,7 @@ interface OnLineContract {
     }
 
     interface Presenter : BasePresenter {
-        fun loadBanner(supplier: MusicSupplier)
+        fun loadBanner(provider: MusicProvider)
         fun loadHotCollects()
         fun loadNewAlbums()
     }

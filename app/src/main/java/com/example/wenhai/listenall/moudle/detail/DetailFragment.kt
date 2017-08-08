@@ -1,6 +1,11 @@
 package com.example.wenhai.listenall.moudle.detail
 
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
 import android.os.Bundle
+import android.os.IBinder
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -8,6 +13,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import butterknife.BindView
 import butterknife.ButterKnife
@@ -17,10 +23,14 @@ import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.data.bean.Album
 import com.example.wenhai.listenall.data.bean.Collect
 import com.example.wenhai.listenall.data.bean.Song
+import com.example.wenhai.listenall.service.PlayService
 import com.example.wenhai.listenall.utils.DateUtil
 import com.example.wenhai.listenall.utils.GlideApp
+import com.example.wenhai.listenall.utils.LogUtil
 
 class DetailFragment : Fragment(), DetailContract.View {
+
+
     @BindView(R.id.action_bar_title)
     lateinit var mActionBarTitle: TextView
     @BindView(R.id.detail_cover)
@@ -37,10 +47,6 @@ class DetailFragment : Fragment(), DetailContract.View {
     lateinit var mSongListAdapter: SongListAdapter
 
 
-    override fun setPresenter(presenter: DetailContract.Presenter) {
-        mPresenter = presenter
-    }
-
     companion object {
         const val TAG = "DetailFragment"
     }
@@ -48,6 +54,13 @@ class DetailFragment : Fragment(), DetailContract.View {
     lateinit var mPresenter: DetailContract.Presenter
     lateinit var mUnBinder: Unbinder
     lateinit var mLoadType: Type
+    private var mConnection: ServiceConnection? = null
+    private var mPlayService: PlayService? = null
+
+
+    override fun setPresenter(presenter: DetailContract.Presenter) {
+        mPresenter = presenter
+    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,7 +80,7 @@ class DetailFragment : Fragment(), DetailContract.View {
         }
 
         initView()
-        mPresenter.loadDetails(id, mLoadType)
+        mPresenter.loadSongsDetails(id, mLoadType)
         return contentView
     }
 
@@ -78,9 +91,41 @@ class DetailFragment : Fragment(), DetailContract.View {
         } else {
             "专辑详情"
         }
-        mSongListAdapter = SongListAdapter(ArrayList<Song>())
+        mSongListAdapter = SongListAdapter(context, ArrayList<Song>())
+        mSongListAdapter.setOnItemClickListener(object : SongListAdapter.OnItemClickListener {
+            override fun onItemClick(song: Song) {
+                if (song.listenFileUrl == "") {
+                    mPresenter.loadSongDetail(song)
+                } else {
+                    playSong(song.listenFileUrl)
+                }
+            }
+
+        })
         mSongList.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         mSongList.adapter = mSongListAdapter
+    }
+
+    private fun playSong(listenFileUrl: String) {
+        val intent = Intent(context, PlayService::class.java)
+        intent.putExtra("listenUrl", listenFileUrl)
+        intent.action = PlayService.ACTION_NEW_SONG
+        if (mPlayService == null) {
+            mConnection = object : ServiceConnection {
+                override fun onServiceDisconnected(p0: ComponentName?) {
+
+                }
+
+                override fun onServiceConnected(p0: ComponentName?, binder: IBinder?) {
+                    mPlayService = (binder as PlayService.ControlBinder).getPlayService()
+                }
+
+            }
+            activity.bindService(intent, mConnection, Context.BIND_AUTO_CREATE)
+        } else {
+            mPlayService !!.playNewSong(listenFileUrl)
+        }
+
     }
 
     @OnClick(R.id.action_bar_back)
@@ -90,6 +135,12 @@ class DetailFragment : Fragment(), DetailContract.View {
                 activity.finish()
             }
         }
+    }
+
+    override fun onSongDetailLoaded(song: Song) {
+        playSong(song.listenFileUrl)
+        LogUtil.d(TAG, "获取的地址：${song.listenFileUrl}")
+
     }
 
     override fun setCollectDetail(collect: Collect) {
@@ -125,15 +176,31 @@ class DetailFragment : Fragment(), DetailContract.View {
         mUnBinder.unbind()
     }
 
-    inner class SongListAdapter(var songList: List<Song>) : RecyclerView.Adapter<SongListAdapter.ViewHolder>() {
+    override fun onDestroy() {
+        super.onDestroy()
+        if (mConnection != null) {
+            activity.unbindService(mConnection)
+        }
+    }
+
+    class SongListAdapter(val context: Context, var songList: List<Song>) : RecyclerView.Adapter<SongListAdapter.ViewHolder>() {
+
+        lateinit var itemClickListener: OnItemClickListener
+
+        interface OnItemClickListener {
+            fun onItemClick(song: Song)
+        }
+
         override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
             val song = songList[position]
             val index = "${position + 1}"
             holder !!.index.text = index
             holder.title.text = song.name
-            // TODO: 2017/8/5 如果歌手名和专辑名太长，只显示歌手名
-            val artistAndAlbum = song.artistName
-            holder.artistAlbum.text = artistAndAlbum
+            val artistName = song.artistName
+            holder.artistAlbum.text = artistName
+            holder.item.setOnClickListener({
+                itemClickListener.onItemClick(song)
+            })
         }
 
         override fun getItemCount(): Int = songList.size
@@ -148,7 +215,12 @@ class DetailFragment : Fragment(), DetailContract.View {
             notifyDataSetChanged()
         }
 
+        fun setOnItemClickListener(listener: OnItemClickListener) {
+            itemClickListener = listener
+        }
+
         inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+            var item: LinearLayout = itemView.findViewById(R.id.detail_song_item)
             var index: TextView = itemView.findViewById(R.id.detail_index)
             val title: TextView = itemView.findViewById(R.id.detail_song_title)
             var artistAlbum: TextView = itemView.findViewById(R.id.detail_artist_album)

@@ -1,6 +1,6 @@
 package com.example.wenhai.listenall.data.bean;
 
-import com.example.wenhai.listenall.data.MusicSupplier;
+import com.example.wenhai.listenall.data.MusicProvider;
 
 import java.util.ArrayList;
 
@@ -16,7 +16,7 @@ public class Collect {
     private String coverUrl;//封面 url
     private int songCount;//包含歌曲数量
     private int songDownloadNumber;//已下载歌曲数量
-    private MusicSupplier source;//来源
+    private MusicProvider source;//来源
     private int playTimes;//播放次数
     private long createDate;//创建时间
     private ArrayList<Song> songs;//歌曲
@@ -85,11 +85,11 @@ public class Collect {
         this.songDownloadNumber = songDownloadNumber;
     }
 
-    public MusicSupplier getSource() {
+    public MusicProvider getSource() {
         return source;
     }
 
-    public void setSource(MusicSupplier source) {
+    public void setSource(MusicProvider source) {
         this.source = source;
     }
 

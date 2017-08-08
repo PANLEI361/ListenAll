@@ -5,9 +5,9 @@ package com.example.wenhai.listenall.data;
  * Created by Wenhai on 2017/7/30.
  */
 
-public enum MusicSupplier {
+public enum MusicProvider {
     XIAMI("xiami"), QQMUSIC("qqmusic"), NETEASE("netease"),;
 
-    MusicSupplier(String sourceName) {
+    MusicProvider(String sourceName) {
     }
 }

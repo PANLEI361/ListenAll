@@ -2,9 +2,6 @@ package com.example.wenhai.listenall.utils
 
 import okhttp3.Call
 import okhttp3.Callback
-import okhttp3.Cookie
-import okhttp3.CookieJar
-import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
@@ -24,23 +21,6 @@ object OkHttpUtil {
             synchronized(OkHttpUtil::class.java) {
                 if (client == null) {
                     client = OkHttpClient.Builder()
-                            .cookieJar(object : CookieJar {
-                                //cookie policy
-                                override fun saveFromResponse(url: HttpUrl?, cookies: MutableList<Cookie>?) {
-                                    LogUtil.d(TAG, "cookie for $url")
-                                    if (cookies != null) {
-
-                                        for (cookie in cookies) {
-                                            LogUtil.d(TAG, "cookieName:${cookie.name()},cookieValue:${cookie.value()}")
-                                        }
-                                    }
-                                }
-
-                                override fun loadForRequest(url: HttpUrl?): MutableList<Cookie> {
-                                    return ArrayList()
-                                }
-
-                            })
                             .connectTimeout(10, TimeUnit.SECONDS)
                             .build()
                 }
@@ -60,7 +40,8 @@ object OkHttpUtil {
                 .addHeader("Connection", "keep-alive")
                 .addHeader("Upgrade-Insecure-Requests", "1")
                 .addHeader("Referer", "http://m.xiami.com/")
-                .addHeader("Host", "api.xiami.com")
+//                .addHeader("Host", "api.xiami.com")
+                .addHeader("Referer", "http://m.xiami.com/")
                 .addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36")
                 .get()
                 .build()
@@ -84,14 +65,18 @@ object OkHttpUtil {
                     if (body.startsWith("jsonp")) {//xiami
                         val realJsonStr = body.substring(body.indexOf("(") + 1, body.lastIndexOf(")"))
                         callback.onResponse(JSONObject(realJsonStr).getJSONObject("data"))
+                    } else if (body.startsWith("{")) {
+                        callback.onResponse(JSONObject(body))
                     } else {
                         callback.onFailure("response body:$body")
                     }
                 }
+
             }
 
         })
     }
+
 }
 
 interface JsonCallback {

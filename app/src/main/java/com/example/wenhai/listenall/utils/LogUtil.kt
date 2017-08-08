@@ -18,5 +18,12 @@ object LogUtil {
         }
     }
 
+    @JvmStatic
+    fun i(tag: String, msg: String) {
+        if (isDebug) {
+            Log.i(tag, msg)
+        }
+    }
+
 
 }

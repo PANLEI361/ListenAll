@@ -1,6 +1,6 @@
 package com.example.wenhai.listenall.data.bean;
 
-import com.example.wenhai.listenall.data.MusicSupplier;
+import com.example.wenhai.listenall.data.MusicProvider;
 
 
 public class Song {
@@ -11,6 +11,8 @@ public class Song {
     private String listenFileUrl;//xiami
     private String lyricUrl;//lyric
     private int payFlag;//是否需要付费
+    private boolean canFreeListen;
+    private boolean canFreeDownload;
 
     private String artistName;
     private String artistLogo;
@@ -20,7 +22,7 @@ public class Song {
     private String albumName;
     private String albumCoverUrl;
 
-    private MusicSupplier supplier;
+    private MusicProvider supplier;
 
     public String getArtistName() {
         return artistName;
@@ -86,6 +88,21 @@ public class Song {
         this.payFlag = payFlag;
     }
 
+    public boolean isCanFreeListen() {
+        return canFreeListen;
+    }
+
+    public void setCanFreeListen(boolean canFreeListen) {
+        this.canFreeListen = canFreeListen;
+    }
+
+    public boolean isCanFreeDownload() {
+        return canFreeDownload;
+    }
+
+    public void setCanFreeDownload(boolean canFreeDownload) {
+        this.canFreeDownload = canFreeDownload;
+    }
 
     public long getArtistId() {
         return artistId;
@@ -119,11 +136,12 @@ public class Song {
         this.albumCoverUrl = albumCoverUrl;
     }
 
-    public MusicSupplier getSupplier() {
+    public MusicProvider getSupplier() {
         return supplier;
     }
 
-    public void setSupplier(MusicSupplier supplier) {
+    public void setSupplier(MusicProvider supplier) {
         this.supplier = supplier;
     }
+
 }

@@ -99,7 +99,6 @@ class MainFragment : Fragment(), MainContract.View {
                         mBtnMySongs.setTextColor(resources.getColor(R.color.colorNotSelected))
                     }
                 }
-                LogUtil.d(TAG, "selected:${mPagerAdapter.getItem(position).javaClass.simpleName},${mPagerAdapter.getItem(position).hashCode()}")
             }
 
         })

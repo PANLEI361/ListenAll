@@ -41,7 +41,7 @@ internal class CollectListFragment : Fragment(), CollectListContract.View {
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val contentView = inflater !!.inflate(R.layout.fragment_collectlist, container, false)
+        val contentView = inflater !!.inflate(R.layout.fragment_collect_list, container, false)
         mUnBinder = ButterKnife.bind(this, contentView)
         initView()
         return contentView
