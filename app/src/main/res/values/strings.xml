@@ -24,6 +24,12 @@
     <string name="main_hot_collect">热门歌单</string>
     <string name="main_new_songs">最新音乐</string>
     <string name="main_i_like">我喜欢</string>
+    <string name="detail_like">收藏</string>
+    <string name="detail_add_to_play">添加到播放</string>
+    <string name="detail_download_all">下载</string>
+    <string name="detail_play_all">播放全部</string>
+    <string name="detail_search_in_scope">搜索歌单内歌曲</string>
+    <string name="provider_xiami">from Xiami</string>
 
 
 </resources>

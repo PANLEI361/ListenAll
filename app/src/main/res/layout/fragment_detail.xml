@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -15,12 +16,12 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <SearchView
+            <android.support.v7.widget.SearchView
                 android:layout_width="300dp"
                 android:layout_height="40dp"
                 android:layout_gravity="center_horizontal"
-                android:autofillHints="搜索歌单内歌曲"
-                android:queryHint="@string/app_name" />
+                android:queryHint="@string/detail_search_in_scope"
+                android:visibility="gone" />
 
 
             <!--detail title-->
@@ -34,15 +35,17 @@
                     android:layout_width="110dp"
                     android:layout_height="110dp"
                     android:layout_marginStart="10dp"
-                    android:src="@drawable/ic_main_all_music" />
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_main_all_music"
+                    tools:ignore="ContentDescription" />
 
                 <TextView
                     android:id="@+id/detail_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginEnd="5dp"
                     android:layout_marginStart="10dp"
                     android:layout_marginTop="10dp"
-                    android:layout_marginEnd="5dp"
                     android:layout_toEndOf="@id/detail_cover"
                     android:textColor="@color/colorBlack"
                     android:textSize="20sp" />
@@ -67,56 +70,115 @@
             <!--button bar-->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="45dp"
+                android:layout_height="65dp"
                 android:gravity="center_horizontal"
                 android:orientation="horizontal">
 
-                <ImageButton
-                    style="?android:attr/buttonBarButtonStyle"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
-                    android:src="@drawable/ic_play_arrow" />
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical">
+
+                    <ImageButton
+                        style="?android:attr/buttonBarButtonStyle"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@drawable/ic_play_arrow"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/detail_play_all"
+                        android:textSize="12sp" />
+
+                </LinearLayout>
 
                 <Space
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1" />
 
-                <ImageButton
-                    style="?android:attr/buttonBarButtonStyle"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:src="@drawable/ic_main_download" />
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical">
+
+                    <ImageButton
+                        style="?android:attr/buttonBarButtonStyle"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@drawable/ic_main_download"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/detail_download_all"
+                        android:textSize="12sp" />
+                </LinearLayout>
 
                 <Space
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1" />
 
-                <ImageButton
-                    style="?android:attr/buttonBarButtonStyle"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:src="@drawable/ic_detail_add_playlist" />
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical">
+
+                    <ImageButton
+                        style="?android:attr/buttonBarButtonStyle"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@drawable/ic_detail_add_playlist"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/detail_add_to_play"
+                        android:textSize="12sp" />
+                </LinearLayout>
 
                 <Space
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1" />
 
-                <ImageButton
-                    style="?android:attr/buttonBarButtonStyle"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_marginEnd="20dp"
-                    android:src="@drawable/ic_like_border" />
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical">
+
+                    <ImageButton
+                        style="?android:attr/buttonBarButtonStyle"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@drawable/ic_like_border"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/detail_like"
+                        android:textSize="12sp" />
+                </LinearLayout>
             </LinearLayout>
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/detail_song_list"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"></android.support.v7.widget.RecyclerView>
+                android:layout_height="wrap_content">
+
+            </android.support.v7.widget.RecyclerView>
         </LinearLayout>
 
     </ScrollView>

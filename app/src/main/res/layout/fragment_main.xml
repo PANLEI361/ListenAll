@@ -28,11 +28,19 @@
             android:layout_width="5dp"
             android:layout_height="match_parent" />
 
-        <SearchView
+
+        <Space
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:queryHint="搜索歌曲/专辑/歌单" />
+            android:layout_weight="1" />
+
+        <!--searchView-->
+
+        <!--<SearchView-->
+        <!--android:layout_width="0dp"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_weight="1"-->
+        <!--android:queryHint="搜索歌曲/专辑/歌单" />-->
 
 
         <android.support.v4.widget.Space
@@ -44,7 +52,7 @@
             android:layout_width="@dimen/action_bar_btn_width"
             android:layout_height="@dimen/action_bar_btn_width"
             android:layout_marginEnd="5dp"
-            android:src="@drawable/ic_main_android"
+            android:src="@drawable/ic_search"
             tools:ignore="ContentDescription" />
     </LinearLayout>
 

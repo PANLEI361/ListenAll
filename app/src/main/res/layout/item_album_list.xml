@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="200dp"
-    android:gravity="center_vertical"
     android:layout_marginTop="15dp"
+    android:gravity="center_vertical"
     android:orientation="vertical">
 
     <ImageView
@@ -12,7 +13,9 @@
         android:layout_height="140dp"
         android:layout_marginEnd="10dp"
         android:layout_marginStart="10dp"
-        android:src="@drawable/ic_main_all_music" />
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_main_all_music"
+        tools:ignore="ContentDescription" />
 
     <TextView
         android:id="@+id/album_title"
@@ -21,7 +24,6 @@
         android:layout_alignStart="@id/album_cover"
         android:layout_below="@+id/album_cover"
         android:layout_marginTop="5dp"
-        android:text="空帆船"
         android:textColor="@color/colorBlack" />
 
     <TextView
@@ -31,6 +33,5 @@
         android:layout_alignStart="@id/album_cover"
         android:layout_below="@id/album_title"
         android:layout_marginTop="3dp"
-        android:text="朴树"
         android:textSize="13sp" />
 </RelativeLayout>
