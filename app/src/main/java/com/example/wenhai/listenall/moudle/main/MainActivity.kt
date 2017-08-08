@@ -20,14 +20,15 @@ import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
 import com.example.wenhai.listenall.R
+import com.example.wenhai.listenall.data.bean.Song
 import com.example.wenhai.listenall.service.PlayService
-import com.example.wenhai.listenall.utils.ActivityUtil
 import com.example.wenhai.listenall.utils.AppUtil
+import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.LogUtil
-import com.example.wenhai.listenall.utils.ToastUtil
 
 
 class MainActivity : AppCompatActivity(), PlayService.PlayStatusObserver {
+
 
     companion object {
         const val TAG = "MainActivity"
@@ -71,7 +72,7 @@ class MainActivity : AppCompatActivity(), PlayService.PlayStatusObserver {
         var mainFragment: MainFragment? = supportFragmentManager.findFragmentById(R.id.main_container) as? MainFragment
         if (mainFragment == null) {
             mainFragment = MainFragment()
-            ActivityUtil.addFragmentToActivity(supportFragmentManager, mainFragment, R.id.main_container)
+            FragmentUtil.addFragmentToActivity(supportFragmentManager, mainFragment, R.id.main_container)
         }
         initSlideMenu()
         bindPlayService()
@@ -142,13 +143,13 @@ class MainActivity : AppCompatActivity(), PlayService.PlayStatusObserver {
     override fun onPlayStart() {
         isPlaying = true
         mBtnControl.setImageResource(R.drawable.ic_main_pause)
-        ToastUtil.showToast(this, "onPlayStart")
+//        ToastUtil.showToast(this, "onPlayStart")
     }
 
     override fun onPlayPause() {
         isPlaying = false
         mBtnControl.setImageResource(R.drawable.ic_main_play)
-        ToastUtil.showToast(this, "onPlayPause")
+//        ToastUtil.showToast(this, "onPlayPause")
     }
 
     override fun onPlayStop() {
@@ -170,6 +171,10 @@ class MainActivity : AppCompatActivity(), PlayService.PlayStatusObserver {
 
     override fun onPlayInfo(msg: String) {
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onNewSong(song: Song) {
+
     }
 
 }

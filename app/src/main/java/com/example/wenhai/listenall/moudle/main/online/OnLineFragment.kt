@@ -2,7 +2,6 @@ package com.example.wenhai.listenall.moudle.main.online
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -21,10 +20,11 @@ import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.data.MusicProvider
 import com.example.wenhai.listenall.data.bean.Album
 import com.example.wenhai.listenall.data.bean.Collect
-import com.example.wenhai.listenall.moudle.albumlist.AlbumListActivity
-import com.example.wenhai.listenall.moudle.collectlist.CollectListActivity
-import com.example.wenhai.listenall.moudle.detail.DetailActivity
+import com.example.wenhai.listenall.moudle.albumlist.AlbumListFragment
+import com.example.wenhai.listenall.moudle.collectlist.CollectListFragment
+import com.example.wenhai.listenall.moudle.detail.DetailFragment
 import com.example.wenhai.listenall.moudle.detail.Type
+import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
 import com.example.wenhai.listenall.utils.LogUtil
 import com.youth.banner.Banner
@@ -74,6 +74,7 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
 
     override fun onResume() {
         super.onResume()
+        mBanner.startAutoPlay()
         if (isFirstStart) {
             isFirstStart = false
             mScrollView.smoothScrollTo(0, 0)
@@ -85,16 +86,17 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
     override fun onPause() {
         super.onPause()
         mScrollY = mScrollView.scrollY
+        mBanner.stopAutoPlay()
     }
 
     @OnClick(R.id.main_btn_more_collect, R.id.main_btn_more_albums)
     fun onClick(view: View) {
         when (view.id) {
             R.id.main_btn_more_collect -> {
-                startActivity(Intent(activity, CollectListActivity::class.java))
+                FragmentUtil.addFragmentToView(fragmentManager, CollectListFragment(), R.id.main_container)
             }
             R.id.main_btn_more_albums -> {
-                startActivity(Intent(context, AlbumListActivity::class.java))
+                FragmentUtil.addFragmentToView(fragmentManager, AlbumListFragment(), R.id.main_container)
             }
         }
     }
@@ -111,13 +113,17 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
             val collect = mHotCollectList[position]
             val collectId = collect.id
             val type = Type.COLLECT.ordinal
-            val intent = Intent(context, DetailActivity::class.java)
             val data = Bundle()
             data.putLong("id", collectId)
             data.putInt("type", type)
-            intent.putExtras(data)
-            startActivity(intent)
+            startDetailFragment(data)
         }
+    }
+
+    fun startDetailFragment(data: Bundle) {
+        val detailFragment = DetailFragment()
+        detailFragment.arguments = data
+        FragmentUtil.addFragmentToMainView(fragmentManager, detailFragment)
     }
 
     override fun setHotCollects(hotCollects: List<Collect>) {
@@ -134,9 +140,7 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
             val data = Bundle()
             data.putLong("id", id)
             data.putInt("type", type)
-            val intent = Intent(context, DetailActivity::class.java)
-            intent.putExtras(data)
-            startActivity(intent)
+            startDetailFragment(data)
         }
 
     }
@@ -164,12 +168,10 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
 
     override fun onStart() {
         super.onStart()
-        mBanner.startAutoPlay()
     }
 
     override fun onStop() {
         super.onStop()
-        mBanner.stopAutoPlay()
     }
 
     override fun onDestroyView() {

@@ -28,6 +28,7 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
         const val STATUS_PLAY_PROCESS_UPDATE = 0x04
         const val STATUS_ERROR = 0x05
         const val STATUS_INFO = 0x06
+        const val STATUS_NEW_SONG = 0x07
     }
 
     var mediaPlayer: MediaPlayer? = null
@@ -89,6 +90,7 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
         mediaPlayer !!.setOnCompletionListener(this)
         mediaPlayer !!.setOnBufferingUpdateListener(this)
         mediaPlayer !!.prepareAsync()
+//        notifyStatusChanged(STATUS_NEW_SONG,song)
     }
 
     override fun onPrepared(player: MediaPlayer?) {
@@ -216,7 +218,6 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
 
     fun registerStatusObserver(observer: PlayStatusObserver) {
         mStatusObservers.add(observer)
-
     }
 
     fun unregisterStatusObserver(observer: PlayStatusObserver) {
@@ -270,6 +271,8 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
         fun onPlayError(msg: String)
 
         fun onPlayInfo(msg: String)
+
+        fun onNewSong(song: Song)
     }
 
     inner class ControlBinder : Binder() {

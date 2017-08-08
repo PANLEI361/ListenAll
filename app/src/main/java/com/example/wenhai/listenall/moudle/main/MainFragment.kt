@@ -126,7 +126,7 @@ class MainFragment : Fragment(), MainContract.View {
 
     override fun onStop() {
         super.onStop()
-        LogUtil.d(TAG, "onDestroyView")
+        LogUtil.d(TAG, "onStop")
     }
 
     override fun onDestroyView() {

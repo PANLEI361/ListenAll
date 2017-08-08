@@ -1,6 +1,5 @@
 package com.example.wenhai.listenall.moudle.albumlist
 
-import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
@@ -15,8 +14,10 @@ import butterknife.OnClick
 import butterknife.Unbinder
 import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.data.bean.Album
-import com.example.wenhai.listenall.moudle.detail.DetailActivity
+import com.example.wenhai.listenall.moudle.detail.DetailFragment
+import com.example.wenhai.listenall.moudle.detail.DetailPresenter
 import com.example.wenhai.listenall.moudle.detail.Type
+import com.example.wenhai.listenall.utils.FragmentUtil
 
 class AlbumListFragment : Fragment(), AlbumListContract.View {
     @BindView(R.id.action_bar_title)
@@ -34,9 +35,9 @@ class AlbumListFragment : Fragment(), AlbumListContract.View {
         mPresenter = presenter
     }
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        AlbumListPresenter(this)
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -56,9 +57,10 @@ class AlbumListFragment : Fragment(), AlbumListContract.View {
             val data = Bundle()
             data.putLong("id", id)
             data.putInt("type", type)
-            val intent = Intent(context, DetailActivity::class.java)
-            intent.putExtras(data)
-            startActivity(intent)
+            val detailFragment = DetailFragment()
+            DetailPresenter(detailFragment)
+            detailFragment.arguments = data
+            FragmentUtil.addFragmentToMainView(fragmentManager, detailFragment)
         }
         mPresenter.loadNewAlbums()
 
@@ -73,7 +75,7 @@ class AlbumListFragment : Fragment(), AlbumListContract.View {
     fun onClick(view: View) {
         when (view.id) {
             R.id.action_bar_back -> {
-                activity.finish()
+                FragmentUtil.removeFragment(fragmentManager, this)
             }
         }
     }

@@ -1,7 +1,6 @@
 package com.example.wenhai.listenall.moudle.collectlist
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
@@ -18,8 +17,10 @@ import butterknife.OnClick
 import butterknife.Unbinder
 import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.data.bean.Collect
-import com.example.wenhai.listenall.moudle.detail.DetailActivity
+import com.example.wenhai.listenall.moudle.detail.DetailFragment
+import com.example.wenhai.listenall.moudle.detail.DetailPresenter
 import com.example.wenhai.listenall.moudle.detail.Type
+import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
 
 internal class CollectListFragment : Fragment(), CollectListContract.View {
@@ -38,6 +39,7 @@ internal class CollectListFragment : Fragment(), CollectListContract.View {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        CollectListPresenter(this)
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -49,7 +51,7 @@ internal class CollectListFragment : Fragment(), CollectListContract.View {
 
     @OnClick(R.id.action_bar_back)
     fun onActionClick() {
-        activity.finish()
+        FragmentUtil.removeFragment(fragmentManager, this)
     }
 
     override fun initView() {
@@ -107,12 +109,13 @@ internal class CollectListFragment : Fragment(), CollectListContract.View {
                 holder.item.setOnClickListener {
                     val id = collect.id
                     val type = Type.COLLECT.ordinal
-                    val intentDetail = Intent(context, DetailActivity::class.java)
                     val data = Bundle()
                     data.putLong("id", id)
                     data.putInt("type", type)
-                    intentDetail.putExtras(data)
-                    startActivity(intentDetail)
+                    val detailFragment = DetailFragment()
+                    DetailPresenter(detailFragment)
+                    detailFragment.arguments = data
+                    FragmentUtil.addFragmentToMainView(fragmentManager, detailFragment)
                 }
             }
         }

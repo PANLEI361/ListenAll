@@ -25,6 +25,7 @@ import com.example.wenhai.listenall.data.bean.Collect
 import com.example.wenhai.listenall.data.bean.Song
 import com.example.wenhai.listenall.service.PlayService
 import com.example.wenhai.listenall.utils.DateUtil
+import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
 import com.example.wenhai.listenall.utils.LogUtil
 
@@ -65,6 +66,7 @@ class DetailFragment : Fragment(), DetailContract.View {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        DetailPresenter(this)
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -132,7 +134,7 @@ class DetailFragment : Fragment(), DetailContract.View {
     fun onClick(view: View) {
         when (view.id) {
             R.id.action_bar_back -> {
-                activity.finish()
+                FragmentUtil.removeFragment(fragmentManager, this)
             }
         }
     }
