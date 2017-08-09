@@ -30,6 +30,8 @@
     <string name="detail_play_all">播放全部</string>
     <string name="detail_search_in_scope">搜索歌单内歌曲</string>
     <string name="provider_xiami">from Xiami</string>
+    <string name="main_search_hint">搜索歌曲/专辑/歌单</string>
+    <string name="cancel">取消</string>
 
 
 </resources>

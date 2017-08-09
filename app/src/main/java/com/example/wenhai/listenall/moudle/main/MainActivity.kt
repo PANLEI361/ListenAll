@@ -11,7 +11,7 @@ import android.support.v7.app.AppCompatActivity
 import android.view.Gravity
 import android.view.View
 import android.widget.Button
-import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Switch
 import android.widget.TextView
@@ -24,7 +24,9 @@ import com.example.wenhai.listenall.data.bean.Song
 import com.example.wenhai.listenall.service.PlayService
 import com.example.wenhai.listenall.utils.AppUtil
 import com.example.wenhai.listenall.utils.FragmentUtil
+import com.example.wenhai.listenall.utils.GlideApp
 import com.example.wenhai.listenall.utils.LogUtil
+import com.example.wenhai.listenall.widget.ProgressImageButton
 
 
 class MainActivity : AppCompatActivity(), PlayService.PlayStatusObserver {
@@ -58,8 +60,15 @@ class MainActivity : AppCompatActivity(), PlayService.PlayStatusObserver {
 
     @BindView(R.id.main_drawer)
     lateinit var mDrawer: DrawerLayout
+
     @BindView(R.id.play_bar_control)
-    lateinit var mBtnControl: ImageButton
+    lateinit var mBtnControl: ProgressImageButton
+    @BindView(R.id.main_song_name)
+    lateinit var mSongName: TextView
+    @BindView(R.id.main_singer_or_lyric)
+    lateinit var mSingerOrLyric: TextView
+    @BindView(R.id.main_iv_cover)
+    lateinit var mCover: ImageView
 
     var connection: ServiceConnection? = null
     lateinit var playService: PlayService
@@ -75,7 +84,7 @@ class MainActivity : AppCompatActivity(), PlayService.PlayStatusObserver {
             FragmentUtil.addFragmentToActivity(supportFragmentManager, mainFragment, R.id.main_container)
         }
         initSlideMenu()
-        bindPlayService()
+        initPlayService()
     }
 
 
@@ -103,7 +112,7 @@ class MainActivity : AppCompatActivity(), PlayService.PlayStatusObserver {
         }
     }
 
-    private fun bindPlayService() {
+    private fun initPlayService() {
         val intent = Intent(this, PlayService::class.java)
         intent.action = PlayService.ACTION_INIT
         connection = object : ServiceConnection {
@@ -140,21 +149,32 @@ class MainActivity : AppCompatActivity(), PlayService.PlayStatusObserver {
     }
 
     //PlayService.PlayStatusObserver 的回调
+
+    override fun onPlayInit(song: Song) {
+        LogUtil.d(TAG, "play init")
+    }
+
     override fun onPlayStart() {
         isPlaying = true
-        mBtnControl.setImageResource(R.drawable.ic_main_pause)
-//        ToastUtil.showToast(this, "onPlayStart")
+        mBtnControl.setDrawable(R.drawable.ic_pause)
+//        ToastUtil.showToast(this, "start")
     }
 
     override fun onPlayPause() {
         isPlaying = false
-        mBtnControl.setImageResource(R.drawable.ic_main_play)
-//        ToastUtil.showToast(this, "onPlayPause")
+        mBtnControl.setDrawable(R.drawable.ic_play_arrow)
+//        ToastUtil.showToast(this, "pause")
     }
 
     override fun onPlayStop() {
         isPlaying = false
-        mBtnControl.setImageResource(R.drawable.ic_main_play)
+        mBtnControl.setDrawable(R.drawable.ic_play_arrow)
+    }
+
+    override fun onSongCompleted() {
+        isPlaying = false
+        mBtnControl.setDrawable(R.drawable.ic_play_arrow)
+        mBtnControl.progress = 0f
     }
 
     override fun onBufferProgressUpdate(percent: Int) {
@@ -162,7 +182,9 @@ class MainActivity : AppCompatActivity(), PlayService.PlayStatusObserver {
     }
 
     override fun onPlayProgressUpdate(percent: Int) {
-
+        runOnUiThread {
+            mBtnControl.animateProgress(percent.toFloat())
+        }
     }
 
     override fun onPlayError(msg: String) {
@@ -174,7 +196,12 @@ class MainActivity : AppCompatActivity(), PlayService.PlayStatusObserver {
     }
 
     override fun onNewSong(song: Song) {
-
+        mSongName.text = song.name
+        mSingerOrLyric.text = song.artistName
+        GlideApp.with(this)
+                .load(song.albumCoverUrl)
+                .placeholder(R.drawable.ic_main_all_music)
+                .into(mCover)
     }
 
 }

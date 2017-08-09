@@ -39,31 +39,31 @@
                 android:id="@+id/main_song_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="男女"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:textColor="@color/colorBlack" />
 
             <TextView
                 android:id="@+id/main_singer_or_lyric"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="李荣浩" />
+                android:layout_height="wrap_content" />
 
         </LinearLayout>
 
-        <ImageButton
+        <com.example.wenhai.listenall.widget.ProgressImageButton
             android:id="@+id/play_bar_control"
-            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:src="@drawable/ic_main_play"
+            android:background="#00000000"
+            android:src="@drawable/ic_play_arrow"
             tools:ignore="ContentDescription" />
 
         <ImageButton
             android:id="@+id/play_bar_song_list"
-            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_margin="1dp"
+            android:background="#00000000"
             android:src="@drawable/ic_main_play_list"
             tools:ignore="ContentDescription" />
 

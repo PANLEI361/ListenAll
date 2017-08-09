@@ -9,6 +9,8 @@ import android.os.IBinder
 import com.example.wenhai.listenall.data.bean.Song
 import com.example.wenhai.listenall.utils.LogUtil
 import java.io.IOException
+import java.util.Timer
+import java.util.TimerTask
 
 class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
         MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnCompletionListener,
@@ -29,19 +31,24 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
         const val STATUS_ERROR = 0x05
         const val STATUS_INFO = 0x06
         const val STATUS_NEW_SONG = 0x07
+        const val STATUS_INIT = 0x08
+        const val STATUS_SONG_COMPLETED = 0x09
     }
 
-    var mediaPlayer: MediaPlayer? = null
-    val testUrl = "http://om5.alicdn.com/475/2110028475/2102806767/1796422395_1501586451944.mp3?auth_key=7c9f0eb3f1782c14801469d55ac5a7d8-1502766000-0-null"
-    var isFirstStart = true
+    lateinit var mediaPlayer: MediaPlayer
+    //    val testUrl = "http://om5.alicdn.com/475/2110028475/2102806767/1796422395_1501586451944.mp3?auth_key=7c9f0eb3f1782c14801469d55ac5a7d8-1502766000-0-null"
     val binder: Binder = ControlBinder()
-    lateinit var currentListenUrl: String
+    // TODO: 2017/8/8 退出时记录上次播放的歌和播放进度，第一次启动时恢复
+
+    var currentSong: Song? = null
+    lateinit var currentPlayList: ArrayList<Song>
     var mStatusObservers: ArrayList<PlayStatusObserver> = ArrayList()
+    lateinit var timer: Timer
+    var updateProgressTask: TimerTask? = null
 
 
     override fun onCreate() {
         super.onCreate()
-        isFirstStart = true
         LogUtil.d(TAG, "play service created")
     }
 
@@ -50,47 +57,44 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
         if (intent !!.action == ACTION_INIT) {
 
         }
-        isFirstStart = false
         return super.onStartCommand(intent, flags, startId)
     }
 
     override fun onBind(intent: Intent): IBinder? {
-        isFirstStart = false
         if (intent.action == ACTION_NEW_SONG) {
-            val url = intent.getStringExtra("listenUrl")
-            if (mediaPlayer == null) {
-                mediaPlayer = MediaPlayer()
-            }
-            playNewSong(url)
+            val song = intent.getParcelableExtra<Song>("song")
+            playNewSong(song)
         } else if (intent.action == ACTION_INIT) {
-            if (mediaPlayer == null) {
-                mediaPlayer = MediaPlayer()
-            }
+            mediaPlayer = MediaPlayer()
+            timer = Timer()
         }
         return binder
     }
 
     @Suppress("DEPRECATION")
-    fun playNewSong(listenUrl: String) {
+    fun playNewSong(song: Song) {
         if (isMediaPlaying()) {
             pause()
         }
-        mediaPlayer !!.reset()
-        mediaPlayer !!.setAudioStreamType(AudioManager.STREAM_MUSIC)
+        mediaPlayer.reset()
+        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC)
         try {
-            mediaPlayer !!.setDataSource(listenUrl)
+            mediaPlayer.setDataSource(song.listenFileUrl)
         } catch (e: IllegalArgumentException) {
+            notifyStatusChanged(STATUS_ERROR, "参数有误")
             LogUtil.e(TAG, "参数有误")
         } catch (e: IOException) {
+            notifyStatusChanged(STATUS_ERROR, "文件打开失败")
             LogUtil.e(TAG, "文件打开失败")
         }
-        mediaPlayer !!.setOnErrorListener(this)
-        mediaPlayer !!.setOnPreparedListener(this)
-        mediaPlayer !!.setOnSeekCompleteListener(this)
-        mediaPlayer !!.setOnCompletionListener(this)
-        mediaPlayer !!.setOnBufferingUpdateListener(this)
-        mediaPlayer !!.prepareAsync()
-//        notifyStatusChanged(STATUS_NEW_SONG,song)
+        mediaPlayer.setOnErrorListener(this)
+        mediaPlayer.setOnPreparedListener(this)
+        mediaPlayer.setOnSeekCompleteListener(this)
+        mediaPlayer.setOnCompletionListener(this)
+        mediaPlayer.setOnBufferingUpdateListener(this)
+        mediaPlayer.prepareAsync()
+        currentSong = song
+        notifyStatusChanged(STATUS_NEW_SONG, song)
     }
 
     override fun onPrepared(player: MediaPlayer?) {
@@ -104,29 +108,39 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
 
     override fun onCompletion(player: MediaPlayer?) {
         // 播放完成
+        notifyStatusChanged(STATUS_SONG_COMPLETED, null)
+        updateProgressTask !!.cancel()
         LogUtil.d(TAG, "播放完成")
     }
 
 
     fun start() {
-        if (mediaPlayer != null && ! mediaPlayer !!.isPlaying) {
-            mediaPlayer !!.start()
-            notifyStatusChanged(STATUS_START, null)
+        if (currentSong == null) {
+            notifyStatusChanged(STATUS_INFO, "当前没有歌曲播放")
+        } else {
+            if (! mediaPlayer.isPlaying) {
+                mediaPlayer.start()
+                notifyStatusChanged(STATUS_START, null)
+                updateProgressTask = ProgressTimerTask()
+                timer.schedule(updateProgressTask, 0, 1000)
+            }
         }
+
     }
 
     fun pause() {
-        if (mediaPlayer != null && mediaPlayer !!.isPlaying) {
-            mediaPlayer !!.pause()
+        if (isMediaPlaying()) {
+            mediaPlayer.pause()
             notifyStatusChanged(STATUS_PAUSE, null)
+            updateProgressTask !!.cancel()
         }
     }
 
     fun stop() {
-        if (mediaPlayer != null) {
-            mediaPlayer !!.stop()
-            notifyStatusChanged(STATUS_STOP, null)
-        }
+        mediaPlayer.stop()
+        notifyStatusChanged(STATUS_STOP, null)
+        updateProgressTask !!.cancel()
+
     }
 
     override fun onInfo(player: MediaPlayer?, what: Int, extra: Int): Boolean {
@@ -156,7 +170,7 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
 
     override fun onBufferingUpdate(player: MediaPlayer?, percent: Int) {
         notifyStatusChanged(STATUS_BUFFER_PROCESS_UPDATE, percent)
-        LogUtil.d(TAG, "bufferpercent:$percent%")
+        LogUtil.d(TAG, "buffer percent:$percent%")
 
     }
 
@@ -209,11 +223,11 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
     }
 
     fun getCurrentPlayProgress(): Int {
-        return ((mediaPlayer !!.currentPosition / mediaPlayer !!.duration.toDouble()) * 100).toInt()
+        return ((mediaPlayer.currentPosition / mediaPlayer.duration.toDouble()) * 100).toInt()
     }
 
     fun seekTo(millionSec: Int) {
-        mediaPlayer !!.seekTo(millionSec)
+        mediaPlayer.seekTo(millionSec)
     }
 
     fun registerStatusObserver(observer: PlayStatusObserver) {
@@ -234,32 +248,33 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
                 STATUS_PLAY_PROCESS_UPDATE -> observer.onPlayProgressUpdate(extra as Int)
                 STATUS_ERROR -> observer.onPlayError(extra as String)
                 STATUS_INFO -> observer.onPlayInfo(extra as String)
+                STATUS_NEW_SONG -> observer.onNewSong(extra as Song)
+                STATUS_SONG_COMPLETED -> observer.onSongCompleted()
             }
         }
 
     }
 
     fun isMediaPlaying(): Boolean {
-        if (mediaPlayer != null) {
-            return mediaPlayer !!.isPlaying
-        } else {
-            return false
-        }
+        return mediaPlayer.isPlaying
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        mediaPlayer.release()
+        timer.cancel()
+        LogUtil.d(TAG, "player released")
         LogUtil.d(TAG, "play service destroyed")
-        if (mediaPlayer != null) {
-            mediaPlayer !!.release()
-            mediaPlayer = null
-            LogUtil.d(TAG, "player released")
-        }
+
     }
 
     interface PlayStatusObserver {
+        fun onPlayInit(song: Song)
+
         fun onPlayStart()
+
         fun onPlayPause()
+
         fun onPlayStop()
 
         //缓存进度更新
@@ -273,6 +288,16 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
         fun onPlayInfo(msg: String)
 
         fun onNewSong(song: Song)
+
+        fun onSongCompleted()
+    }
+
+    inner class ProgressTimerTask : TimerTask() {
+        override fun run() {
+            val progress = getCurrentPlayProgress()
+            notifyStatusChanged(STATUS_PLAY_PROCESS_UPDATE, progress)
+        }
+
     }
 
     inner class ControlBinder : Binder() {
