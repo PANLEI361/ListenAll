@@ -36,8 +36,8 @@ class SearchFragment : Fragment(), SearchContract.View {
     lateinit var mSearchView: LinearLayout
     @BindView(R.id.search_begin_search)
     lateinit var mTvBeginSearch: TextView
-    @BindView(R.id.hot_search)
-    lateinit var mHotSearch: LinearLayout
+    //    @BindView(R.id.hot_search)
+//    lateinit var mHotSearch: LinearLayout
     @BindView(R.id.search_content_list)
     lateinit var mContentList: RecyclerView
 

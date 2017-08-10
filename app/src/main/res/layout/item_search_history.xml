@@ -3,11 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/search_history_item"
     android:layout_width="match_parent"
-    android:layout_height="40dp"
+    android:layout_height="44dp"
     android:background="@drawable/selector_white"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:padding="3dp">
+    android:padding="4dp">
 
     <ImageView
         android:id="@+id/search_history_icon"
@@ -26,19 +26,27 @@
         android:layout_marginStart="10dp"
         android:layout_toEndOf="@id/search_history_icon"
         android:gravity="center_vertical"
+        android:maxWidth="220dp"
         android:textColor="@color/colorBlack"
-        android:textSize="16sp" />
+        android:textSize="16sp"
+        tools:ignore="RelativeOverlap" />
 
     <ImageButton
         android:id="@+id/search_delete_history"
         style="?android:attr/buttonBarButtonStyle"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="42dp"
+        android:layout_height="42dp"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
         android:src="@drawable/ic_clear"
         android:tint="@color/colorGray"
         tools:ignore="ContentDescription" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:layout_alignParentBottom="true"
+        android:background="@color/colorDivider" />
 
 
 </RelativeLayout>
