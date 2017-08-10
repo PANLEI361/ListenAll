@@ -6,8 +6,8 @@ package com.example.wenhai.listenall.data;
  */
 
 public enum MusicProvider {
-    XIAMI("xiami"), QQMUSIC("qqmusic"), NETEASE("netease"),;
+    XIAMI(0), QQMUSIC(1), NETEASE(2),;
 
-    MusicProvider(String sourceName) {
+    MusicProvider(int providerCode) {
     }
 }

@@ -1,28 +1,109 @@
 package com.example.wenhai.listenall.data.bean;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.support.annotation.NonNull;
+
 import com.example.wenhai.listenall.data.MusicProvider;
 
 
-public class Song {
+public final class Song implements Parcelable {
     private long songId;
     private String name;
-
     private int length;//second
     private String listenFileUrl;//xiami
     private String lyricUrl;//lyric
     private int payFlag;//是否需要付费
     private boolean canFreeListen;
     private boolean canFreeDownload;
-
     private String artistName;
     private String artistLogo;
     private long artistId;
-
     private long albumId;
     private String albumName;
     private String albumCoverUrl;
-
     private MusicProvider supplier;
+
+    @Override
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
+        dest.writeLong(songId);
+        dest.writeString(name);
+        dest.writeInt(length);
+        dest.writeString(listenFileUrl);
+        dest.writeString(lyricUrl);
+        dest.writeInt(payFlag);
+        dest.writeInt(canFreeListen ? 1 : 0);
+        dest.writeInt(canFreeDownload ? 1 : 0);
+        dest.writeString(artistName);
+        dest.writeString(artistLogo);
+        dest.writeLong(artistId);
+        dest.writeLong(albumId);
+        dest.writeString(albumName);
+        dest.writeString(albumCoverUrl);
+        switch (supplier) {
+            case XIAMI:
+                dest.writeInt(0);
+                break;
+            case QQMUSIC:
+                dest.writeInt(1);
+                break;
+            case NETEASE:
+                dest.writeInt(2);
+                break;
+        }
+
+    }
+
+    public Song() {
+
+    }
+
+    protected Song(Parcel in) {
+        songId = in.readLong();
+        name = in.readString();
+        length = in.readInt();
+        listenFileUrl = in.readString();
+        lyricUrl = in.readString();
+        payFlag = in.readInt();
+        canFreeListen = in.readInt() == 0;
+        canFreeDownload = in.readInt() == 0;
+        artistName = in.readString();
+        artistLogo = in.readString();
+        artistId = in.readLong();
+        albumId = in.readLong();
+        albumName = in.readString();
+        albumCoverUrl = in.readString();
+        switch (in.readInt()) {
+            case 0:
+                supplier = MusicProvider.XIAMI;
+                break;
+            case 1:
+                supplier = MusicProvider.QQMUSIC;
+                break;
+            case 2:
+                supplier = MusicProvider.NETEASE;
+                break;
+        }
+
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+
+    public static final Parcelable.Creator<Song> CREATOR = new Parcelable.Creator<Song>() {
+        @Override
+        public Song createFromParcel(Parcel in) {
+            return new Song(in);
+        }
+
+        @Override
+        public Song[] newArray(int size) {
+            return new Song[size];
+        }
+    };
 
     public String getArtistName() {
         return artistName;

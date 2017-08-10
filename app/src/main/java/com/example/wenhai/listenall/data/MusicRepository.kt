@@ -4,6 +4,13 @@ import com.example.wenhai.listenall.data.bean.Song
 import com.example.wenhai.listenall.data.onlineprovider.Xiami
 
 internal class MusicRepository() : MusicSource {
+    override fun loadSearchRecommend(keyword: String, callback: LoadSearchRecommendCallback) {
+        musicSource.loadSearchRecommend(keyword, callback)
+    }
+
+    override fun searchByKeyword(keyword: String, callback: LoadSearchResultCallback) {
+        musicSource.searchByKeyword(keyword, callback)
+    }
 
 
     override fun loadCollectDetail(id: Long, callback: LoadCollectDetailCallback) {

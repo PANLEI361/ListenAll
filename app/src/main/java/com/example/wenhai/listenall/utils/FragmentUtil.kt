@@ -20,7 +20,8 @@ object FragmentUtil {
 
     @JvmStatic
     fun addFragmentToView(fragmentManager: FragmentManager, fragment: Fragment, viewId: Int) {
-        fragmentManager.beginTransaction().addToBackStack(null)
+        fragmentManager.beginTransaction()
+                .addToBackStack(null)
                 .add(viewId, fragment)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .commit()
@@ -37,5 +38,6 @@ object FragmentUtil {
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE)
                 .remove(fragment)
                 .commit()
+        fragmentManager.popBackStack()
     }
 }

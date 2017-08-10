@@ -57,6 +57,10 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
         if (intent !!.action == ACTION_INIT) {
 
         }
+        if (intent.action == ACTION_NEW_SONG) {
+            val song = intent.getParcelableExtra<Song>("song")
+            playNewSong(song)
+        }
         return super.onStartCommand(intent, flags, startId)
     }
 

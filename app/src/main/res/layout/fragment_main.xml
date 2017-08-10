@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     android:orientation="vertical"
     tools:context=".moudle.main.MainActivity">
 
@@ -24,81 +26,99 @@
             android:src="@drawable/ic_main_menu"
             tools:ignore="ContentDescription" />
 
-        <android.support.v4.widget.Space
-            android:layout_width="5dp"
-            android:layout_height="match_parent" />
+        <!--tab-->
+        <LinearLayout
+            android:id="@+id/main_tab"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:visibility="visible">
+
+            <Button
+                android:id="@+id/main_btn_local_songs"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="5dp"
+                android:layout_weight="1"
+                android:text="@string/main_mine"
+                android:textColor="@color/colorBlack"
+                android:textSize="@dimen/main_tab_btn_text_size" />
+
+            <Button
+                android:id="@+id/main_btn_online_songs"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="5dp"
+                android:layout_weight="1"
+                android:text="@string/main_song_on_net"
+                android:textColor="@color/colorBlack"
+                android:textSize="@dimen/main_tab_btn_text_size" />
+
+        </LinearLayout>
 
 
         <Space
+            android:id="@+id/main_top_space"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:visibility="gone" />
+
 
         <!--searchView-->
+        <EditText
+            android:id="@+id/main_et_search"
+            android:layout_width="0dp"
+            android:layout_height="32dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_round_rect"
+            android:drawableStart="@drawable/ic_search_gray"
+            android:gravity="center_vertical"
+            android:hint="@string/main_search_hint"
+            android:maxLines="1"
+            android:padding="5dp"
+            android:textColor="@color/colorGray"
+            android:textSize="15sp"
+            android:visibility="gone" />
 
-        <!--<SearchView-->
-        <!--android:layout_width="0dp"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:layout_weight="1"-->
-        <!--android:queryHint="搜索歌曲/专辑/歌单" />-->
-
-
-        <android.support.v4.widget.Space
-            android:layout_width="5dp"
-            android:layout_height="match_parent" />
 
         <ImageButton
+            android:id="@+id/main_btn_search"
             style="?android:attr/buttonBarButtonStyle"
             android:layout_width="@dimen/action_bar_btn_width"
             android:layout_height="@dimen/action_bar_btn_width"
             android:layout_marginEnd="5dp"
             android:src="@drawable/ic_search"
             tools:ignore="ContentDescription" />
-    </LinearLayout>
-
-    <!--tab-->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:orientation="horizontal">
 
         <Button
-            android:id="@+id/main_btn_local_songs"
+            android:id="@+id/main_btn_cancel"
             style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_marginStart="5dp"
-            android:layout_weight="1"
-            android:text="@string/main_mine"
-            android:textColor="@color/colorBlack"
-            android:textSize="@dimen/main_tab_btn_text_size" />
-
-        <android.support.v4.widget.Space
-            android:layout_width="5dp"
-            android:layout_height="wrap_content"
-            android:background="@color/colorWhite" />
-
-        <Button
-            android:id="@+id/main_btn_online_songs"
-            style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/action_bar_btn_width"
             android:layout_marginEnd="5dp"
-            android:layout_weight="1"
-            android:text="@string/main_song_on_net"
-            android:textColor="@color/colorBlack"
-            android:textSize="@dimen/main_tab_btn_text_size" />
-
+            android:src="@drawable/ic_search"
+            android:text="@string/cancel"
+            android:visibility="gone"
+            tools:ignore="ContentDescription" />
     </LinearLayout>
 
-    <!--view pager-->
-    <android.support.v4.view.ViewPager
-        android:id="@+id/main_pager"
+    <FrameLayout
+        android:id="@+id/main_pager_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
+        <!--view pager-->
+        <android.support.v4.view.ViewPager
+            android:id="@+id/main_pager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-    </android.support.v4.view.ViewPager>
+        </android.support.v4.view.ViewPager>
+    </FrameLayout>
 
 
 </LinearLayout>

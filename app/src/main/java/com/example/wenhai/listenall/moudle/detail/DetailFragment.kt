@@ -1,11 +1,7 @@
 package com.example.wenhai.listenall.moudle.detail
 
-import android.content.ComponentName
 import android.content.Context
-import android.content.Intent
-import android.content.ServiceConnection
 import android.os.Bundle
-import android.os.IBinder
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -23,14 +19,13 @@ import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.data.bean.Album
 import com.example.wenhai.listenall.data.bean.Collect
 import com.example.wenhai.listenall.data.bean.Song
-import com.example.wenhai.listenall.service.PlayService
+import com.example.wenhai.listenall.moudle.main.MainActivity
 import com.example.wenhai.listenall.utils.DateUtil
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
-import com.example.wenhai.listenall.utils.LogUtil
+import com.example.wenhai.listenall.utils.ToastUtil
 
 class DetailFragment : Fragment(), DetailContract.View {
-
 
     @BindView(R.id.action_bar_title)
     lateinit var mActionBarTitle: TextView
@@ -55,8 +50,6 @@ class DetailFragment : Fragment(), DetailContract.View {
     lateinit var mPresenter: DetailContract.Presenter
     lateinit var mUnBinder: Unbinder
     lateinit var mLoadType: Type
-    private var mConnection: ServiceConnection? = null
-    private var mPlayService: PlayService? = null
 
 
     override fun setPresenter(presenter: DetailContract.Presenter) {
@@ -80,7 +73,6 @@ class DetailFragment : Fragment(), DetailContract.View {
         } else {
             Type.ALBUM
         }
-
         initView()
         mPresenter.loadSongsDetails(id, mLoadType)
         return contentView
@@ -89,9 +81,9 @@ class DetailFragment : Fragment(), DetailContract.View {
 
     override fun initView() {
         mActionBarTitle.text = if (mLoadType == Type.COLLECT) {
-            "歌单详情"
+            getString(R.string.collect_detail)
         } else {
-            "专辑详情"
+            getString(R.string.album_detail)
         }
         mSongListAdapter = SongListAdapter(context, ArrayList<Song>())
         mSongListAdapter.setOnItemClickListener(object : SongListAdapter.OnItemClickListener {
@@ -99,7 +91,7 @@ class DetailFragment : Fragment(), DetailContract.View {
                 if (song.listenFileUrl == "") {
                     mPresenter.loadSongDetail(song)
                 } else {
-                    playSong(song.listenFileUrl)
+                    playSong(song)
                 }
             }
 
@@ -108,41 +100,32 @@ class DetailFragment : Fragment(), DetailContract.View {
         mSongList.adapter = mSongListAdapter
     }
 
-    private fun playSong(listenFileUrl: String) {
-        val intent = Intent(context, PlayService::class.java)
-        intent.putExtra("listenUrl", listenFileUrl)
-        intent.action = PlayService.ACTION_NEW_SONG
-        if (mPlayService == null) {
-            mConnection = object : ServiceConnection {
-                override fun onServiceDisconnected(p0: ComponentName?) {
-
-                }
-
-                override fun onServiceConnected(p0: ComponentName?, binder: IBinder?) {
-                    mPlayService = (binder as PlayService.ControlBinder).getPlayService()
-                }
-
-            }
-            activity.bindService(intent, mConnection, Context.BIND_AUTO_CREATE)
-        } else {
-            mPlayService !!.playNewSong(listenFileUrl)
-        }
-
+    private fun playSong(song: Song) {
+        (activity as MainActivity).playNewSong(song)
     }
 
-    @OnClick(R.id.action_bar_back)
+    @OnClick(R.id.action_bar_back, R.id.detail_play_all, R.id.detail_download_all, R.id.detail_add_to_play, R.id.detail_liked)
     fun onClick(view: View) {
         when (view.id) {
             R.id.action_bar_back -> {
                 FragmentUtil.removeFragment(fragmentManager, this)
             }
+            R.id.detail_play_all -> {
+                ToastUtil.showToast(activity, "play all")
+            }
+            R.id.detail_add_to_play -> {
+
+            }
+            R.id.detail_liked -> {
+
+            }
         }
     }
 
     override fun onSongDetailLoaded(song: Song) {
-        playSong(song.listenFileUrl)
-        LogUtil.d(TAG, "获取的地址：${song.listenFileUrl}")
-
+        activity.runOnUiThread {
+            playSong(song)
+        }
     }
 
     override fun setCollectDetail(collect: Collect) {
@@ -180,9 +163,6 @@ class DetailFragment : Fragment(), DetailContract.View {
 
     override fun onDestroy() {
         super.onDestroy()
-        if (mConnection != null) {
-            activity.unbindService(mConnection)
-        }
     }
 
     class SongListAdapter(val context: Context, var songList: List<Song>) : RecyclerView.Adapter<SongListAdapter.ViewHolder>() {

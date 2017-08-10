@@ -17,6 +17,8 @@ interface MusicSource {
     fun loadCollectDetail(id: Long, callback: LoadCollectDetailCallback)
     fun loadAlbumDetail(id: Long, callback: LoadAlbumDetailCallback)
     fun loadSongDetail(song: Song, callback: LoadSongDetailCallback)
+    fun searchByKeyword(keyword: String, callback: LoadSearchResultCallback)
+    fun loadSearchRecommend(keyword: String, callback: LoadSearchRecommendCallback)
 }
 
 
@@ -43,4 +45,12 @@ interface LoadAlbumDetailCallback : BaseCallBack {
 
 interface LoadSongDetailCallback : BaseCallBack {
     fun onSuccess(loadedSong: Song)
+}
+
+interface LoadSearchResultCallback : BaseCallBack {
+    fun onSuccess(loadedSongs: List<Song>)
+}
+
+interface LoadSearchRecommendCallback : BaseCallBack {
+    fun onSuccess(recommendKeyword: List<String>)
 }

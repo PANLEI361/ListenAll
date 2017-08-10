@@ -141,6 +141,10 @@ class MainActivity : AppCompatActivity(), PlayService.PlayStatusObserver {
         mDrawer.openDrawer(Gravity.START)
     }
 
+    fun playNewSong(song: Song) {
+        playService.playNewSong(song)
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         if (connection != null) {
@@ -198,6 +202,7 @@ class MainActivity : AppCompatActivity(), PlayService.PlayStatusObserver {
     override fun onNewSong(song: Song) {
         mSongName.text = song.name
         mSingerOrLyric.text = song.artistName
+        mBtnControl.animateProgress(0.toFloat())
         GlideApp.with(this)
                 .load(song.albumCoverUrl)
                 .placeholder(R.drawable.ic_main_all_music)
