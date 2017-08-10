@@ -165,16 +165,17 @@ class MainFragment : Fragment() {
 
     @Suppress("DEPRECATION")
     private fun showSearchBar() {
-        mTab.visibility = View.GONE
-        mBtnSearch.visibility = View.GONE
-        mCancelSearch.visibility = View.VISIBLE
-        mEtSearch.setText("")
-        mEtSearch.visibility = View.VISIBLE
-        showSoftInput()
         if (searchFragment == null) {
             searchFragment = SearchFragment()
         }
         FragmentUtil.addFragmentToView(fragmentManager, searchFragment !!, R.id.main_pager_container)
+
+        mTab.visibility = View.GONE
+        mBtnSearch.visibility = View.GONE
+        mCancelSearch.visibility = View.VISIBLE
+        mEtSearch.visibility = View.VISIBLE
+        mEtSearch.setText("")
+        showSoftInput()
 
         textWatch = object : TextWatcher {
             override fun afterTextChanged(editable: Editable?) {

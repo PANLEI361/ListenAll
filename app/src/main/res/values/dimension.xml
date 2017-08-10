@@ -10,6 +10,6 @@
     <dimen name="slide_menu_text_size">20sp</dimen>
 
     <!--app-->
-    <dimen name="action_bar_height">50dp</dimen>
-    <dimen name="action_bar_btn_width">45dp</dimen>
+    <dimen name="action_bar_height">55dp</dimen>
+    <dimen name="action_bar_btn_width">50dp</dimen>
 </resources>

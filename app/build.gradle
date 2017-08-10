@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'org.greenrobot.greendao'
 
 android {
     compileSdkVersion 26
@@ -19,6 +20,11 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+}
+
+greendao {
+    schemaVersion 1
+    targetGenDir 'src/main/java'
 }
 
 dependencies {
@@ -44,6 +50,8 @@ dependencies {
     kapt "com.jakewharton:butterknife-compiler:8.7.0"
     //Kotlin
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    //greenDAO
+    compile 'org.greenrobot:greendao:3.2.2'
 }
 repositories {
     mavenCentral()

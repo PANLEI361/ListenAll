@@ -30,51 +30,6 @@ object OkHttpUtil {
         return client as OkHttpClient
     }
 
-//    @JvmStatic
-//    fun getForXiami(url: String, callback: JsonCallback) {
-//        //start request
-//        LogUtil.d(TAG, url)
-//        callback.onStart()
-//        val request = Request.Builder()
-//                .url(url)
-//                .addHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8")
-//                .addHeader("Connection", "keep-alive")
-//                .addHeader("Upgrade-Insecure-Requests", "1")
-//                .addHeader("Referer", "http://m.xiami.com/")
-//                .addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36")
-//                .get()
-//                .build()
-//        val newCall = getHttpClient().newCall(request)
-//
-//        newCall.enqueue(object : Callback {
-//            override fun onFailure(call: Call?, e: IOException?) {
-//                if (e != null) {
-//                    callback.onFailure(e.localizedMessage)
-//                }
-//            }
-//
-//            override fun onResponse(call: Call?, response: Response?) {
-//                if (response == null) {
-//                    callback.onFailure("response == null")
-//                } else {
-//                    val body = response.body() !!.string()
-//                    LogUtil.d("response:", body)
-//                    if (body.startsWith("jsonp")) {//xiami
-//                        val realJsonStr = body.substring(body.indexOf("(") + 1, body.lastIndexOf(")"))
-//                        callback.onResponse(JSONObject(realJsonStr).getJSONObject("data"))
-//                    } else if (body.startsWith("{")) {
-//                        callback.onResponse(JSONObject(body))
-//                    } else {
-//                        callback.onFailure("response body:$body")
-//                    }
-//                }
-//
-//            }
-//
-//        })
-//    }
-
-
     @JvmStatic
     fun getForXiami(url: String, callback: ResponseCallBack) {
         //start request
@@ -123,16 +78,6 @@ object OkHttpUtil {
 
 }
 
-
-interface ResponseCallBack {
-    fun onStart()
-    fun onResponse(response: Response)
-    fun onJsonObjectResponse(jsonObject: JSONObject)
-    fun onJsonArrayResponse(jsonArray: JSONArray)
-    fun onStringResponse(string: String)
-    fun onFailure(msg: String)
-}
-
 open class BaseResponseCallback : ResponseCallBack {
 
     override fun onStart() {
@@ -154,4 +99,14 @@ open class BaseResponseCallback : ResponseCallBack {
     override fun onFailure(msg: String) {
     }
 
+}
+
+
+interface ResponseCallBack {
+    fun onStart()
+    fun onResponse(response: Response)
+    fun onJsonObjectResponse(jsonObject: JSONObject)
+    fun onJsonArrayResponse(jsonArray: JSONArray)
+    fun onStringResponse(string: String)
+    fun onFailure(msg: String)
 }

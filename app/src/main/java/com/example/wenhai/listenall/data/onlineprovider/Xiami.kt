@@ -68,7 +68,7 @@ internal class Xiami : MusicSource {
     override fun loadNewAlbum(count: Int, callback: LoadAlbumCallback) {
 //        type contains "all" "huayu" "oumei" "ri" "han"
         //presenting "全部" "华语"  "欧美"  "日本" "韩国"
-        val url = "http://www.xiami.com/music/newalbum/type/huayu/page/1"
+        val url = "http://www.xiami.com/music/newalbum/type/oumei/page/1"
         LoadNewAlbumTask(count, callback).execute(url)
     }
 
@@ -198,14 +198,8 @@ internal class Xiami : MusicSource {
         val remainder = location.substring(1).length % num
 
         val result = ArrayList<String>()
-        for (i in 0..remainder - 1) {
-            val line = location.substring(i * (avgLen + 1) + 1, (i + 1) * (avgLen + 1) + 1)
-            result.add(line)
-        }
-        for (i in 0..num - remainder - 1) {
-            val line = location.substring((avgLen + 1) * remainder).substring(i * avgLen + 1, (i + 1) * avgLen + 1)
-            result.add(line)
-        }
+        (0..remainder - 1).mapTo(result) { location.substring(it * (avgLen + 1) + 1, (it + 1) * (avgLen + 1) + 1) }
+        (0..num - remainder - 1).mapTo(result) { location.substring((avgLen + 1) * remainder).substring(it * avgLen + 1, (it + 1) * avgLen + 1) }
 
         val s = ArrayList<String>()
         for (i in 0..avgLen - 1) {
@@ -313,10 +307,9 @@ internal class Xiami : MusicSource {
                 val slider: Element? = document.getElementById("slider")
                 val items: Elements = slider !!.getElementsByClass("item")
                 val imgUrlList = ArrayList<String>(items.size)
-                for (i in 0..items.size - 1) {
-                    val imgUrl = items[i].select("a").first().select("img").first().attr("src")
-//                    val ref = items[i].select("a").first().attr("href")
-                    imgUrlList.add(imgUrl)
+                (0..items.size - 1).mapTo(imgUrlList) {
+                    items[it].select("a").first().select("img").first().attr("src")
+                    //                    val ref = items[i].select("a").first().attr("href")
                 }
 
                 return imgUrlList
