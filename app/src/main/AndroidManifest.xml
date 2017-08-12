@@ -24,7 +24,7 @@
         </activity>
 
         <service
-            android:name=".service.PlayService"
+            android:name="com.example.wenhai.listenall.moudle.play.service.PlayService"
             android:enabled="true"
             android:exported="false">
 

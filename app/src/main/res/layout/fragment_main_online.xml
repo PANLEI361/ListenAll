@@ -21,7 +21,7 @@
             <com.youth.banner.Banner
                 android:id="@+id/main_banner"
                 android:layout_width="match_parent"
-                android:layout_height="95dp"
+                android:layout_height="100dp"
                 app:delay_time="5000"
                 app:image_scale_type="fit_xy"
                 app:is_auto_play="true" />

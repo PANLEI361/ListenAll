@@ -68,7 +68,7 @@ internal class Xiami : MusicSource {
     override fun loadNewAlbum(count: Int, callback: LoadAlbumCallback) {
 //        type contains "all" "huayu" "oumei" "ri" "han"
         //presenting "全部" "华语"  "欧美"  "日本" "韩国"
-        val url = "http://www.xiami.com/music/newalbum/type/oumei/page/1"
+        val url = "http://www.xiami.com/music/newalbum/type/all/page/1"
         LoadNewAlbumTask(count, callback).execute(url)
     }
 
@@ -76,7 +76,6 @@ internal class Xiami : MusicSource {
         val url = BASE_URL + "id=$id" + SUFFIX_COLLECT_DETAIL
         OkHttpUtil.getForXiami(url, object : BaseResponseCallback() {
             override fun onStart() {
-                LogUtil.d(TAG, "开始网络请求")
             }
 
             override fun onJsonObjectResponse(jsonObject: JSONObject) {
@@ -116,29 +115,41 @@ internal class Xiami : MusicSource {
             song.name = jsonSong.getString("song_name")
             song.albumId = jsonSong.getLong("album_id")
             song.albumName = jsonSong.getString("album_name")
-            song.albumCoverUrl = jsonSong.getString("album_logo")
+            song.miniAlbumCoverUrl = jsonSong.getString("album_logo")
             song.artistId = jsonSong.getLong("artist_id")
             try {
                 song.artistName = jsonSong.getString("artist_name")
             } catch (e: JSONException) {
                 song.artistName = jsonSong.getString("singers")
             }
+            // multi artist
+            if (song.artistName.contains(";")) {
+                val artists = song.artistName.split(";")
+                val artistBuilder = StringBuilder()
+                for (artist in artists) {
+                    artistBuilder.append(artist)
+                    artistBuilder.append("&")
+                }
+                song.artistName = artistBuilder.substring(0, artistBuilder.length - 1)
+            }
+
             try {
                 song.artistLogo = jsonSong.getString("artist_logo")
             } catch (e: JSONException) {
                 song.artistLogo = ""
             }
+
             try {
                 song.length = jsonSong.getInt("length")
             } catch (e: JSONException) {
                 song.length = 0
             }
+
             try {
                 song.listenFileUrl = jsonSong.getString("listen_file")
             } catch (e: JSONException) {
                 song.listenFileUrl = ""
             }
-//            song.payFlag = jsonSong.getInt("need_pay_flag")
             try {
                 song.lyricUrl = jsonSong.getString("lyric")
             } catch (e: JSONException) {
@@ -150,7 +161,6 @@ internal class Xiami : MusicSource {
         return songList
     }
 
-
     override fun loadSongDetail(song: Song, callback: LoadSongDetailCallback) {
         val id = song.songId
         val url = PREFIX_SONG_DETAIL + id + SUFFIX_SONG_DETAIL
@@ -160,26 +170,36 @@ internal class Xiami : MusicSource {
 
             override fun onJsonObjectResponse(jsonObject: JSONObject) {
                 val songInfo = jsonObject.getJSONObject("data")
-                val trackList: JSONArray = songInfo.getJSONArray("trackList")
-                if (trackList.length() > 0) {
-                    val track = trackList.getJSONObject(0)
-                    song.listenFileUrl = getListenUrlFromLocation(track.getString("location"))
-                    val canFreeListen = track.getJSONObject("purviews").getJSONObject("LISTEN").getString("LOW")
-                    song.isCanFreeListen = canFreeListen == "FREE"
-                    val canFreeDownload = track.getJSONObject("purviews").getJSONObject("DOWNLOAD").getString("LOW")
-                    song.isCanFreeDownload = canFreeDownload == "FREE"
-                    song.length = track.getString("length").toInt()
-                    try {
-                        song.lyricUrl = track.getString("lyric_url")
-                    } catch (e: JSONException) {
-                        song.lyricUrl = ""
-                    }
-                    callback.onSuccess(song)
-
-                } else {
+                if (songInfo.isNull("trackList")) {
+                    //不能播放
                     callback.onFailure()
-                }
+                } else {
+                    val trackList: JSONArray = songInfo.getJSONArray("trackList")
+                    if (trackList.length() > 0) {
+                        val track = trackList.getJSONObject(0)
+                        if (song.listenFileUrl == "") {
+                            song.listenFileUrl = getListenUrlFromLocation(track.getString("location"))
+                        }
+                        val canFreeListen = track.getJSONObject("purviews").getJSONObject("LISTEN").getString("LOW")
+                        song.isCanFreeListen = canFreeListen == "FREE"
+                        val canFreeDownload = track.getJSONObject("purviews").getJSONObject("DOWNLOAD").getString("LOW")
+                        song.isCanFreeDownload = canFreeDownload == "FREE"
+                        song.length = track.getString("length").toInt()
+                        try {
+                            song.lyricUrl = track.getString("lyric_url")
+                        } catch (e: JSONException) {
+                            song.lyricUrl = ""
+                        }
+                        song.albumCoverUrl = track.getString("album_pic")
+                        song.albumName = track.getString("album_name")
+                        song.albumId = track.getLong("album_id")
+                        song.artistId = track.getLong("artist_id")
+                        callback.onSuccess(song)
+                    } else {
+                        callback.onFailure()
+                    }
 
+                }
             }
 
             override fun onFailure(msg: String) {
@@ -298,6 +318,8 @@ internal class Xiami : MusicSource {
         return keywordList
     }
 
+
+    //AsyncTasks
     internal class LoadBannerTask(val callback: LoadBannerCallback)
         : AsyncTask<String, Void, List<String>?>() {
 

@@ -1,6 +1,6 @@
 package com.example.wenhai.listenall.widget
 
-import android.animation.ValueAnimator
+import android.animation.ObjectAnimator
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
@@ -19,7 +19,7 @@ class ProgressImageButton constructor(context: Context, attrs: AttributeSet?, de
 
     var progress: Float = 0.toFloat()
         set(value) {
-            if (value - 0 < 0.0001f || value - 100 > 0.0001f) {
+            if (value - 0 < 0.000000001f || value - 100 > 0.00000001f) {
                 field = 0f
             } else {
                 field = value
@@ -80,12 +80,9 @@ class ProgressImageButton constructor(context: Context, attrs: AttributeSet?, de
 
 
     fun animateProgress(newProgress: Float) {
-        val animator = ValueAnimator.ofFloat(progress, newProgress)
+        val animator = ObjectAnimator.ofFloat(this, "progress", newProgress)
         animator.interpolator = LinearInterpolator()
-        animator.addUpdateListener { animation ->
-            progress = animation.animatedValue.toString().toFloat()
-        }
-        animator.duration = 1000
+        animator.duration = 200
         animator.start()
     }
 

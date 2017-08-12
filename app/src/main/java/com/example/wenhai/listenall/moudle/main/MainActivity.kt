@@ -21,7 +21,9 @@ import butterknife.ButterKnife
 import butterknife.OnClick
 import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.data.bean.Song
-import com.example.wenhai.listenall.service.PlayService
+import com.example.wenhai.listenall.moudle.play.PlayFragment
+import com.example.wenhai.listenall.moudle.play.service.PlayService
+import com.example.wenhai.listenall.moudle.play.service.PlayStatusObserver
 import com.example.wenhai.listenall.utils.AppUtil
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
@@ -29,14 +31,14 @@ import com.example.wenhai.listenall.utils.LogUtil
 import com.example.wenhai.listenall.widget.ProgressImageButton
 
 
-class MainActivity : AppCompatActivity(), PlayService.PlayStatusObserver {
-
-
+class MainActivity : AppCompatActivity(), PlayStatusObserver {
     companion object {
         const val TAG = "MainActivity"
     }
 
-    //views of slide menu
+    //    drawer
+    @BindView(R.id.main_drawer)
+    lateinit var mDrawer: DrawerLayout
     @BindView(R.id.slide_menu_app_version)
     lateinit var smTvAppVersion: TextView
     @BindView(R.id.slide_only_wifi_switcher)
@@ -58,21 +60,21 @@ class MainActivity : AppCompatActivity(), PlayService.PlayStatusObserver {
     @BindView(R.id.slide_menu_quit)
     lateinit var smBtnQuit: Button
 
-    @BindView(R.id.main_drawer)
-    lateinit var mDrawer: DrawerLayout
-
-    @BindView(R.id.play_bar_control)
-    lateinit var mBtnControl: ProgressImageButton
+    //    play bar
+    @BindView(R.id.main_iv_cover)
+    lateinit var mCover: ImageView
     @BindView(R.id.main_song_name)
     lateinit var mSongName: TextView
     @BindView(R.id.main_singer_or_lyric)
     lateinit var mSingerOrLyric: TextView
-    @BindView(R.id.main_iv_cover)
-    lateinit var mCover: ImageView
+    @BindView(R.id.play_bar_control)
+    lateinit var mBtnControl: ProgressImageButton
+
 
     var connection: ServiceConnection? = null
     lateinit var playService: PlayService
     var isPlaying = false
+    var currentSong: Song? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -99,7 +101,7 @@ class MainActivity : AppCompatActivity(), PlayService.PlayStatusObserver {
         }
     }
 
-    @OnClick(R.id.play_bar_control)
+    @OnClick(R.id.play_bar_control, R.id.main_ll_song_info)
     fun onPlayBarClick(view: View) {
         when (view.id) {
             R.id.play_bar_control -> {
@@ -108,6 +110,14 @@ class MainActivity : AppCompatActivity(), PlayService.PlayStatusObserver {
                 } else {
                     playService.pause()
                 }
+            }
+            R.id.main_ll_song_info -> {
+                val playDetailFragment = PlayFragment()
+                //// TODO: 2017/8/11 设置当前播放信息
+//                val data = Bundle()
+//                data.putParcelable("currentSong", currentSong)
+//                playDetailFragment.arguments = data
+                FragmentUtil.addFragmentToView(supportFragmentManager, playDetailFragment, R.id.main_activity)
             }
         }
     }
@@ -148,46 +158,74 @@ class MainActivity : AppCompatActivity(), PlayService.PlayStatusObserver {
     override fun onDestroy() {
         super.onDestroy()
         if (connection != null) {
+            playService.unregisterStatusObserver(this)
             unbindService(connection)
         }
     }
 
-    //PlayService.PlayStatusObserver 的回调
+    //call from PlayService.PlayStatusObserver
+    override fun onPlayInit(playStatus: PlayService.PlayStatus) {
+        currentSong = playStatus.currentSong
+        if (currentSong != null) {
+            mSongName.text = currentSong !!.name
+            mSingerOrLyric.text = currentSong !!.artistName
+            setCover(currentSong !!.miniAlbumCoverUrl)
+        }
+        isPlaying = playStatus.isPlaying
+        mBtnControl.progress = playStatus.playProgress
+        // TODO: 2017/8/12  播放列表信息
 
-    override fun onPlayInit(song: Song) {
-        LogUtil.d(TAG, "play init")
+        setPlayIcon(isPlaying)
+    }
+
+    private fun setCover(coverUrl: String) {
+        GlideApp.with(this)
+                .load(coverUrl)
+                .placeholder(R.drawable.ic_main_all_music)
+                .into(mCover)
+    }
+
+    private fun setPlayIcon(playing: Boolean) {
+        val drawableId =
+                if (playing) {
+                    R.drawable.ic_pause
+                } else {
+                    R.drawable.ic_play_arrow
+                }
+        mBtnControl.setDrawable(drawableId)
     }
 
     override fun onPlayStart() {
         isPlaying = true
-        mBtnControl.setDrawable(R.drawable.ic_pause)
-//        ToastUtil.showToast(this, "start")
+        setPlayIcon(isPlaying)
     }
 
     override fun onPlayPause() {
         isPlaying = false
-        mBtnControl.setDrawable(R.drawable.ic_play_arrow)
-//        ToastUtil.showToast(this, "pause")
+        setPlayIcon(isPlaying)
     }
 
     override fun onPlayStop() {
         isPlaying = false
-        mBtnControl.setDrawable(R.drawable.ic_play_arrow)
+        setPlayIcon(isPlaying)
+    }
+
+    override fun onPlayModeChanged(playMode: PlayService.PlayMode) {
+
     }
 
     override fun onSongCompleted() {
         isPlaying = false
-        mBtnControl.setDrawable(R.drawable.ic_play_arrow)
-        mBtnControl.progress = 0f
+        setPlayIcon(isPlaying)
     }
 
     override fun onBufferProgressUpdate(percent: Int) {
 
     }
 
-    override fun onPlayProgressUpdate(percent: Int) {
+    override fun onPlayProgressUpdate(percent: Float) {
         runOnUiThread {
-            mBtnControl.animateProgress(percent.toFloat())
+            mBtnControl.animateProgress(percent)
         }
     }
 
@@ -200,13 +238,11 @@ class MainActivity : AppCompatActivity(), PlayService.PlayStatusObserver {
     }
 
     override fun onNewSong(song: Song) {
+        currentSong = song
         mSongName.text = song.name
         mSingerOrLyric.text = song.artistName
         mBtnControl.animateProgress(0.toFloat())
-        GlideApp.with(this)
-                .load(song.albumCoverUrl)
-                .placeholder(R.drawable.ic_main_all_music)
-                .into(mCover)
+        setCover(song.miniAlbumCoverUrl)
     }
 
 }
