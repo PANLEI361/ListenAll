@@ -172,10 +172,11 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
             setCover(currentSong !!.miniAlbumCoverUrl)
         }
         isPlaying = playStatus.isPlaying
+        setPlayIcon(isPlaying)
+
         mBtnControl.progress = playStatus.playProgress
         // TODO: 2017/8/12  播放列表信息
 
-        setPlayIcon(isPlaying)
     }
 
     private fun setCover(coverUrl: String) {
@@ -206,8 +207,7 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
     }
 
     override fun onPlayStop() {
-        isPlaying = false
-        setPlayIcon(isPlaying)
+        onPlayPause()
     }
 
     override fun onPlayModeChanged(playMode: PlayService.PlayMode) {
@@ -215,8 +215,7 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
     }
 
     override fun onSongCompleted() {
-        isPlaying = false
-        setPlayIcon(isPlaying)
+        onPlayPause()
     }
 
     override fun onBufferProgressUpdate(percent: Int) {

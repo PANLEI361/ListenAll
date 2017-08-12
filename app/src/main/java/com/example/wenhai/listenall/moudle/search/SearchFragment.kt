@@ -24,7 +24,6 @@ import com.example.wenhai.listenall.moudle.main.MainActivity
 import com.example.wenhai.listenall.moudle.main.MainFragment
 import com.example.wenhai.listenall.utils.DAOUtil
 import com.example.wenhai.listenall.utils.ToastUtil
-import java.util.Calendar
 
 class SearchFragment : Fragment(), SearchContract.View {
 
@@ -115,10 +114,10 @@ class SearchFragment : Fragment(), SearchContract.View {
                 .list()
         if (queryResult.size > 0) {
             val searchHistory = queryResult[0]
-            searchHistory.searchTime = Calendar.getInstance().timeInMillis
+            searchHistory.searchTime = System.currentTimeMillis()
             dao.update(searchHistory)
         } else {
-            val newSearch = SearchHistory(null, keyword, Calendar.getInstance().timeInMillis)
+            val newSearch = SearchHistory(null, keyword, System.currentTimeMillis())
             dao.insert(newSearch)
         }
     }

@@ -119,6 +119,10 @@ class PlayFragment : Fragment(), PlayStatusObserver {
         mSeekBar.max = 100
         mSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser) {
+                    //显示时间跟随用户手指变化
+                    setCurTime(progress.toFloat())
+                }
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -126,7 +130,7 @@ class PlayFragment : Fragment(), PlayStatusObserver {
             }
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                playService.seekTo((seekBar !!.progress.toFloat() / 100 * mCurrentSong !!.length * 1000).toInt())
+                playService.seekTo(seekBar !!.progress.toFloat())
             }
 
         })
@@ -253,7 +257,7 @@ class PlayFragment : Fragment(), PlayStatusObserver {
     }
 
     override fun onPlayStop() {
-
+        onPlayPause()
     }
 
     override fun onPlayModeChanged(playMode: PlayService.PlayMode) {
@@ -289,7 +293,9 @@ class PlayFragment : Fragment(), PlayStatusObserver {
     }
 
     override fun onSongCompleted() {
-
+        //adjust
+        onPlayProgressUpdate(100f)
+        onPlayPause()
     }
 
     inner class PlayPagerAdapter : PagerAdapter() {
