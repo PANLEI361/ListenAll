@@ -23,9 +23,11 @@ import com.example.wenhai.listenall.data.bean.Song
 import com.example.wenhai.listenall.moudle.main.MainActivity
 import com.example.wenhai.listenall.moudle.main.MainFragment
 import com.example.wenhai.listenall.utils.DAOUtil
+import com.example.wenhai.listenall.utils.ToastUtil
 import java.util.Calendar
 
 class SearchFragment : Fragment(), SearchContract.View {
+
     companion object {
         const val CONTENT_SEARCH_HISTORY = 0x00
         const val CONTENT_RECOMMEND_KEYWORD = 0x01
@@ -66,6 +68,13 @@ class SearchFragment : Fragment(), SearchContract.View {
     override fun initView() {
         showSearchHistory()
     }
+
+    override fun onLoadFailure(msg: String) {
+        activity.runOnUiThread {
+            ToastUtil.showToast(context, msg)
+        }
+    }
+
 
     override fun onSearchResult(songs: List<Song>) {
         if (currentContent == CONTENT_SEARCH_RESULT) {
@@ -156,6 +165,12 @@ class SearchFragment : Fragment(), SearchContract.View {
         }
     }
 
+    override fun onSongDetailLoad(song: Song) {
+        activity.runOnUiThread {
+            (activity as MainActivity).playService.playNewSong(song)
+        }
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         val mainFragment: MainFragment = fragmentManager.findFragmentById(R.id.main_container) as MainFragment
@@ -180,7 +195,7 @@ class SearchFragment : Fragment(), SearchContract.View {
                 }
 
                 holder.item.setOnClickListener {
-                    (activity as MainActivity).playNewSong(song)
+                    mPresenter.loadSongDetail(song)
                 }
             }
         }
