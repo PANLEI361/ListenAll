@@ -3,129 +3,123 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:orientation="vertical"
+    tools:context=".moudle.main.MainActivity">
+
 
     <!--search-->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="@dimen/action_bar_height"
         android:layout_marginTop="2dp"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
         <ImageButton
+            android:id="@+id/main_btn_slide_menu"
             style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="45dp"
-            android:layout_height="45dp"
+            android:layout_width="@dimen/action_bar_btn_width"
+            android:layout_height="@dimen/action_bar_btn_width"
             android:layout_marginStart="5dp"
-            android:src="@drawable/ic_main_menu" />
-
-        <android.support.v4.widget.Space
-            android:layout_width="5dp"
-            android:layout_height="match_parent" />
-
-        <SearchView
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:queryHint="搜索歌曲/专辑/歌单">
-
-        </SearchView>
-
-        <android.support.v4.widget.Space
-            android:layout_width="5dp"
-            android:layout_height="match_parent" />
-
-        <ImageButton
-            style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="45dp"
-            android:layout_height="45dp"
-            android:layout_marginEnd="5dp"
-            android:src="@mipmap/ic_launcher" />
-    </LinearLayout>
-
-    <!--tab-->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:orientation="horizontal">
-
-        <Button
-            style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="@string/main_mine"
-            android:textColor="@color/colorBlack" />
-
-        <Button
-            style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="@string/main_song_on_net"
-            android:textColor="@color/colorBlack" />
-
-    </LinearLayout>
-
-    <android.support.v4.view.ViewPager
-        android:id="@+id/main_pager"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
-
-    </android.support.v4.view.ViewPager>
-
-
-    <!--bottom bar-->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_gravity="bottom"
-        android:gravity="center_vertical">
-
-        <ImageView
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginStart="5dp"
-            android:src="@mipmap/ic_launcher_round"
+            android:src="@drawable/ic_main_menu"
             tools:ignore="ContentDescription" />
 
+        <!--tab-->
         <LinearLayout
+            android:id="@+id/main_tab"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_marginStart="4dp"
+            android:layout_height="50dp"
             android:layout_weight="1"
-            android:gravity="center_vertical"
-            android:orientation="vertical">
+            android:orientation="horizontal"
+            android:visibility="visible">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="男女" />
+            <Button
+                android:id="@+id/main_btn_local_songs"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="5dp"
+                android:layout_weight="1"
+                android:text="@string/main_mine"
+                android:textColor="@color/colorBlack"
+                android:textSize="@dimen/main_tab_btn_text_size" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="李荣浩" />
+            <Button
+                android:id="@+id/main_btn_online_songs"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="5dp"
+                android:layout_weight="1"
+                android:text="@string/main_song_on_net"
+                android:textColor="@color/colorBlack"
+                android:textSize="@dimen/main_tab_btn_text_size" />
 
         </LinearLayout>
 
-        <ImageButton
-            style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:src="@mipmap/ic_launcher_round"
-            tools:ignore="ContentDescription" />
+
+        <Space
+            android:id="@+id/main_top_space"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:visibility="gone" />
+
+
+        <!--searchView-->
+        <EditText
+            android:id="@+id/main_et_search"
+            android:layout_width="0dp"
+            android:layout_height="32dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_round_rect"
+            android:drawableStart="@drawable/ic_search_gray"
+            android:gravity="center_vertical"
+            android:hint="@string/main_search_hint"
+            android:maxLines="1"
+            android:padding="5dp"
+            android:textColor="@color/colorGray"
+            android:textSize="15sp"
+            android:visibility="gone" />
+
 
         <ImageButton
+            android:id="@+id/main_btn_search"
             style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_margin="5dp"
-            android:src="@mipmap/ic_launcher_round"
+            android:layout_width="@dimen/action_bar_btn_width"
+            android:layout_height="@dimen/action_bar_btn_width"
+            android:layout_marginEnd="5dp"
+            android:src="@drawable/ic_search"
             tools:ignore="ContentDescription" />
 
+        <Button
+            android:id="@+id/main_btn_cancel"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/action_bar_btn_width"
+            android:layout_marginEnd="5dp"
+            android:src="@drawable/ic_search"
+            android:text="@string/cancel"
+            android:visibility="gone"
+            tools:ignore="ContentDescription" />
     </LinearLayout>
 
+    <FrameLayout
+        android:id="@+id/main_pager_container"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+        <!--view pager-->
+        <android.support.v4.view.ViewPager
+            android:id="@+id/main_pager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        </android.support.v4.view.ViewPager>
+    </FrameLayout>
+
+
 </LinearLayout>
+

@@ -7,8 +7,10 @@
     android:orientation="vertical">
 
     <ScrollView
+        android:id="@+id/main_online_scroll"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        tools:ignore="UselessParent">
 
         <!--banner-->
         <LinearLayout
@@ -19,28 +21,30 @@
             <com.youth.banner.Banner
                 android:id="@+id/main_banner"
                 android:layout_width="match_parent"
-                android:layout_height="155dp"
+                android:layout_height="95dp"
                 app:delay_time="5000"
+                app:image_scale_type="fit_xy"
                 app:is_auto_play="true" />
 
             <!--button bar-->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:layout_marginTop="8dp"
-                android:gravity="center"
+                android:layout_marginTop="15dp"
+                android:gravity="center_horizontal"
                 android:orientation="horizontal">
 
                 <!--歌手-->
                 <LinearLayout
+                    android:id="@+id/main_online_btn_singer"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
                     <ImageView
-                        android:layout_width="45dp"
-                        android:layout_height="45dp"
-                        android:src="@drawable/ic_main_android" />
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@drawable/ic_main_singer" />
 
                     <Button
                         style="?android:attr/buttonBarButtonStyle"
@@ -53,14 +57,16 @@
                 </LinearLayout>
                 <!--歌单-->
                 <LinearLayout
+                    android:id="@+id/main_online_btn_collect"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
                     <ImageView
-                        android:layout_width="45dp"
-                        android:layout_height="45dp"
-                        android:src="@drawable/ic_main_android" />
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@drawable/ic_main_collect"
+                        tools:ignore="ContentDescription" />
 
                     <Button
                         style="?android:attr/buttonBarButtonStyle"
@@ -73,14 +79,15 @@
                 </LinearLayout>
                 <!--排行-->
                 <LinearLayout
+                    android:id="@+id/main_online_btn_ranking_list"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
                     <ImageView
-                        android:layout_width="45dp"
-                        android:layout_height="45dp"
-                        android:src="@drawable/ic_main_android"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@drawable/ic_main_equalizer"
                         tools:ignore="ContentDescription" />
 
                     <Button
@@ -128,7 +135,7 @@
                 <GridView
                     android:id="@+id/main_hot_collects"
                     android:layout_width="match_parent"
-                    android:layout_height="240dp"
+                    android:layout_height="280dp"
                     android:layout_below="@id/main_btn_more_collect"
                     android:layout_centerHorizontal="true"
                     android:gravity="center"
@@ -171,7 +178,7 @@
                 <GridView
                     android:id="@+id/main_new_albums"
                     android:layout_width="match_parent"
-                    android:layout_height="240dp"
+                    android:layout_height="280dp"
                     android:layout_below="@id/main_btn_more_albums"
                     android:layout_centerHorizontal="true"
                     android:gravity="center"
