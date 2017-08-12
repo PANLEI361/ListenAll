@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="60dp"
+    android:id="@+id/play_history_item"
+    android:background="@drawable/selector_white"
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
+
+    <!--song info-->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/play_history_song_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="Wheel"
+            android:textColor="@color/colorBlack"
+            android:textSize="17sp" />
+
+        <TextView
+            android:id="@+id/play_history_song_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="John Mayer · Heavier Things"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+    <!--play times-->
+
+    <ImageView
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:src="@drawable/ic_headset"
+        android:tint="@color/colorGray"
+        tools:ignore="ContentDescription" />
+
+    <TextView
+        android:id="@+id/play_history_times"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:text="25"
+        android:textSize="12sp" />
+    <!--operation-->
+
+    <ImageButton
+        android:id="@+id/play_history_ops"
+        style="?android:attr/buttonBarButtonStyle"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginStart="5dp"
+        android:src="@drawable/ic_more"
+        android:tint="@color/colorGray"
+        tools:ignore="ContentDescription" />
+
+</LinearLayout>

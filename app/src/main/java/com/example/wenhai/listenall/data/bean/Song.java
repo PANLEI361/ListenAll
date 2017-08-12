@@ -6,8 +6,11 @@ import android.support.annotation.NonNull;
 
 import com.example.wenhai.listenall.data.MusicProvider;
 
+import java.io.Serializable;
 
-public final class Song implements Parcelable {
+
+public final class Song implements Parcelable, Serializable {
+    private long serialVersionUID = 10000;
     private long songId;
     private String name;
     private int length;//second

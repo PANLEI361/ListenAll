@@ -1,14 +1,22 @@
 package com.example.wenhai.listenall.moudle.play.service
 
 import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.Binder
 import android.os.IBinder
+import com.example.wenhai.listenall.data.bean.PlayHistory
+import com.example.wenhai.listenall.data.bean.PlayHistoryDao
 import com.example.wenhai.listenall.data.bean.Song
+import com.example.wenhai.listenall.utils.DAOUtil
 import com.example.wenhai.listenall.utils.LogUtil
+import java.io.FileNotFoundException
 import java.io.IOException
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
+import java.io.Serializable
 import java.util.Timer
 import java.util.TimerTask
 
@@ -16,10 +24,9 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
         MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnCompletionListener,
         MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnInfoListener {
 
-    // TODO: 2017/8/8 添加到下一首播放可通过 setNextMediaPlayer 实现
-
     companion object {
         const val TAG = "PlayService"
+        const val STATUS_TMP_FILE_NAME = "play_status.tmp"
         const val ACTION_NEW_SONG = "com.example.wenhai.listenall.action.newsong"
         const val ACTION_INIT = "com.example.wenhai.listenall.action.init"
 
@@ -36,22 +43,21 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
         const val STATUS_PLAY_MODE_CHANGED = 0x0a
     }
 
-    enum class PlayMode(mode: Int) {
-        REPEAT_ONE(0), REPEAT_LIST(1), SHUFFLE(2)
+    enum class PlayMode : Serializable {
+        REPEAT_ONE, REPEAT_LIST, SHUFFLE
     }
 
     // TODO: 2017/8/8 退出时记录上次播放的歌和播放进度，第一次启动时恢复
 
     lateinit var mediaPlayer: MediaPlayer
     val binder: Binder = ControlBinder()
-    var playMode: PlayMode = PlayMode.REPEAT_LIST
     lateinit var mStatusObservers: ArrayList<PlayStatusObserver>
     lateinit var timer: Timer
 
-    var currentSong: Song? = null
-    var currentPlayList: ArrayList<Song>? = null
     var updateProgressTask: TimerTask? = null
-    var bufferedProgress: Int = 0
+    //播放状态
+    lateinit var playStatus: PlayStatus
+    var isFirstStart = true
 
     override fun onCreate() {
         super.onCreate()
@@ -87,54 +93,93 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
         mediaPlayer.setOnBufferingUpdateListener(this)
         timer = Timer()
         mStatusObservers = ArrayList()
+
+        try {
+            val objectInputStream: ObjectInputStream = ObjectInputStream(openFileInput(STATUS_TMP_FILE_NAME))
+            playStatus = objectInputStream.readObject() as PlayStatus
+            objectInputStream.close()
+        } catch (e: FileNotFoundException) {
+            //第一次安装时
+            playStatus = PlayStatus()
+            isFirstStart = false //防止 onPrepare 第一次不播放歌曲
+            LogUtil.i(TAG, "第一次安装")
+        }
+        if (playStatus.playProgress == 100f) {
+            playStatus.playProgress = 0f
+        }
+        if (isFirstStart && playStatus.currentSong != null) {
+            setStreamUrlAndPrepareAsync(playStatus.currentSong !!.listenFileUrl)
+        }
+
     }
 
     @Suppress("DEPRECATION")
     fun playNewSong(song: Song) {
+        //choose the same song,if media player is pause,then start;or do nothing
+        if (playStatus.currentSong != null && playStatus.currentSong !!.songId == song.songId) {
+            if (! isMediaPlaying()) {
+                start()
+            }
+            return
+        }
+
         if (isMediaPlaying()) {
             pause()
         }
+
+        setStreamUrlAndPrepareAsync(song.listenFileUrl)
+        playStatus.currentSong = song
+        notifyStatusChanged(STATUS_NEW_SONG, song)
+    }
+
+    @Suppress("DEPRECATION")
+    private fun setStreamUrlAndPrepareAsync(url: String) {
         mediaPlayer.reset()
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC)
         try {
-            mediaPlayer.setDataSource(song.listenFileUrl)
+            mediaPlayer.setDataSource(url)
         } catch (e: IllegalArgumentException) {
             notifyStatusChanged(STATUS_ERROR, "参数有误")
         } catch (e: IOException) {
             notifyStatusChanged(STATUS_ERROR, "文件打开失败")
         }
-        currentSong = song
         mediaPlayer.prepareAsync()
-        notifyStatusChanged(STATUS_NEW_SONG, song)
     }
 
     override fun onPrepared(player: MediaPlayer?) {
-        if (currentSong !!.length == 0) {
-            currentSong !!.length = mediaPlayer.duration / 1000
+        //第一次启动，并且 playStatus 是从文件中读取的
+        //只定位不播放
+        if (isFirstStart) {
+            seekTo(playStatus.playProgress)
+            isFirstStart = false
+        } else {
+            if (playStatus.currentSong !!.length == 0) {
+                playStatus.currentSong !!.length = mediaPlayer.duration / 1000
+            }
+            start()
+            insertOrUpdatePlayHistory()
         }
-        start()
-//        insertOrUpdatePlayHistory()
     }
 
-//    private fun insertOrUpdatePlayHistory() {
-//        val dao = DAOUtil.getSession(this).playHistoryDao
-//        val queryList = dao.queryBuilder()
-//                .where(PlayHistoryDao.Properties.SongId.eq(currentSong !!.songId))
-//                .build()
-//                .list()
-//        if (queryList.size > 0) {
-//            val playHistory = queryList[0]
-//            playHistory.playTimeInMills = System.currentTimeMillis()
-//            playHistory.playTimes += 1
-//            dao.update(playHistory)
-//        } else {
-//            val playHistory = PlayHistory(null, System.currentTimeMillis(), 1, currentSong !!.name,
-//                    currentSong !!.songId, currentSong !!.artistId, currentSong !!.albumId,
-//                    currentSong !!.albumCoverUrl, currentSong !!.artistName, currentSong !!.albumName,
-//                    currentSong !!.listenFileUrl)
-//            dao.insert(playHistory)
-//        }
-//    }
+    private fun insertOrUpdatePlayHistory() {
+        val dao = DAOUtil.getSession(this).playHistoryDao
+        val queryList = dao.queryBuilder()
+                .where(PlayHistoryDao.Properties.SongId.eq(playStatus.currentSong !!.songId))
+                .build()
+                .list()
+        if (queryList.size > 0) {
+            val playHistory = queryList[0]
+            playHistory.playTimeInMills = System.currentTimeMillis()
+            playHistory.playTimes += 1
+            dao.update(playHistory)
+        } else {
+            val playHistory = PlayHistory(null, System.currentTimeMillis(), 1, playStatus.currentSong !!.name,
+                    playStatus.currentSong !!.songId, playStatus.currentSong !!.artistId, playStatus.currentSong !!.albumId,
+                    playStatus.currentSong !!.albumCoverUrl, playStatus.currentSong !!.artistName, playStatus.currentSong !!.albumName,
+                    playStatus.currentSong !!.listenFileUrl, playStatus.currentSong !!.miniAlbumCoverUrl)
+            dao.insert(playHistory)
+        }
+    }
 
     override fun onSeekComplete(player: MediaPlayer?) {
         //进度条定位完成
@@ -150,11 +195,12 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
 
 
     fun start() {
-        if (currentSong == null) {
+        if (playStatus.currentSong == null) {
             notifyStatusChanged(STATUS_INFO, "当前没有歌曲播放")
         } else {
             if (! mediaPlayer.isPlaying) {
                 mediaPlayer.start()
+                playStatus.isPlaying = true
                 notifyStatusChanged(STATUS_START, null)
                 updateProgressTask = ProgressTimerTask()
                 timer.schedule(updateProgressTask, 0, 200)
@@ -165,6 +211,7 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
 
     fun pause() {
         if (isMediaPlaying()) {
+            playStatus.isPlaying = false
             mediaPlayer.pause()
             notifyStatusChanged(STATUS_PAUSE, null)
             updateProgressTask !!.cancel()
@@ -173,6 +220,7 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
 
     fun stop() {
         mediaPlayer.stop()
+        playStatus.isPlaying = false
         notifyStatusChanged(STATUS_STOP, null)
         updateProgressTask !!.cancel()
     }
@@ -203,9 +251,15 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
     }
 
     override fun onBufferingUpdate(player: MediaPlayer?, percent: Int) {
-        bufferedProgress = percent
-        notifyStatusChanged(STATUS_BUFFER_PROCESS_UPDATE, percent)
-        LogUtil.d(TAG, "buffer percent:$percent%")
+        //防止缓存一直停在99
+        val adjustPercent = if (percent == 99) {
+            percent + 1
+        } else {
+            percent
+        }
+        playStatus.bufferedProgress = adjustPercent
+        notifyStatusChanged(STATUS_BUFFER_PROCESS_UPDATE, adjustPercent)
+        LogUtil.d(TAG, "buffer adjust percent:$adjustPercent%")
     }
 
     override fun onError(player: MediaPlayer?, what: Int, extra: Int): Boolean {
@@ -259,8 +313,8 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
     }
 
     fun changePlayMode(playMode: PlayMode) {
-        this.playMode = playMode
-        notifyStatusChanged(STATUS_PLAY_MODE_CHANGED, this.playMode)
+        playStatus.playMode = playMode
+        notifyStatusChanged(STATUS_PLAY_MODE_CHANGED, playStatus.playMode)
 
     }
 
@@ -268,18 +322,12 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
         return (mediaPlayer.currentPosition / mediaPlayer.duration.toFloat()) * 100
     }
 
-    fun seekTo(millionSec: Int) {
+    fun seekTo(percent: Float) {
+        val millionSec = (percent / 100 * mediaPlayer.duration).toInt()
         mediaPlayer.seekTo(millionSec)
     }
 
     fun registerStatusObserver(observer: PlayStatusObserver) {
-        val playStatus = PlayStatus()
-        playStatus.currentList = currentPlayList
-        playStatus.currentSong = currentSong
-        playStatus.isPlaying = isMediaPlaying()
-        playStatus.playMode = playMode
-        playStatus.playProgress = getCurrentPlayProgress()
-        playStatus.bufferedProgress = bufferedProgress
         observer.onPlayInit(playStatus)
         mStatusObservers.add(observer)
     }
@@ -312,7 +360,15 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
 
     override fun onDestroy() {
         super.onDestroy()
+        if (playStatus.isPlaying) {
+            playStatus.isPlaying = false
+        }
+        val outputStream = openFileOutput(STATUS_TMP_FILE_NAME, Context.MODE_PRIVATE)
+        val os: ObjectOutputStream = ObjectOutputStream(outputStream)
+        os.writeObject(playStatus)
+        os.close()
         mediaPlayer.release()
+        LogUtil.d(TAG, "media player released")
         timer.cancel()
     }
 
@@ -325,13 +381,14 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
 
     inner class ProgressTimerTask : TimerTask() {
         override fun run() {
-            val progress = getCurrentPlayProgress()
-            notifyStatusChanged(STATUS_PLAY_PROCESS_UPDATE, progress)
+            playStatus.playProgress = getCurrentPlayProgress()
+            notifyStatusChanged(STATUS_PLAY_PROCESS_UPDATE, playStatus.playProgress)
         }
 
     }
 
-    class PlayStatus {
+    class PlayStatus : Serializable {
+        val serialVersionUID: Long = 998
         var isPlaying: Boolean = false
         var currentSong: Song? = null
         var currentList: List<Song>? = null

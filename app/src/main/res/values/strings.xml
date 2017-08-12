@@ -35,6 +35,7 @@
     <string name="search_hot">热门搜索</string>
     <string name="collect_detail">歌单详情</string>
     <string name="album_detail">专辑详情</string>
+    <string name="no_play_history">没有播放记录</string>
 
 
 </resources>
