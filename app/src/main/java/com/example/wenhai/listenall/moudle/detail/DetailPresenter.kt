@@ -51,10 +51,11 @@ internal class DetailPresenter(val view: DetailContract.View) : DetailContract.P
     override fun loadSongDetail(song: Song) {
         musicRepository.loadSongDetail(song, object : LoadSongDetailCallback {
             override fun onFailure() {
-                LogUtil.e(TAG, "load song detail failed")
+                view.onLoadFailed("当前歌曲不能播放，请切换其他平台搜索")
             }
 
             override fun onSuccess(loadedSong: Song) {
+                LogUtil.d(TAG, "song detail:$song")
                 view.onSongDetailLoaded(loadedSong)
             }
 

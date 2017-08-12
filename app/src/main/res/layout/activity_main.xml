@@ -6,22 +6,30 @@
     android:layout_height="match_parent"
     tools:context=".moudle.main.MainActivity">
 
-    <!--main content-->
-    <LinearLayout
+    <!--main activity container-->
+    <FrameLayout
+        android:id="@+id/main_activity"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <FrameLayout
-            android:id="@+id/main_container"
+        <!--main content-->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1">
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-        </FrameLayout>
-        <!--play bar-->
-        <include layout="@layout/include_play_bar" />
-    </LinearLayout>
+            <FrameLayout
+                android:id="@+id/main_container"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+
+            </FrameLayout>
+            <!--play bar-->
+            <include layout="@layout/include_play_bar" />
+        </LinearLayout>
+    </FrameLayout>
 
     <!--navigation drawer-->
     <include layout="@layout/main_slide_menu" />

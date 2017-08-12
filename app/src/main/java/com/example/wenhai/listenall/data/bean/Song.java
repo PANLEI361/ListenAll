@@ -6,8 +6,11 @@ import android.support.annotation.NonNull;
 
 import com.example.wenhai.listenall.data.MusicProvider;
 
+import java.io.Serializable;
 
-public final class Song implements Parcelable {
+
+public final class Song implements Parcelable, Serializable {
+    private long serialVersionUID = 10000;
     private long songId;
     private String name;
     private int length;//second
@@ -22,6 +25,7 @@ public final class Song implements Parcelable {
     private long albumId;
     private String albumName;
     private String albumCoverUrl;
+    private String miniAlbumCoverUrl;
     private MusicProvider supplier;
 
     @Override
@@ -40,6 +44,7 @@ public final class Song implements Parcelable {
         dest.writeLong(albumId);
         dest.writeString(albumName);
         dest.writeString(albumCoverUrl);
+        dest.writeString(miniAlbumCoverUrl);
         switch (supplier) {
             case XIAMI:
                 dest.writeInt(0);
@@ -73,6 +78,7 @@ public final class Song implements Parcelable {
         albumId = in.readLong();
         albumName = in.readString();
         albumCoverUrl = in.readString();
+        miniAlbumCoverUrl = in.readString();
         switch (in.readInt()) {
             case 0:
                 supplier = MusicProvider.XIAMI;
@@ -225,4 +231,33 @@ public final class Song implements Parcelable {
         this.supplier = supplier;
     }
 
+    public String getMiniAlbumCoverUrl() {
+        return miniAlbumCoverUrl;
+    }
+
+    public void setMiniAlbumCoverUrl(String miniAlbumCoverUrl) {
+        this.miniAlbumCoverUrl = miniAlbumCoverUrl;
+    }
+
+    @Override
+    public String toString() {
+        return "Song{" +
+                "songId=" + songId +
+                ", name='" + name + '\'' +
+                ", length=" + length +
+                ", listenFileUrl='" + listenFileUrl + '\'' +
+                ", lyricUrl='" + lyricUrl + '\'' +
+                ", payFlag=" + payFlag +
+                ", canFreeListen=" + canFreeListen +
+                ", canFreeDownload=" + canFreeDownload +
+                ", artistName='" + artistName + '\'' +
+                ", artistLogo='" + artistLogo + '\'' +
+                ", artistId=" + artistId +
+                ", albumId=" + albumId +
+                ", albumName='" + albumName + '\'' +
+                ", albumCoverUrl='" + albumCoverUrl + '\'' +
+                ", miniAlbumCoverUrl='" + miniAlbumCoverUrl + '\'' +
+                ", supplier=" + supplier +
+                '}';
+    }
 }

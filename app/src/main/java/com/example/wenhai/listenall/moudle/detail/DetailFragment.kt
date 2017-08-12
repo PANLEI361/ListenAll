@@ -27,6 +27,7 @@ import com.example.wenhai.listenall.utils.ToastUtil
 
 class DetailFragment : Fragment(), DetailContract.View {
 
+
     @BindView(R.id.action_bar_title)
     lateinit var mActionBarTitle: TextView
     @BindView(R.id.detail_cover)
@@ -86,16 +87,6 @@ class DetailFragment : Fragment(), DetailContract.View {
             getString(R.string.album_detail)
         }
         mSongListAdapter = SongListAdapter(context, ArrayList<Song>())
-        mSongListAdapter.setOnItemClickListener(object : SongListAdapter.OnItemClickListener {
-            override fun onItemClick(song: Song) {
-                if (song.listenFileUrl == "") {
-                    mPresenter.loadSongDetail(song)
-                } else {
-                    playSong(song)
-                }
-            }
-
-        })
         mSongList.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         mSongList.adapter = mSongListAdapter
     }
@@ -128,6 +119,12 @@ class DetailFragment : Fragment(), DetailContract.View {
         }
     }
 
+    override fun onLoadFailed(msg: String) {
+        activity.runOnUiThread {
+            ToastUtil.showToast(context, msg)
+        }
+    }
+
     override fun setCollectDetail(collect: Collect) {
         activity.runOnUiThread({
             mTitle.text = collect.title
@@ -140,6 +137,7 @@ class DetailFragment : Fragment(), DetailContract.View {
             mSongListAdapter.setData(collect.songs)
         })
     }
+
 
     override fun setAlbumDetail(album: Album) {
         activity.runOnUiThread {
@@ -165,13 +163,7 @@ class DetailFragment : Fragment(), DetailContract.View {
         super.onDestroy()
     }
 
-    class SongListAdapter(val context: Context, var songList: List<Song>) : RecyclerView.Adapter<SongListAdapter.ViewHolder>() {
-
-        lateinit var itemClickListener: OnItemClickListener
-
-        interface OnItemClickListener {
-            fun onItemClick(song: Song)
-        }
+    inner class SongListAdapter(val context: Context, var songList: List<Song>) : RecyclerView.Adapter<SongListAdapter.ViewHolder>() {
 
         override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
             val song = songList[position]
@@ -181,7 +173,7 @@ class DetailFragment : Fragment(), DetailContract.View {
             val artistName = song.artistName
             holder.artistAlbum.text = artistName
             holder.item.setOnClickListener({
-                itemClickListener.onItemClick(song)
+                mPresenter.loadSongDetail(song)
             })
         }
 
@@ -195,10 +187,6 @@ class DetailFragment : Fragment(), DetailContract.View {
         fun setData(songList: List<Song>) {
             this.songList = songList
             notifyDataSetChanged()
-        }
-
-        fun setOnItemClickListener(listener: OnItemClickListener) {
-            itemClickListener = listener
         }
 
         inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

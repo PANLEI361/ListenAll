@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/result_item"
     android:layout_width="match_parent"
-    android:layout_height="60dp"
+    android:layout_height="62dp"
     android:background="@drawable/selector_white"
-    android:gravity="center_vertical">
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:padding="2dp">
 
     <RelativeLayout
         android:layout_width="0dp"
@@ -21,7 +24,8 @@
             android:maxLines="1"
             android:text="顽固"
             android:textColor="@color/colorBlack"
-            android:textSize="18sp" />
+            android:textSize="18sp"
+            tools:ignore="HardcodedText" />
 
         <TextView
             android:id="@+id/result_artist_album"
@@ -32,7 +36,8 @@
             android:layout_marginTop="5dp"
             android:ellipsize="end"
             android:maxLines="1"
-            android:text="五月天-自传" />
+            android:text="五月天-自传"
+            tools:ignore="HardcodedText" />
     </RelativeLayout>
 
     <ImageButton
@@ -40,7 +45,7 @@
         style="?android:attr/buttonBarButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:src="@drawable/ic_more" />
+        android:src="@drawable/ic_more"
+        tools:ignore="ContentDescription" />
 
 </LinearLayout>

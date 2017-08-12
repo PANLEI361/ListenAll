@@ -11,6 +11,7 @@ interface DetailContract {
         fun setCollectDetail(collect: Collect)
         fun setAlbumDetail(album: Album)
         fun onSongDetailLoaded(song: Song)
+        fun onLoadFailed(msg: String)
     }
 
     interface Presenter : BasePresenter {

@@ -68,7 +68,7 @@ internal class Xiami : MusicSource {
     override fun loadNewAlbum(count: Int, callback: LoadAlbumCallback) {
 //        type contains "all" "huayu" "oumei" "ri" "han"
         //presenting "全部" "华语"  "欧美"  "日本" "韩国"
-        val url = "http://www.xiami.com/music/newalbum/type/huayu/page/1"
+        val url = "http://www.xiami.com/music/newalbum/type/all/page/1"
         LoadNewAlbumTask(count, callback).execute(url)
     }
 
@@ -76,7 +76,6 @@ internal class Xiami : MusicSource {
         val url = BASE_URL + "id=$id" + SUFFIX_COLLECT_DETAIL
         OkHttpUtil.getForXiami(url, object : BaseResponseCallback() {
             override fun onStart() {
-                LogUtil.d(TAG, "开始网络请求")
             }
 
             override fun onJsonObjectResponse(jsonObject: JSONObject) {
@@ -116,40 +115,29 @@ internal class Xiami : MusicSource {
             song.name = jsonSong.getString("song_name")
             song.albumId = jsonSong.getLong("album_id")
             song.albumName = jsonSong.getString("album_name")
-            song.albumCoverUrl = jsonSong.getString("album_logo")
             song.artistId = jsonSong.getLong("artist_id")
             try {
                 song.artistName = jsonSong.getString("artist_name")
             } catch (e: JSONException) {
                 song.artistName = jsonSong.getString("singers")
             }
-            try {
-                song.artistLogo = jsonSong.getString("artist_logo")
-            } catch (e: JSONException) {
-                song.artistLogo = ""
+            // multi artist
+            if (song.artistName.contains(";")) {
+                val artists = song.artistName.split(";")
+                val artistBuilder = StringBuilder()
+                for (artist in artists) {
+                    artistBuilder.append(artist)
+                    artistBuilder.append("&")
+                }
+                song.artistName = artistBuilder.substring(0, artistBuilder.length - 1)
             }
-            try {
-                song.length = jsonSong.getInt("length")
-            } catch (e: JSONException) {
-                song.length = 0
-            }
-            try {
-                song.listenFileUrl = jsonSong.getString("listen_file")
-            } catch (e: JSONException) {
-                song.listenFileUrl = ""
-            }
-//            song.payFlag = jsonSong.getInt("need_pay_flag")
-            try {
-                song.lyricUrl = jsonSong.getString("lyric")
-            } catch (e: JSONException) {
-                song.lyricUrl = ""
-            }
+
+            song.listenFileUrl = ""
             song.supplier = MusicProvider.XIAMI
             songList.add(song)
         }
         return songList
     }
-
 
     override fun loadSongDetail(song: Song, callback: LoadSongDetailCallback) {
         val id = song.songId
@@ -160,26 +148,37 @@ internal class Xiami : MusicSource {
 
             override fun onJsonObjectResponse(jsonObject: JSONObject) {
                 val songInfo = jsonObject.getJSONObject("data")
-                val trackList: JSONArray = songInfo.getJSONArray("trackList")
-                if (trackList.length() > 0) {
-                    val track = trackList.getJSONObject(0)
-                    song.listenFileUrl = getListenUrlFromLocation(track.getString("location"))
-                    val canFreeListen = track.getJSONObject("purviews").getJSONObject("LISTEN").getString("LOW")
-                    song.isCanFreeListen = canFreeListen == "FREE"
-                    val canFreeDownload = track.getJSONObject("purviews").getJSONObject("DOWNLOAD").getString("LOW")
-                    song.isCanFreeDownload = canFreeDownload == "FREE"
-                    song.length = track.getString("length").toInt()
-                    try {
-                        song.lyricUrl = track.getString("lyric_url")
-                    } catch (e: JSONException) {
-                        song.lyricUrl = ""
-                    }
-                    callback.onSuccess(song)
-
-                } else {
+                if (songInfo.isNull("trackList")) {
+                    //不能播放
                     callback.onFailure()
-                }
+                } else {
+                    val trackList: JSONArray = songInfo.getJSONArray("trackList")
+                    if (trackList.length() > 0) {
+                        val track = trackList.getJSONObject(0)
+                        if (song.listenFileUrl == "") {
+                            song.listenFileUrl = getListenUrlFromLocation(track.getString("location"))
+                        }
+                        val canFreeListen = track.getJSONObject("purviews").getJSONObject("LISTEN").getString("LOW")
+                        song.isCanFreeListen = canFreeListen == "FREE"
+                        val canFreeDownload = track.getJSONObject("purviews").getJSONObject("DOWNLOAD").getString("LOW")
+                        song.isCanFreeDownload = canFreeDownload == "FREE"
+                        song.length = track.getInt("length")
+                        try {
+                            song.lyricUrl = track.getString("lyric_url")
+                        } catch (e: JSONException) {
+                            song.lyricUrl = ""
+                        }
+                        song.albumCoverUrl = track.getString("album_pic")
+                        song.miniAlbumCoverUrl = track.getString("pic")
+                        song.albumName = track.getString("album_name")
+                        song.albumId = track.getLong("album_id")
+                        song.artistId = track.getLong("artist_id")
+                        callback.onSuccess(song)
+                    } else {
+                        callback.onFailure()
+                    }
 
+                }
             }
 
             override fun onFailure(msg: String) {
@@ -198,14 +197,8 @@ internal class Xiami : MusicSource {
         val remainder = location.substring(1).length % num
 
         val result = ArrayList<String>()
-        for (i in 0..remainder - 1) {
-            val line = location.substring(i * (avgLen + 1) + 1, (i + 1) * (avgLen + 1) + 1)
-            result.add(line)
-        }
-        for (i in 0..num - remainder - 1) {
-            val line = location.substring((avgLen + 1) * remainder).substring(i * avgLen + 1, (i + 1) * avgLen + 1)
-            result.add(line)
-        }
+        (0..remainder - 1).mapTo(result) { location.substring(it * (avgLen + 1) + 1, (it + 1) * (avgLen + 1) + 1) }
+        (0..num - remainder - 1).mapTo(result) { location.substring((avgLen + 1) * remainder).substring(it * avgLen + 1, (it + 1) * avgLen + 1) }
 
         val s = ArrayList<String>()
         for (i in 0..avgLen - 1) {
@@ -304,6 +297,8 @@ internal class Xiami : MusicSource {
         return keywordList
     }
 
+
+    //AsyncTasks
     internal class LoadBannerTask(val callback: LoadBannerCallback)
         : AsyncTask<String, Void, List<String>?>() {
 
@@ -313,10 +308,9 @@ internal class Xiami : MusicSource {
                 val slider: Element? = document.getElementById("slider")
                 val items: Elements = slider !!.getElementsByClass("item")
                 val imgUrlList = ArrayList<String>(items.size)
-                for (i in 0..items.size - 1) {
-                    val imgUrl = items[i].select("a").first().select("img").first().attr("src")
-//                    val ref = items[i].select("a").first().attr("href")
-                    imgUrlList.add(imgUrl)
+                (0..items.size - 1).mapTo(imgUrlList) {
+                    items[it].select("a").first().select("img").first().attr("src")
+                    //                    val ref = items[i].select("a").first().attr("href")
                 }
 
                 return imgUrlList
@@ -389,23 +383,25 @@ internal class Xiami : MusicSource {
                 val albumElement = document.getElementById("albums")
                 val albums = albumElement.getElementsByClass("album")
                 val albumList = ArrayList<Album>(count)
-                for (i in 0..count - 1) {
-                    val imgElement = albums[i].getElementsByClass("image").first()
-                    val onclick: String = imgElement.select("b").first().attr("onclick")
-                    val id = onclick.substring(onclick.indexOf('(', 0, false) + 1, onclick.indexOf(',', 0, false))
-                    val coverUrl = imgElement.select("img").first().attr("src")
-                    val title = albums[i].getElementsByClass("info").first()
-                            .select("p").first()
-                            .select("a").first().attr("title")
-                    val artist = albums[i].getElementsByClass("info").first()
-                            .select("p").next()
-                            .select("a").first().attr("title")
-                    val album = Album()
-                    album.coverUrl = coverUrl.substring(0, coverUrl.length - 20)
-                    album.title = title
-                    album.artist = artist
-                    album.id = id.toLong()
-                    albumList.add(album)
+                if (albums.size > 0) {
+                    for (i in 0..count - 1) {
+                        val imgElement = albums[i].getElementsByClass("image").first()
+                        val onclick: String = imgElement.select("b").first().attr("onclick")
+                        val id = onclick.substring(onclick.indexOf('(', 0, false) + 1, onclick.indexOf(',', 0, false))
+                        val coverUrl = imgElement.select("img").first().attr("src")
+                        val title = albums[i].getElementsByClass("info").first()
+                                .select("p").first()
+                                .select("a").first().attr("title")
+                        val artist = albums[i].getElementsByClass("info").first()
+                                .select("p").next()
+                                .select("a").first().attr("title")
+                        val album = Album()
+                        album.coverUrl = coverUrl.substring(0, coverUrl.length - 20)
+                        album.title = title
+                        album.artist = artist
+                        album.id = id.toLong()
+                        albumList.add(album)
+                    }
                 }
                 return albumList
             } else {

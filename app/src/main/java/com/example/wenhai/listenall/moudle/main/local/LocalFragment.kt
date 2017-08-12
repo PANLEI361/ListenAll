@@ -19,6 +19,8 @@ import butterknife.OnClick
 import butterknife.Unbinder
 import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.TestSongList
+import com.example.wenhai.listenall.moudle.playhistory.PlayHistoryFragment
+import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.LogUtil
 
 
@@ -77,6 +79,7 @@ class LocalFragment : android.support.v4.app.Fragment() {
             R.id.main_local_btn_songs -> {
             }
             R.id.main_local_btn_recent_play -> {
+                FragmentUtil.addFragmentToMainView(fragmentManager, PlayHistoryFragment())
             }
             R.id.main_local_btn_liked -> {
             }
@@ -110,35 +113,34 @@ class LocalFragment : android.support.v4.app.Fragment() {
     }
 
 
-}
+    class SongListAdapter(val context: Context) : RecyclerView.Adapter<SongListAdapter.ViewHolder>() {
+        lateinit var songList: List<TestSongList>
 
-class SongListAdapter(val context: Context) : RecyclerView.Adapter<SongListAdapter.ViewHolder>() {
-    lateinit var songList: List<TestSongList>
-
-    constructor(songList: List<TestSongList>, context: Context) : this(context) {
-        this.songList = songList
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
-        val itemView = LayoutInflater.from(context).inflate(R.layout.test_item_main_song_list, parent, false)
-        return ViewHolder(itemView)
-    }
-
-    override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
-        if (holder == null) {
-            return
+        constructor(songList: List<TestSongList>, context: Context) : this(context) {
+            this.songList = songList
         }
-        val testSongList = songList[position]
-        val icon = BitmapFactory.decodeResource(context.resources, testSongList.iconId)
-        holder.ivIcon.setImageBitmap(icon)
-        holder.tvListName.text = testSongList.name
-    }
 
-    override fun getItemCount(): Int = songList.size
+        override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
+            val itemView = LayoutInflater.from(context).inflate(R.layout.test_item_main_song_list, parent, false)
+            return ViewHolder(itemView)
+        }
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        var ivIcon: ImageView = itemView.findViewById(R.id.song_list_icon)
-        var tvListName: TextView = itemView.findViewById(R.id.song_list_name)
+        override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
+            if (holder == null) {
+                return
+            }
+            val testSongList = songList[position]
+            val icon = BitmapFactory.decodeResource(context.resources, testSongList.iconId)
+            holder.ivIcon.setImageBitmap(icon)
+            holder.tvListName.text = testSongList.name
+        }
+
+        override fun getItemCount(): Int = songList.size
+
+        class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+            var ivIcon: ImageView = itemView.findViewById(R.id.song_list_icon)
+            var tvListName: TextView = itemView.findViewById(R.id.song_list_name)
+        }
     }
 }
 

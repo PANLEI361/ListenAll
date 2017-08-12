@@ -23,7 +23,8 @@
         android:maxLines="1"
         android:text="模特"
         android:textColor="@color/colorBlack"
-        android:textSize="14sp" />
+        android:textSize="14sp"
+        tools:ignore="HardcodedText" />
 
     <TextView
         android:id="@+id/main_tv_new_album_artist"
@@ -33,6 +34,7 @@
         android:layout_marginTop="2dp"
         android:maxLines="1"
         android:text="李荣浩"
-        android:textSize="12sp" />
+        android:textSize="12sp"
+        tools:ignore="HardcodedText" />
 
 </LinearLayout>

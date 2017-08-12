@@ -8,39 +8,51 @@
     android:paddingStart="7dp">
 
     <!--begin search-->
-    <TextView
-        android:id="@+id/search_begin_search"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_marginStart="3dp"
-        android:background="@drawable/selector_white"
-        android:gravity="center_vertical"
-        android:text="搜索ddd"
-        android:textColor="#3e45ce"
-        android:textSize="16sp"
-        android:visibility="gone" />
-
-    <!--hot search keyword-->
     <LinearLayout
-        android:id="@+id/hot_search"
+        android:id="@+id/search_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:visibility="visible">
+        android:visibility="gone">
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/search_hot"
-            android:textSize="15sp" />
-
-        <LinearLayout
+            android:id="@+id/search_begin_search"
             android:layout_width="match_parent"
-            android:layout_height="150dp">
+            android:layout_height="40dp"
+            android:layout_marginStart="3dp"
+            android:background="@drawable/selector_white"
+            android:gravity="center"
+            android:textColor="@color/colorBlack"
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
-        </LinearLayout>
+        <View
+            android:background="@color/colorDivider"
+            android:layout_width="match_parent"
+            android:layout_height="1px" />
 
     </LinearLayout>
+    <!--hot search keyword-->
+    <!--<LinearLayout-->
+    <!--android:id="@+id/hot_search"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:orientation="vertical"-->
+    <!--android:visibility="gone">-->
+
+    <!--<TextView-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:text="@string/search_hot"-->
+    <!--android:textSize="15sp" />-->
+
+    <!--<LinearLayout-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="150dp">-->
+
+    <!--</LinearLayout>-->
+
+    <!--</LinearLayout>-->
 
     <!--list-->
     <android.support.v7.widget.RecyclerView

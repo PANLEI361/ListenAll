@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/search_recommend_item"
     android:layout_width="match_parent"
-    android:layout_height="40dp"
+    android:layout_height="44dp"
     android:background="@drawable/selector_white"
     android:gravity="center_vertical"
     android:orientation="horizontal"
@@ -28,5 +28,12 @@
         android:gravity="center_vertical"
         android:text="John Mayer"
         android:textColor="@color/colorBlack"
-        android:textSize="16sp" />
+        android:textSize="16sp"
+        tools:ignore="HardcodedText" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:layout_alignParentBottom="true"
+        android:background="@color/colorDivider" />
 </RelativeLayout>
