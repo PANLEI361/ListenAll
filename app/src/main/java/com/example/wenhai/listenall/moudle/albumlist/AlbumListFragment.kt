@@ -1,12 +1,15 @@
 package com.example.wenhai.listenall.moudle.albumlist
 
+import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
+import android.widget.BaseAdapter
 import android.widget.GridView
+import android.widget.ImageView
 import android.widget.TextView
 import butterknife.BindView
 import butterknife.ButterKnife
@@ -18,6 +21,7 @@ import com.example.wenhai.listenall.moudle.detail.DetailFragment
 import com.example.wenhai.listenall.moudle.detail.DetailPresenter
 import com.example.wenhai.listenall.moudle.detail.Type
 import com.example.wenhai.listenall.utils.FragmentUtil
+import com.example.wenhai.listenall.utils.GlideApp
 
 class AlbumListFragment : Fragment(), AlbumListContract.View {
     @BindView(R.id.action_bar_title)
@@ -68,7 +72,7 @@ class AlbumListFragment : Fragment(), AlbumListContract.View {
 
     override fun setNewAlbums(albumList: List<Album>) {
         mAlbumList = albumList
-        mGridNewAlbums.adapter = NewAlbumAdapter(context, mAlbumList)
+        mGridNewAlbums.adapter = AlbumListAdapter(context, mAlbumList)
     }
 
     @OnClick(R.id.action_bar_back)
@@ -83,6 +87,41 @@ class AlbumListFragment : Fragment(), AlbumListContract.View {
     override fun onDestroyView() {
         super.onDestroyView()
         mUnBinder.unbind()
+    }
+
+    internal class AlbumListAdapter(private val context: Context, private val albumList: List<Album>) : BaseAdapter() {
+
+        override fun getCount(): Int = albumList.size
+
+        override fun getItem(i: Int): Any = albumList[i]
+
+        override fun getItemId(i: Int): Long = i.toLong()
+
+        override fun getView(position: Int, convertView: View?, viewGroup: ViewGroup): View {
+            var itemView = convertView
+            var viewHolder: ViewHolder
+            if (itemView == null) {
+                itemView = LayoutInflater.from(context).inflate(R.layout.item_album_list, viewGroup, false)
+                viewHolder = ViewHolder(itemView)
+                itemView.tag = viewHolder
+            }
+            viewHolder = itemView !!.tag as ViewHolder
+            val album = albumList[position]
+            viewHolder.title.text = album.title
+            viewHolder.artist.text = album.artist
+            GlideApp.with(context)
+                    .load(album.coverUrl)
+                    .placeholder(R.drawable.ic_main_all_music)
+                    .into(viewHolder.cover)
+
+            return itemView
+        }
+
+        inner class ViewHolder(itemView: View) {
+            var cover: ImageView = itemView.findViewById(R.id.album_cover)
+            var title: TextView = itemView.findViewById(R.id.album_title)
+            var artist: TextView = itemView.findViewById(R.id.album_artist)
+        }
     }
 
 }
