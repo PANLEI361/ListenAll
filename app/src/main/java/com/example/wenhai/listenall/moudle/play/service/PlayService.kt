@@ -47,8 +47,6 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
         REPEAT_ONE, REPEAT_LIST, SHUFFLE
     }
 
-    // TODO: 2017/8/8 退出时记录上次播放的歌和播放进度，第一次启动时恢复
-
     lateinit var mediaPlayer: MediaPlayer
     val binder: Binder = ControlBinder()
     lateinit var mStatusObservers: ArrayList<PlayStatusObserver>
@@ -157,8 +155,22 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
                 playStatus.currentSong !!.length = mediaPlayer.duration / 1000
             }
             start()
-            insertOrUpdatePlayHistory()
+
         }
+    }
+
+
+    override fun onSeekComplete(player: MediaPlayer?) {
+        //进度条定位完成
+//        notifyStatusChanged(STATUS_PLAY_PROCESS_UPDATE, getCurrentPlayProgress())
+    }
+
+    override fun onCompletion(player: MediaPlayer?) {
+        // 播放完成
+        notifyStatusChanged(STATUS_SONG_COMPLETED, null)
+        updateProgressTask !!.cancel()
+        insertOrUpdatePlayHistory()
+        LogUtil.d(TAG, "播放完成")
     }
 
     private fun insertOrUpdatePlayHistory() {
@@ -179,18 +191,6 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
                     playStatus.currentSong !!.listenFileUrl, playStatus.currentSong !!.miniAlbumCoverUrl)
             dao.insert(playHistory)
         }
-    }
-
-    override fun onSeekComplete(player: MediaPlayer?) {
-        //进度条定位完成
-//        notifyStatusChanged(STATUS_PLAY_PROCESS_UPDATE, getCurrentPlayProgress())
-    }
-
-    override fun onCompletion(player: MediaPlayer?) {
-        // 播放完成
-        notifyStatusChanged(STATUS_SONG_COMPLETED, null)
-        updateProgressTask !!.cancel()
-        LogUtil.d(TAG, "播放完成")
     }
 
 
@@ -363,10 +363,12 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
         if (playStatus.isPlaying) {
             playStatus.isPlaying = false
         }
+        //save status
         val outputStream = openFileOutput(STATUS_TMP_FILE_NAME, Context.MODE_PRIVATE)
         val os: ObjectOutputStream = ObjectOutputStream(outputStream)
         os.writeObject(playStatus)
         os.close()
+
         mediaPlayer.release()
         LogUtil.d(TAG, "media player released")
         timer.cancel()
