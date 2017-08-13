@@ -28,6 +28,7 @@ import com.example.wenhai.listenall.utils.AppUtil
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
 import com.example.wenhai.listenall.utils.LogUtil
+import com.example.wenhai.listenall.widget.PlayListDialog
 import com.example.wenhai.listenall.widget.ProgressImageButton
 
 
@@ -75,6 +76,7 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
     lateinit var playService: PlayService
     var isPlaying = false
     var currentSong: Song? = null
+    lateinit var currentPlayList: ArrayList<Song>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -101,7 +103,7 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
         }
     }
 
-    @OnClick(R.id.play_bar_control, R.id.main_ll_song_info)
+    @OnClick(R.id.play_bar_control, R.id.main_ll_song_info, R.id.play_bar_song_list)
     fun onPlayBarClick(view: View) {
         when (view.id) {
             R.id.play_bar_control -> {
@@ -113,11 +115,11 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
             }
             R.id.main_ll_song_info -> {
                 val playDetailFragment = PlayFragment()
-                //// TODO: 2017/8/11 设置当前播放信息
-//                val data = Bundle()
-//                data.putParcelable("currentSong", currentSong)
-//                playDetailFragment.arguments = data
                 FragmentUtil.addFragmentToView(supportFragmentManager, playDetailFragment, R.id.main_activity)
+            }
+            R.id.play_bar_song_list -> {
+                val dialog = PlayListDialog(this, currentPlayList)
+                dialog.show()
             }
         }
     }
@@ -175,8 +177,7 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
         setPlayIcon(isPlaying)
 
         mBtnControl.progress = playStatus.playProgress
-        // TODO: 2017/8/12  播放列表信息
-
+        currentPlayList = playStatus.currentList
     }
 
     private fun setCover(coverUrl: String) {
@@ -215,7 +216,7 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
     }
 
     override fun onSongCompleted() {
-        onPlayPause()
+
     }
 
     override fun onBufferProgressUpdate(percent: Int) {

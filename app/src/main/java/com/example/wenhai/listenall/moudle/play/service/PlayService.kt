@@ -17,6 +17,7 @@ import java.io.IOException
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.io.Serializable
+import java.util.Random
 import java.util.Timer
 import java.util.TimerTask
 
@@ -26,6 +27,7 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
 
     companion object {
         const val TAG = "PlayService"
+
         const val STATUS_TMP_FILE_NAME = "play_status.tmp"
         const val ACTION_NEW_SONG = "com.example.wenhai.listenall.action.newsong"
         const val ACTION_INIT = "com.example.wenhai.listenall.action.init"
@@ -38,12 +40,12 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
         const val STATUS_ERROR = 0x05
         const val STATUS_INFO = 0x06
         const val STATUS_NEW_SONG = 0x07
-        const val STATUS_INIT = 0x08
-        const val STATUS_SONG_COMPLETED = 0x09
-        const val STATUS_PLAY_MODE_CHANGED = 0x0a
+        const val STATUS_SONG_COMPLETED = 0x08
+        const val STATUS_PLAY_MODE_CHANGED = 0x09
     }
 
     enum class PlayMode : Serializable {
+
         REPEAT_ONE, REPEAT_LIST, SHUFFLE
     }
 
@@ -99,11 +101,14 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
         } catch (e: FileNotFoundException) {
             //第一次安装时
             playStatus = PlayStatus()
-            isFirstStart = false //防止 onPrepare 第一次不播放歌曲
+            //防止第一次 onPrepare 不播放歌曲
+            isFirstStart = false
             LogUtil.i(TAG, "第一次安装")
         }
         if (playStatus.playProgress == 100f) {
+            //如果上次播放已完成，则进度调整到0
             playStatus.playProgress = 0f
+            notifyStatusChanged(STATUS_PLAY_PROCESS_UPDATE, playStatus.playProgress)
         }
         if (isFirstStart && playStatus.currentSong != null) {
             setStreamUrlAndPrepareAsync(playStatus.currentSong !!.listenFileUrl)
@@ -112,9 +117,9 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
     }
 
     @Suppress("DEPRECATION")
-    fun playNewSong(song: Song) {
+    fun playNewSong(newSong: Song) {
         //choose the same song,if media player is pause,then start;or do nothing
-        if (playStatus.currentSong != null && playStatus.currentSong !!.songId == song.songId) {
+        if (playStatus.currentSong != null && playStatus.currentSong !!.songId == newSong.songId) {
             if (! isMediaPlaying()) {
                 start()
             }
@@ -125,9 +130,15 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
             pause()
         }
 
-        setStreamUrlAndPrepareAsync(song.listenFileUrl)
-        playStatus.currentSong = song
-        notifyStatusChanged(STATUS_NEW_SONG, song)
+        setStreamUrlAndPrepareAsync(newSong.listenFileUrl)
+        playStatus.currentSong !!.isPlaying = false
+        playStatus.currentSong = newSong
+
+        //add to playList
+        if (! playStatus.currentList.contains(newSong)) {
+            playStatus.currentList.add(newSong)
+        }
+        notifyStatusChanged(STATUS_NEW_SONG, newSong)
     }
 
     @Suppress("DEPRECATION")
@@ -143,6 +154,7 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
         }
         mediaPlayer.prepareAsync()
     }
+
 
     override fun onPrepared(player: MediaPlayer?) {
         //第一次启动，并且 playStatus 是从文件中读取的
@@ -162,15 +174,22 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
 
     override fun onSeekComplete(player: MediaPlayer?) {
         //进度条定位完成
-//        notifyStatusChanged(STATUS_PLAY_PROCESS_UPDATE, getCurrentPlayProgress())
+        notifyStatusChanged(STATUS_PLAY_PROCESS_UPDATE, getCurrentPlayProgress())
     }
 
     override fun onCompletion(player: MediaPlayer?) {
-        // 播放完成
+        // 播放完成后设置状态为暂停
+        playStatus.isPlaying = false
+        notifyStatusChanged(STATUS_PAUSE, null)
+
         notifyStatusChanged(STATUS_SONG_COMPLETED, null)
         updateProgressTask !!.cancel()
         insertOrUpdatePlayHistory()
+        //adjust progress
+        playStatus.playProgress = 100f
         LogUtil.d(TAG, "播放完成")
+        LogUtil.d(TAG, "开始播放下一首")
+        next()
     }
 
     private fun insertOrUpdatePlayHistory() {
@@ -211,11 +230,12 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
 
     fun pause() {
         if (isMediaPlaying()) {
-            playStatus.isPlaying = false
             mediaPlayer.pause()
+            playStatus.isPlaying = false
             notifyStatusChanged(STATUS_PAUSE, null)
             updateProgressTask !!.cancel()
         }
+
     }
 
     fun stop() {
@@ -263,17 +283,6 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
     }
 
     override fun onError(player: MediaPlayer?, what: Int, extra: Int): Boolean {
-//        var msg = when (what) {
-//            MediaPlayer.MEDIA_ERROR_UNKNOWN -> {
-//                "未知资源"
-//            }
-//            MediaPlayer.MEDIA_ERROR_SERVER_DIED -> {
-//                "与服务器连接失败"
-//            }
-//            else -> {
-//                ""
-//            }
-//        }
         val msg = when (extra) {
             MediaPlayer.MEDIA_ERROR_UNSUPPORTED -> {
                 "文件格式不支持"
@@ -297,25 +306,75 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
 
 
     fun next() {
-
+        val curIndex = playStatus.currentList.indexOf(playStatus.currentSong)
+        val nextIndex = when (playStatus.playMode) {
+            PlayMode.REPEAT_LIST -> {
+                //play next song ,if reach the bound the replay the list
+                if (curIndex == (playStatus.currentList.size - 1)) {
+                    0
+                } else {
+                    curIndex + 1
+                }
+            }
+            PlayMode.REPEAT_ONE -> {
+                //repeat current song
+                curIndex
+            }
+            PlayMode.SHUFFLE -> {
+                //get a random index
+                val random = Random(System.currentTimeMillis())
+                random.nextInt(playStatus.currentList.size)
+            }
+        }
+        playNewSong(playStatus.currentList[nextIndex])
     }
 
     fun previous() {
-
+        val curIndex = playStatus.currentList.indexOf(playStatus.currentSong)
+        val nextIndex = when (playStatus.playMode) {
+        //if reach the bound ,play the last song
+            PlayMode.REPEAT_LIST -> {
+                if (curIndex == 0) {
+                    playStatus.currentList.size - 1
+                } else {
+                    curIndex - 1
+                }
+            }
+            PlayMode.REPEAT_ONE -> {
+                curIndex
+            }
+            PlayMode.SHUFFLE -> {
+                //get a random index
+                val random = Random(System.currentTimeMillis())
+                random.nextInt(playStatus.currentList.size)
+            }
+        }
+        playNewSong(playStatus.currentList[nextIndex])
     }
 
     fun addToPlayList(songs: List<Song>) {
-
+        playStatus.currentList.addAll(songs)
     }
 
     fun setNextSong(song: Song) {
-
+        val curIndex = playStatus.currentList.indexOf(playStatus.currentSong)
+        playStatus.currentList.add(curIndex + 1, song)
     }
 
-    fun changePlayMode(playMode: PlayMode) {
-        playStatus.playMode = playMode
+    fun changePlayMode() {
+        val nextMode = when (playStatus.playMode) {
+            PlayMode.REPEAT_LIST -> {
+                PlayMode.SHUFFLE
+            }
+            PlayMode.SHUFFLE -> {
+                PlayMode.REPEAT_ONE
+            }
+            PlayMode.REPEAT_ONE -> {
+                PlayMode.REPEAT_LIST
+            }
+        }
+        playStatus.playMode = nextMode
         notifyStatusChanged(STATUS_PLAY_MODE_CHANGED, playStatus.playMode)
-
     }
 
     fun getCurrentPlayProgress(): Float {
@@ -392,12 +451,14 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
     class PlayStatus : Serializable {
         val serialVersionUID: Long = 998
         var isPlaying: Boolean = false
+            set(value) {
+                currentSong !!.isPlaying = value
+                field = value
+            }
         var currentSong: Song? = null
-        var currentList: List<Song>? = null
+        var currentList: ArrayList<Song> = ArrayList()
         var playProgress: Float = 0f
         var bufferedProgress: Int = 0
         var playMode: PlayMode = PlayMode.REPEAT_LIST
     }
-
-
 }
