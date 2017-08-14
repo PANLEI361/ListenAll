@@ -36,8 +36,7 @@ class PlayListDialog(context: Context, var songList: ArrayList<Song>, themeId: I
 
     lateinit var unbinder: Unbinder
     lateinit var adapter: SongListAdapter
-
-    var currentPlayIndex = 0
+    lateinit var itemClickListener: OnItemClickListener
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,15 +52,17 @@ class PlayListDialog(context: Context, var songList: ArrayList<Song>, themeId: I
         window.setGravity(Gravity.BOTTOM)
         window.attributes.width = getScreenWidth()
         tvSongNumbers.text = songList.size.toString()
+
         rvSongList.layoutManager = LinearLayoutManager(context)
-        adapter = SongListAdapter()
+        adapter = SongListAdapter(context, songList)
+        adapter.setOnItemClickListener(itemClickListener)
+
         rvSongList.adapter = adapter
     }
 
-    fun setSongs(songList: ArrayList<Song>) {
+    private fun setSongs(songList: ArrayList<Song>) {
         this.songList = songList
         tvSongNumbers.text = songList.size.toString()
-        adapter.notifyDataSetChanged()
     }
 
     @OnClick(R.id.dialog_close)
@@ -71,6 +72,10 @@ class PlayListDialog(context: Context, var songList: ArrayList<Song>, themeId: I
                 dismiss()
             }
         }
+    }
+
+    fun setOnItemClickListener(listener: OnItemClickListener) {
+        itemClickListener = listener
     }
 
 
@@ -86,11 +91,25 @@ class PlayListDialog(context: Context, var songList: ArrayList<Song>, themeId: I
         super.onDetachedFromWindow()
     }
 
-    inner class SongListAdapter : RecyclerView.Adapter<SongListAdapter.ViewHolder>() {
+    inner class SongListAdapter(val context: Context, songList: ArrayList<Song>) : RecyclerView.Adapter<SongListAdapter.ViewHolder>() {
+        lateinit var listener: OnItemClickListener
+        var songList: ArrayList<Song> = ArrayList()
+            set(value) {
+                field = value
+                notifyDataSetChanged()
+            }
+
+        init {
+            this.songList = songList
+        }
+
         override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
             val song = songList[position]
             val songInfo = "${song.name} · ${song.artistName}"
             holder !!.songInfo.text = songInfo
+            holder.songInfo.setOnClickListener {
+                listener.onItemClick(song)
+            }
             if (song.isPlaying) {
                 holder.isPlaying.visibility = View.VISIBLE
             } else {
@@ -98,10 +117,15 @@ class PlayListDialog(context: Context, var songList: ArrayList<Song>, themeId: I
             }
 
             holder.delete.setOnClickListener {
-                // TODO: 2017/8/13 删除
-//                songList.r/
+                songList.remove(song)
+                setSongs(songList)
+                notifyDataSetChanged()
             }
 
+        }
+
+        fun setOnItemClickListener(listener: OnItemClickListener) {
+            this.listener = listener
         }
 
         override fun getItemCount(): Int = songList.size
@@ -116,6 +140,13 @@ class PlayListDialog(context: Context, var songList: ArrayList<Song>, themeId: I
             val isPlaying: ImageView = itemView.findViewById(R.id.item_isPlaying)
             val delete: ImageButton = itemView.findViewById(R.id.item_delete)
         }
+
+
     }
+
+    interface OnItemClickListener {
+        fun onItemClick(song: Song)
+    }
+
 
 }
