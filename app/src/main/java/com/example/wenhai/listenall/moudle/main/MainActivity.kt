@@ -119,6 +119,13 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
             }
             R.id.play_bar_song_list -> {
                 val dialog = PlayListDialog(this, currentPlayList)
+                dialog.setOnItemClickListener(object : PlayListDialog.OnItemClickListener {
+                    override fun onItemClick(song: Song) {
+                        playService.playNewSong(song)
+                        dialog.dismiss()
+                    }
+
+                })
                 dialog.show()
             }
         }

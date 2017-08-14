@@ -15,6 +15,7 @@ import butterknife.ButterKnife
 import butterknife.OnClick
 import butterknife.Unbinder
 import com.example.wenhai.listenall.R
+import com.example.wenhai.listenall.data.MusicProvider
 import com.example.wenhai.listenall.data.bean.PlayHistory
 import com.example.wenhai.listenall.data.bean.Song
 import com.example.wenhai.listenall.moudle.main.MainActivity
@@ -100,6 +101,14 @@ class PlayHistoryFragment : Fragment(), PlayHistoryContract.View {
                 song.albumCoverUrl = playHistory.coverUrl
                 song.miniAlbumCoverUrl = playHistory.miniAlbumCoverUrl
                 song.listenFileUrl = playHistory.listenFileUrl
+                song.supplier = when (playHistory.providerName) {
+                    MusicProvider.XIAMI.name -> MusicProvider.XIAMI
+                    MusicProvider.QQMUSIC.name -> MusicProvider.QQMUSIC
+                    MusicProvider.NETEASE.name -> MusicProvider.NETEASE
+                    else -> {
+                        MusicProvider.XIAMI
+                    }
+                }
                 (activity as MainActivity).playService.playNewSong(song)
             }
         }

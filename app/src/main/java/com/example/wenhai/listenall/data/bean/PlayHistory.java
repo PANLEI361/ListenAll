@@ -19,12 +19,13 @@ public class PlayHistory {
     private String albumName;
     private String listenFileUrl;
     private String miniAlbumCoverUrl;
+    private String providerName;
 
-    @Generated(hash = 1261294028)
+    @Generated(hash = 1568489359)
     public PlayHistory(Long id, long playTimeInMills, int playTimes,
                        String songName, long songId, long artistId, long albumId,
                        String coverUrl, String artistName, String albumName,
-                       String listenFileUrl, String miniAlbumCoverUrl) {
+                       String listenFileUrl, String miniAlbumCoverUrl, String providerName) {
         this.id = id;
         this.playTimeInMills = playTimeInMills;
         this.playTimes = playTimes;
@@ -37,6 +38,7 @@ public class PlayHistory {
         this.albumName = albumName;
         this.listenFileUrl = listenFileUrl;
         this.miniAlbumCoverUrl = miniAlbumCoverUrl;
+        this.providerName = providerName;
     }
 
     @Generated(hash = 2145518983)
@@ -137,6 +139,14 @@ public class PlayHistory {
 
     public void setMiniAlbumCoverUrl(String miniAlbumCoverUrl) {
         this.miniAlbumCoverUrl = miniAlbumCoverUrl;
+    }
+
+    public String getProviderName() {
+        return this.providerName;
+    }
+
+    public void setProviderName(String providerName) {
+        this.providerName = providerName;
     }
 
 }

@@ -1,22 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
     android:orientation="vertical">
 
     <!--artist name-->
     <LinearLayout
+        android:id="@+id/play_ll_artist_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="5dp"
         android:gravity="center"
         android:orientation="horizontal">
 
         <View
             android:layout_width="30dp"
-            android:layout_height="2px"
+            android:layout_height="1dp"
             android:background="@color/colorDivider" />
 
         <TextView
@@ -31,7 +32,7 @@
 
         <View
             android:layout_width="30dp"
-            android:layout_height="2px"
+            android:layout_height="1dp"
             android:background="@color/colorDivider" />
 
     </LinearLayout>
@@ -41,17 +42,42 @@
         android:id="@+id/play_cover"
         android:layout_width="280dp"
         android:layout_height="280dp"
-        android:layout_centerInParent="true"
         android:layout_marginTop="15dp"
         android:background="@drawable/bg_cover"
         android:padding="1dp"
         tools:ignore="ContentDescription" />
 
-    <!--operation-->
+    <!--provider-->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+        android:layout_marginTop="15dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="provided by"
+            android:textColor="@color/colorGray"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/play_provider"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="3dp"
+            android:gravity="center_horizontal"
+            android:text="虾米音乐"
+            android:textColor="@color/colorBlack" />
+    </LinearLayout>
+
+    <!--operation-->
+    <LinearLayout
+        android:id="@+id/play_ll_operation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:gravity="center"
         android:orientation="horizontal">
@@ -84,4 +110,4 @@
 
     </LinearLayout>
 
-</RelativeLayout>
+</LinearLayout>

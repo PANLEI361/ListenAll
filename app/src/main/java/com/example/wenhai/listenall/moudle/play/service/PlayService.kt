@@ -204,10 +204,11 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
             playHistory.playTimes += 1
             dao.update(playHistory)
         } else {
-            val playHistory = PlayHistory(null, System.currentTimeMillis(), 1, playStatus.currentSong !!.name,
-                    playStatus.currentSong !!.songId, playStatus.currentSong !!.artistId, playStatus.currentSong !!.albumId,
-                    playStatus.currentSong !!.albumCoverUrl, playStatus.currentSong !!.artistName, playStatus.currentSong !!.albumName,
-                    playStatus.currentSong !!.listenFileUrl, playStatus.currentSong !!.miniAlbumCoverUrl)
+            val song = playStatus.currentSong
+            val playHistory = PlayHistory(null, System.currentTimeMillis(), 1, song !!.name,
+                    song.songId, song.artistId, song.albumId,
+                    song.albumCoverUrl, song.artistName, song.albumName,
+                    song.listenFileUrl, song.miniAlbumCoverUrl, song.supplier.name)
             dao.insert(playHistory)
         }
     }

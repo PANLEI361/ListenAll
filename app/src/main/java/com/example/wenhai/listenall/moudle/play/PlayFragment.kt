@@ -10,7 +10,6 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.RelativeLayout
 import android.widget.SeekBar
 import android.widget.TextView
 import butterknife.BindView
@@ -18,23 +17,19 @@ import butterknife.ButterKnife
 import butterknife.OnClick
 import butterknife.Unbinder
 import com.example.wenhai.listenall.R
+import com.example.wenhai.listenall.data.MusicProvider
 import com.example.wenhai.listenall.data.bean.Song
 import com.example.wenhai.listenall.moudle.main.MainActivity
 import com.example.wenhai.listenall.moudle.play.service.PlayService
 import com.example.wenhai.listenall.moudle.play.service.PlayStatusObserver
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
-import com.example.wenhai.listenall.utils.LogUtil
 import com.example.wenhai.listenall.widget.PlayListDialog
 
 class PlayFragment : Fragment(), PlayStatusObserver {
 
     @BindView(R.id.play_song_name)
     lateinit var mSongName: TextView
-
-    //    @BindView(R.id.play_artist_name)
-    lateinit var mTvArtistName: TextView
-    lateinit var mIvCover: ImageView
 
     @BindView(R.id.play_pager)
     lateinit var mPager: ViewPager
@@ -65,7 +60,11 @@ class PlayFragment : Fragment(), PlayStatusObserver {
     @BindView(R.id.play_btn_song_list)
     lateinit var mBtnSongList: ImageButton
 
-    lateinit var coverView: RelativeLayout
+    lateinit var coverView: LinearLayout
+    lateinit var mTvArtistName: TextView
+    lateinit var mTvProvider: TextView
+    lateinit var mIvCover: ImageView
+
     lateinit var lyricView: LinearLayout
 
 
@@ -85,9 +84,10 @@ class PlayFragment : Fragment(), PlayStatusObserver {
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val contentView = inflater !!.inflate(R.layout.fragment_play, container, false)
         //init coverView
-        coverView = inflater.inflate(R.layout.fragment_play_cover, container, false) as RelativeLayout
+        coverView = inflater.inflate(R.layout.fragment_play_cover, container, false) as LinearLayout
         mIvCover = coverView.findViewById(R.id.play_cover)
         mTvArtistName = coverView.findViewById(R.id.play_artist_name)
+        mTvProvider = coverView.findViewById(R.id.play_provider)
 
         //init lyricView
         lyricView = inflater.inflate(R.layout.fragment_play_lyric, container, false) as LinearLayout
@@ -139,7 +139,8 @@ class PlayFragment : Fragment(), PlayStatusObserver {
 
     }
 
-    @OnClick(R.id.action_bar_back, R.id.play_btn_start_pause, R.id.play_btn_previous, R.id.play_btn_next, R.id.play_btn_mode, R.id.play_btn_song_list)
+    @OnClick(R.id.action_bar_back, R.id.play_btn_start_pause, R.id.play_btn_previous,
+            R.id.play_btn_next, R.id.play_btn_mode, R.id.play_btn_song_list)
     fun onClick(view: View) {
         when (view.id) {
             R.id.action_bar_back -> {
@@ -164,7 +165,15 @@ class PlayFragment : Fragment(), PlayStatusObserver {
                 playService.changePlayMode()
             }
             R.id.play_btn_song_list -> {
-                PlayListDialog(context, mCurrentPlayList).show()
+                val dialog = PlayListDialog(context, mCurrentPlayList)
+                dialog.setOnItemClickListener(object : PlayListDialog.OnItemClickListener {
+                    override fun onItemClick(song: Song) {
+                        playService.playNewSong(song)
+                        dialog.dismiss()
+                    }
+
+                })
+                dialog.show()
             }
         }
     }
@@ -233,13 +242,13 @@ class PlayFragment : Fragment(), PlayStatusObserver {
         playMode = playStatus.playMode
         setPlayModeIcon(playMode)
         isPlaying = playStatus.isPlaying
-        LogUtil.d("test", "isplaying?$isPlaying")
         setPlayControlIcon(isPlaying)
         mSeekBar.secondaryProgress = playStatus.bufferedProgress
         mCurrentSong = playStatus.currentSong
         if (mCurrentSong != null) {
             mSongName.text = mCurrentSong !!.name
             mTvArtistName.text = mCurrentSong !!.artistName
+            setProvider()
             setCover(mCurrentSong !!.albumCoverUrl)
             mTvTotalTime.text = getMinuteLength(mCurrentSong !!.length)
         }
@@ -290,8 +299,26 @@ class PlayFragment : Fragment(), PlayStatusObserver {
         mSongName.text = mCurrentSong !!.name
         setCover(mCurrentSong !!.albumCoverUrl)
         mTvArtistName.text = mCurrentSong !!.artistName
+        setProvider()
         setTotalTime(mCurrentSong !!.length)
         setCurTime(0f)
+    }
+
+    @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
+    private fun setProvider() {
+        val provider = mCurrentSong !!.supplier
+        val providerStr = when (provider) {
+            MusicProvider.XIAMI -> {
+                "虾米音乐"
+            }
+            MusicProvider.QQMUSIC -> {
+                "QQ音乐"
+            }
+            MusicProvider.NETEASE -> {
+                "网易云音乐"
+            }
+        }
+        mTvProvider.text = providerStr
     }
 
     override fun onSongCompleted() {
@@ -317,7 +344,6 @@ class PlayFragment : Fragment(), PlayStatusObserver {
         override fun destroyItem(container: ViewGroup?, position: Int, `object`: Any?) {
             container !!.removeViewAt(position)
             super.destroyItem(container, position, `object`)
-
         }
 
     }
