@@ -2,8 +2,13 @@ package com.example.wenhai.listenall.data.onlineprovider
 
 import android.os.AsyncTask
 import android.text.TextUtils
+import com.example.wenhai.listenall.data.ArtistRegion
 import com.example.wenhai.listenall.data.LoadAlbumCallback
 import com.example.wenhai.listenall.data.LoadAlbumDetailCallback
+import com.example.wenhai.listenall.data.LoadArtistAlbumsCallback
+import com.example.wenhai.listenall.data.LoadArtistDetailCallback
+import com.example.wenhai.listenall.data.LoadArtistHotSongsCallback
+import com.example.wenhai.listenall.data.LoadArtistsCallback
 import com.example.wenhai.listenall.data.LoadBannerCallback
 import com.example.wenhai.listenall.data.LoadCollectCallback
 import com.example.wenhai.listenall.data.LoadCollectDetailCallback
@@ -13,6 +18,7 @@ import com.example.wenhai.listenall.data.LoadSongDetailCallback
 import com.example.wenhai.listenall.data.MusicProvider
 import com.example.wenhai.listenall.data.MusicSource
 import com.example.wenhai.listenall.data.bean.Album
+import com.example.wenhai.listenall.data.bean.Artist
 import com.example.wenhai.listenall.data.bean.Collect
 import com.example.wenhai.listenall.data.bean.Song
 import com.example.wenhai.listenall.utils.BaseResponseCallback
@@ -52,6 +58,14 @@ internal class Xiami : MusicSource {
         //get hidden listen url when "listen file" is null
         val PREFIX_SONG_DETAIL = "http://www.xiami.com/song/playlist/id/"
         val SUFFIX_SONG_DETAIL = "/object_name/default/object_id/0/cat/json"
+
+        //singer type:0-全部 1-华语 2-欧美 3-日本 4-韩国
+        //http://www.xiami.com/artist/index/c/2/type/1
+        // c 1-本周流行 2-热门艺人
+//        http://www.xiami.com/artist/index/c/2/type/1/class/0/page/1
+        val URL_PREFIX_LOAD_ARTISTS = "http://www.xiami.com/artist/index/c/2/type/"
+        val URL_INFIX_LOAD_ARTISTS = "/class/0/page/"
+        val URL_HOME = "http://www.xiami.com"
     }
 
 
@@ -155,7 +169,7 @@ internal class Xiami : MusicSource {
                     val trackList: JSONArray = songInfo.getJSONArray("trackList")
                     if (trackList.length() > 0) {
                         val track = trackList.getJSONObject(0)
-                        if (song.listenFileUrl == "") {
+                        if (TextUtils.isEmpty(song.listenFileUrl)) {
                             song.listenFileUrl = getListenUrlFromLocation(track.getString("location"))
                         }
                         val canFreeListen = track.getJSONObject("purviews").getJSONObject("LISTEN").getString("LOW")
@@ -172,6 +186,7 @@ internal class Xiami : MusicSource {
                         song.miniAlbumCoverUrl = track.getString("pic")
                         song.albumName = track.getString("album_name")
                         song.albumId = track.getLong("album_id")
+                        song.artistName = track.getString("artist_name")
                         song.artistId = track.getLong("artist_id")
                         callback.onSuccess(song)
                     } else {
@@ -229,6 +244,7 @@ internal class Xiami : MusicSource {
                 album.songNumber = jsonObject.getInt("song_count")
                 album.publishDate = jsonObject.getLong("gmt_publish")
                 album.coverUrl = jsonObject.getString("album_logo")
+                album.miniCoverUrl = album.coverUrl + "@1e_1c_100Q_100w_100h"
                 album.songs = getSongsFromJson(jsonObject.getJSONArray("songs"))
                 callback.onSuccess(album)
             }
@@ -274,8 +290,8 @@ internal class Xiami : MusicSource {
                 super.onStart()
             }
 
-            override fun onStringResponse(string: String) {
-                val keywordList = getRecommendKeywords(string)
+            override fun onHtmlResponse(html: String) {
+                val keywordList = getRecommendKeywords(html)
                 callback.onSuccess(keywordList)
             }
 
@@ -295,6 +311,192 @@ internal class Xiami : MusicSource {
         result.map { it.select("a").first().attr("title") }
                 .filterNotTo(keywordList) { TextUtils.isEmpty(it) }
         return keywordList
+    }
+
+    override fun loadArtists(region: ArtistRegion, callback: LoadArtistsCallback) {
+        val type = when (region) {
+            ArtistRegion.ALL -> {
+                0
+            }
+            ArtistRegion.CN -> {
+                1
+            }
+            ArtistRegion.EA -> {
+                2
+            }
+            ArtistRegion.JP -> {
+                3
+            }
+            ArtistRegion.KO -> {
+                4
+            }
+        }
+        val page = 1.toString()
+        val url = URL_PREFIX_LOAD_ARTISTS + "$type" + URL_INFIX_LOAD_ARTISTS + page
+        OkHttpUtil.getForXiami(url, object : BaseResponseCallback() {
+            override fun onFailure(msg: String) {
+                super.onFailure(msg)
+                callback.onFailure()
+            }
+
+            override fun onHtmlResponse(html: String) {
+                super.onHtmlResponse(html)
+                val artists: ArrayList<Artist> = parseArtistList(html)
+                callback.onSuccess(artists)
+            }
+
+        })
+
+    }
+
+    private fun parseArtistList(html: String): ArrayList<Artist> {
+        val result = ArrayList<Artist>()
+        val document = Jsoup.parse(html)
+        val artists = document.getElementById("artists")
+        val artistElements = artists.getElementsByClass("artist")
+        for (artistElement in artistElements) {
+            val artist = Artist()
+            val img = artistElement.getElementsByClass("image").first()
+            artist.name = artistElement.getElementsByClass("info").first()
+                    .select("a").first().attr("title")
+            artist.miniImgUrl = img.select("img").first()
+                    .attr("src")
+            val homePageSuffix = artistElement.getElementsByClass("image").first()
+                    .select("a").first()
+                    .attr("href")
+            artist.homePageSuffix = homePageSuffix
+            val artistId = homePageSuffix.substring(homePageSuffix.lastIndexOf("/") + 1)
+            artist.artistId = artistId
+            artist.hotSongSuffix = "/artist/top-" + artistId
+            artist.albumSuffix = "/artist/album-" + artistId
+            result.add(artist)
+        }
+        return result
+
+    }
+
+    override fun loadArtistDetail(artist: Artist, callback: LoadArtistDetailCallback) {
+        val url = URL_HOME + artist.homePageSuffix
+        OkHttpUtil.getForXiami(url, object : BaseResponseCallback() {
+            override fun onHtmlResponse(html: String) {
+                super.onHtmlResponse(html)
+                val detailedArtist = parseAndAddArtistDetail(html, artist)
+                callback.onSuccess(detailedArtist)
+            }
+
+            override fun onFailure(msg: String) {
+                super.onFailure(msg)
+                callback.onFailure()
+            }
+
+        })
+    }
+
+    //get desc and imgUrl
+    private fun parseAndAddArtistDetail(html: String, artist: Artist): Artist {
+        val document = Jsoup.parse(html)
+        val block = document.getElementById("artist_block")
+        val info = block.getElementById("artist_info")
+        val desc = info.select("tr").last()
+                .getElementsByClass("record").first()
+                .text()
+        artist.desc = desc
+        val img = block.getElementById("artist_photo")
+        val imgUrl = img.select("a").first().attr("href")
+        artist.imgUrl = imgUrl
+        return artist
+    }
+
+    override fun loadArtistHotSongs(artist: Artist, callback: LoadArtistHotSongsCallback) {
+//        后面加 ?page=1 指定页数
+        val url = URL_HOME + artist.hotSongSuffix + "?page=1"
+        OkHttpUtil.getForXiami(url, object : BaseResponseCallback() {
+            override fun onHtmlResponse(html: String) {
+                super.onHtmlResponse(html)
+                val hotSongs = parseArtistHotSongs(html)
+                callback.onSuccess(hotSongs)
+            }
+
+            override fun onFailure(msg: String) {
+                super.onFailure(msg)
+                callback.onFailure()
+            }
+
+        })
+    }
+
+    private fun parseArtistHotSongs(html: String): List<Song> {
+        val document = Jsoup.parse(html)
+        val trackList = document.getElementsByClass("track_list").first()
+        val tracks = trackList.select("tr")
+        val songs = ArrayList<Song>()
+        for (track in tracks) {
+            val song = Song()
+            song.name = track.getElementsByClass("song_name").first()
+                    .select("a").first()
+                    .attr("title")
+            val onClick = track.getElementsByClass("song_act").first()
+                    .getElementsByClass("song_play").first()
+                    .attr("onClick")
+            val extra = track.getElementsByClass("song_name").first()
+                    .getElementsByClass("show_zhcn").first()
+            if (extra != null) {
+                //临时显示用
+                song.albumName = extra.text()
+            } else {
+                song.albumName = ""
+            }
+            val songId = onClick.substring(onClick.indexOf("'") + 1, onClick.indexOf(",") - 1)
+            song.songId = songId.toLong()
+            song.supplier = MusicProvider.XIAMI
+            songs.add(song)
+        }
+        return songs
+    }
+
+    override fun loadArtistAlbums(artist: Artist, callback: LoadArtistAlbumsCallback) {
+//        ?page=2
+        val url = URL_HOME + artist.albumSuffix + "?page=1"
+        OkHttpUtil.getForXiami(url, object : BaseResponseCallback() {
+
+            override fun onHtmlResponse(html: String) {
+                super.onHtmlResponse(html)
+                val albums = parseArtistAlbums(html)
+                callback.onSuccess(albums)
+            }
+
+            override fun onFailure(msg: String) {
+                super.onFailure(msg)
+                callback.onFailure()
+            }
+
+        })
+    }
+
+    private fun parseArtistAlbums(html: String): List<Album> {
+        val albums = ArrayList<Album>()
+        val document = Jsoup.parse(html)
+        val albumsElement = document.getElementById("artist_albums").
+                getElementsByClass("albumThread_list").first()
+                .select("li")
+        for (albumElement in albumsElement) {
+            val album = Album()
+            album.supplier = MusicProvider.XIAMI
+            val id = albumElement.select("div").first().attr("id")
+            album.id = id.substring(id.indexOf("_") + 1).toLong()
+            album.miniCoverUrl = albumElement.getElementsByClass("cover").first()
+                    .select("img").attr("src")
+            album.coverUrl = album.miniCoverUrl.substring(0, album.miniCoverUrl.indexOf("@"))
+            val detail = albumElement.getElementsByClass("detail").first()
+            val title = detail.getElementsByClass("name").first()
+                    .select("a").first().attr("title")
+            album.title = title
+            val publishDate = detail.getElementsByClass("company").first()
+                    .select("a").last().text()
+            album.publishDateStr = publishDate
+            albums.add(album)
+        }
+        return albums
     }
 
 

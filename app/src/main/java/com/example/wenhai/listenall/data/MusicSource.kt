@@ -2,6 +2,7 @@ package com.example.wenhai.listenall.data
 
 import com.example.wenhai.listenall.base.BaseCallBack
 import com.example.wenhai.listenall.data.bean.Album
+import com.example.wenhai.listenall.data.bean.Artist
 import com.example.wenhai.listenall.data.bean.Collect
 import com.example.wenhai.listenall.data.bean.Song
 
@@ -19,6 +20,10 @@ interface MusicSource {
     fun loadSongDetail(song: Song, callback: LoadSongDetailCallback)
     fun searchByKeyword(keyword: String, callback: LoadSearchResultCallback)
     fun loadSearchRecommend(keyword: String, callback: LoadSearchRecommendCallback)
+    fun loadArtists(region: ArtistRegion, callback: LoadArtistsCallback)
+    fun loadArtistDetail(artist: Artist, callback: LoadArtistDetailCallback)
+    fun loadArtistHotSongs(artist: Artist, callback: LoadArtistHotSongsCallback)
+    fun loadArtistAlbums(artist: Artist, callback: LoadArtistAlbumsCallback)
 }
 
 
@@ -53,4 +58,20 @@ interface LoadSearchResultCallback : BaseCallBack {
 
 interface LoadSearchRecommendCallback : BaseCallBack {
     fun onSuccess(recommendKeyword: List<String>)
+}
+
+interface LoadArtistsCallback : BaseCallBack {
+    fun onSuccess(artists: List<Artist>)
+}
+
+interface LoadArtistDetailCallback : BaseCallBack {
+    fun onSuccess(artistDetail: Artist)
+}
+
+interface LoadArtistHotSongsCallback : BaseCallBack {
+    fun onSuccess(hotSongs: List<Song>)
+}
+
+interface LoadArtistAlbumsCallback : BaseCallBack {
+    fun onSuccess(albums: List<Album>)
 }

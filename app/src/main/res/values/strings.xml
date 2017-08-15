@@ -36,6 +36,13 @@
     <string name="collect_detail">歌单详情</string>
     <string name="album_detail">专辑详情</string>
     <string name="no_play_history">没有播放记录</string>
+    <string name="singer_korean">韩国</string>
+    <string name="singer_japan">日本</string>
+    <string name="singer_ea">欧美</string>
+    <string name="singer_cn">华语</string>
+    <string name="all">全部</string>
+    <string name="main_artist_list">歌手列表</string>
+    <string name="shuffle_all">随机播放全部</string>
 
 
 </resources>
