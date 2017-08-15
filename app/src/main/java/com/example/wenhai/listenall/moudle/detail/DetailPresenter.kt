@@ -22,8 +22,8 @@ internal class DetailPresenter(val view: DetailContract.View) : DetailContract.P
         view.setPresenter(this)
     }
 
-    override fun loadSongsDetails(id: Long, type: Type) {
-        if (type == Type.COLLECT) {
+    override fun loadSongsDetails(id: Long, type: Int) {
+        if (type == DetailFragment.TYPE_COLLECT) {
             musicRepository.loadCollectDetail(id, object : LoadCollectDetailCallback {
                 override fun onFailure() {
                     LogUtil.e(TAG, "collect detail load failed")

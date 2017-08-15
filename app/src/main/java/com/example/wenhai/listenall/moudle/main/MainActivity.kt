@@ -161,7 +161,9 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
     }
 
     fun playNewSong(song: Song) {
-        playService.playNewSong(song)
+        runOnUiThread {
+            playService.playNewSong(song)
+        }
     }
 
     override fun onDestroy() {

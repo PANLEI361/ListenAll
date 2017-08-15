@@ -7,6 +7,7 @@ import com.example.wenhai.listenall.data.bean.Collect
 import com.example.wenhai.listenall.data.bean.Song
 
 interface DetailContract {
+
     interface View : BaseView<Presenter> {
         fun setCollectDetail(collect: Collect)
         fun setAlbumDetail(album: Album)
@@ -15,7 +16,11 @@ interface DetailContract {
     }
 
     interface Presenter : BasePresenter {
-        fun loadSongsDetails(id: Long, type: Type)
+        fun loadSongsDetails(id: Long, type: Int)
         fun loadSongDetail(song: Song)
+    }
+
+    enum class Type {
+        COLLECT, ALBUM
     }
 }

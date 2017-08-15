@@ -26,7 +26,13 @@ import com.example.wenhai.listenall.utils.GlideApp
 import com.example.wenhai.listenall.utils.ToastUtil
 
 class DetailFragment : Fragment(), DetailContract.View {
-
+    companion object {
+        const val TAG = "DetailFragment"
+        const val TYPE_ALBUM = 0
+        const val TYPE_COLLECT = 1
+        const val ARGS_ID = "id"
+        const val ARGS_TYPE = "type"
+    }
 
     @BindView(R.id.action_bar_title)
     lateinit var mActionBarTitle: TextView
@@ -44,13 +50,9 @@ class DetailFragment : Fragment(), DetailContract.View {
     lateinit var mSongListAdapter: SongListAdapter
 
 
-    companion object {
-        const val TAG = "DetailFragment"
-    }
-
     lateinit var mPresenter: DetailContract.Presenter
     lateinit var mUnBinder: Unbinder
-    lateinit var mLoadType: Type
+    var mLoadType: Int = TYPE_COLLECT
 
 
     override fun setPresenter(presenter: DetailContract.Presenter) {
@@ -68,12 +70,7 @@ class DetailFragment : Fragment(), DetailContract.View {
         mUnBinder = ButterKnife.bind(this, contentView)
 
         val id = arguments.getLong("id")
-        val type = arguments.getInt("type")
-        mLoadType = if (type == Type.COLLECT.ordinal) {
-            Type.COLLECT
-        } else {
-            Type.ALBUM
-        }
+        mLoadType = arguments.getInt("type")
         initView()
         mPresenter.loadSongsDetails(id, mLoadType)
         return contentView
@@ -81,7 +78,7 @@ class DetailFragment : Fragment(), DetailContract.View {
 
 
     override fun initView() {
-        mActionBarTitle.text = if (mLoadType == Type.COLLECT) {
+        mActionBarTitle.text = if (mLoadType == TYPE_COLLECT) {
             getString(R.string.collect_detail)
         } else {
             getString(R.string.album_detail)

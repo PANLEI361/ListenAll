@@ -21,12 +21,11 @@ import com.example.wenhai.listenall.data.MusicProvider
 import com.example.wenhai.listenall.data.bean.Album
 import com.example.wenhai.listenall.data.bean.Collect
 import com.example.wenhai.listenall.moudle.albumlist.AlbumListFragment
+import com.example.wenhai.listenall.moudle.artist.list.ArtistListFragment
 import com.example.wenhai.listenall.moudle.collectlist.CollectListFragment
 import com.example.wenhai.listenall.moudle.detail.DetailFragment
-import com.example.wenhai.listenall.moudle.detail.Type
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
-import com.example.wenhai.listenall.utils.LogUtil
 import com.youth.banner.Banner
 import com.youth.banner.BannerConfig
 import com.youth.banner.Transformer
@@ -57,13 +56,11 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mPresenter = OnLinePresenter(this)
-        LogUtil.d(TAG, "onCreate")
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val rootView = inflater !!.inflate(R.layout.fragment_main_online, container, false)
         mUnBinder = ButterKnife.bind(this, rootView)
-        LogUtil.d(TAG, "onCreateView")
         initView()
         return rootView
     }
@@ -89,14 +86,18 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
         mBanner.stopAutoPlay()
     }
 
-    @OnClick(R.id.main_btn_more_collect, R.id.main_btn_more_albums)
+    @OnClick(R.id.main_btn_more_collect, R.id.main_btn_more_albums, R.id.main_online_btn_singer,
+            R.id.main_online_btn_collect, R.id.main_online_btn_ranking_list)
     fun onClick(view: View) {
         when (view.id) {
             R.id.main_btn_more_collect -> {
-                FragmentUtil.addFragmentToView(fragmentManager, CollectListFragment(), R.id.main_container)
+                FragmentUtil.addFragmentToMainView(fragmentManager, CollectListFragment())
             }
             R.id.main_btn_more_albums -> {
-                FragmentUtil.addFragmentToView(fragmentManager, AlbumListFragment(), R.id.main_container)
+                FragmentUtil.addFragmentToMainView(fragmentManager, AlbumListFragment())
+            }
+            R.id.main_online_btn_singer -> {
+                FragmentUtil.addFragmentToMainView(fragmentManager, ArtistListFragment())
             }
         }
     }
@@ -111,11 +112,9 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
         mPresenter.loadHotCollects()
         mHotCollects.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
             val collect = mHotCollectList[position]
-            val collectId = collect.id
-            val type = Type.COLLECT.ordinal
             val data = Bundle()
-            data.putLong("id", collectId)
-            data.putInt("type", type)
+            data.putLong(DetailFragment.ARGS_ID, collect.id)
+            data.putInt(DetailFragment.ARGS_TYPE, DetailFragment.TYPE_COLLECT)
             startDetailFragment(data)
         }
     }
@@ -134,12 +133,10 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
     private fun initNewAlbumsGridView() {
         mPresenter.loadNewAlbums()
         mNewAlbums.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
-            val type = Type.ALBUM.ordinal
             val album = mNewAlbumList[position]
-            val id = album.id
             val data = Bundle()
-            data.putLong("id", id)
-            data.putInt("type", type)
+            data.putLong(DetailFragment.ARGS_ID, album.id)
+            data.putInt(DetailFragment.ARGS_TYPE, DetailFragment.TYPE_ALBUM)
             startDetailFragment(data)
         }
 
@@ -147,7 +144,7 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
 
     override fun setNewAlbums(newAlbums: List<Album>) {
         mNewAlbumList = newAlbums
-        mNewAlbums.adapter = NewAlbumAdapter(context, mNewAlbumList)
+        mNewAlbums.adapter = NewAlbumsAdapter(context, mNewAlbumList)
     }
 
     private fun initBanner() {
@@ -199,7 +196,6 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
             return itemView
         }
 
-
         override fun getItem(position: Int): Any = hotCollects[position]
 
         override fun getItemId(position: Int): Long = position.toLong()
@@ -208,7 +204,7 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
 
     }
 
-    class NewAlbumAdapter(val context: Context, var newAlbums: List<Album>) : BaseAdapter() {
+    class NewAlbumsAdapter(val context: Context, var newAlbums: List<Album>) : BaseAdapter() {
         @SuppressLint("ViewHolder")
         override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
             val itemView = LayoutInflater.from(context).inflate(R.layout.item_main_new_album, parent, false)
