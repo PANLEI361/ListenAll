@@ -65,7 +65,7 @@ object OkHttpUtil {
                     } else if (body.startsWith("{")) {
                         callback.onJsonObjectResponse(JSONObject(body))
                     } else if (body.contains("</")) {
-                        callback.onStringResponse(body)
+                        callback.onHtmlResponse(body)
                     } else {
                         callback.onFailure("response body:$body")
                     }
@@ -93,7 +93,7 @@ open class BaseResponseCallback : ResponseCallBack {
 
     }
 
-    override fun onStringResponse(string: String) {
+    override fun onHtmlResponse(html: String) {
     }
 
     override fun onFailure(msg: String) {
@@ -107,6 +107,6 @@ interface ResponseCallBack {
     fun onResponse(response: Response)
     fun onJsonObjectResponse(jsonObject: JSONObject)
     fun onJsonArrayResponse(jsonArray: JSONArray)
-    fun onStringResponse(string: String)
+    fun onHtmlResponse(html: String)
     fun onFailure(msg: String)
 }
