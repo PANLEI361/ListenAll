@@ -22,16 +22,22 @@ import com.example.wenhai.listenall.data.bean.Album
 import com.example.wenhai.listenall.data.bean.Collect
 import com.example.wenhai.listenall.moudle.albumlist.AlbumListFragment
 import com.example.wenhai.listenall.moudle.artist.list.ArtistListFragment
+import com.example.wenhai.listenall.moudle.collect.CollectFilterFragment
 import com.example.wenhai.listenall.moudle.collectlist.CollectListFragment
 import com.example.wenhai.listenall.moudle.detail.DetailFragment
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
+import com.example.wenhai.listenall.utils.ToastUtil
 import com.youth.banner.Banner
 import com.youth.banner.BannerConfig
 import com.youth.banner.Transformer
 import com.youth.banner.loader.ImageLoader
 
 class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
+    override fun onFailure(msg: String) {
+        ToastUtil.showToast(context, msg)
+    }
+
     companion object {
         const val TAG = "OnLineFragment"
     }
@@ -98,6 +104,9 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
             }
             R.id.main_online_btn_singer -> {
                 FragmentUtil.addFragmentToMainView(fragmentManager, ArtistListFragment())
+            }
+            R.id.main_online_btn_collect -> {
+                FragmentUtil.addFragmentToMainView(fragmentManager, CollectFilterFragment())
             }
         }
     }

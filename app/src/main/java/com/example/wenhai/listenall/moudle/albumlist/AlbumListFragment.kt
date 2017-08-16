@@ -20,8 +20,13 @@ import com.example.wenhai.listenall.data.bean.Album
 import com.example.wenhai.listenall.moudle.detail.DetailFragment
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
+import com.example.wenhai.listenall.utils.ToastUtil
 
 class AlbumListFragment : Fragment(), AlbumListContract.View {
+    override fun onFailure(msg: String) {
+        ToastUtil.showToast(context, msg)
+    }
+
     @BindView(R.id.action_bar_title)
     lateinit var mTitle: TextView
     @BindView(R.id.new_albums)

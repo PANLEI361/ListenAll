@@ -20,8 +20,13 @@ import com.example.wenhai.listenall.data.bean.Collect
 import com.example.wenhai.listenall.moudle.detail.DetailFragment
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
+import com.example.wenhai.listenall.utils.ToastUtil
 
 internal class CollectListFragment : Fragment(), CollectListContract.View {
+    override fun onFailure(msg: String) {
+        ToastUtil.showToast(context, msg)
+    }
+
     companion object {
         const val TAG = "CollectListFragment"
     }

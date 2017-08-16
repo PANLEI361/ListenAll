@@ -41,8 +41,74 @@
     <string name="singer_ea">欧美</string>
     <string name="singer_cn">华语</string>
     <string name="all">全部</string>
+    <string name="collect_all">全部歌单</string>
     <string name="main_artist_list">歌手列表</string>
     <string name="shuffle_all">随机播放全部</string>
 
 
+    <array name="filter_language">
+        <item>华语</item>
+        <item>欧美</item>
+        <item>日语</item>
+        <item>韩语</item>
+        <item>粤语</item>
+        <item>小语种</item>
+    </array>
+
+    <array name="filter_style">
+        <item>流行</item>
+        <item>摇滚</item>
+        <item>民谣</item>
+        <item>电子</item>
+        <item>舞曲</item>
+        <item>说唱</item>
+        <item>轻音乐</item>
+        <item>爵士</item>
+        <item>乡村</item>
+        <item>R&amp;B</item>
+        <item>古典</item>
+        <item>民族</item>
+        <item>英伦</item>
+        <item>金属</item>
+        <item>朋克</item>
+        <item>蓝调</item>
+        <item>雷鬼</item>
+        <item>世界音乐</item>
+        <item>拉丁</item>
+        <item>另类/独立</item>
+        <item>New Age</item>
+        <item>古风</item>
+        <item>后摇</item>
+    </array>
+
+    <array name="filter_scene">
+        <item>清晨</item>
+        <item>夜晚</item>
+        <item>学习</item>
+        <item>工作</item>
+        <item>午休</item>
+        <item>下午茶</item>
+        <item>地铁</item>
+        <item>驾车</item>
+        <item>运动</item>
+        <item>旅行</item>
+        <item>散步</item>
+        <item>酒吧</item>
+    </array>
+
+    <array name="filter_mood">
+        <item>怀旧</item>
+        <item>清新</item>
+        <item>浪漫</item>
+        <item>性感</item>
+        <item>伤感</item>
+        <item>治愈</item>
+        <item>放松</item>
+        <item>孤独</item>
+        <item>感动</item>
+        <item>兴奋</item>
+        <item>快乐</item>
+        <item>安静</item>
+        <item>思念</item>
+    </array>
 </resources>

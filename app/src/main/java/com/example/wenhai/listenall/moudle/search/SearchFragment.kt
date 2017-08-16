@@ -26,6 +26,9 @@ import com.example.wenhai.listenall.utils.DAOUtil
 import com.example.wenhai.listenall.utils.ToastUtil
 
 class SearchFragment : Fragment(), SearchContract.View {
+    override fun onFailure(msg: String) {
+        ToastUtil.showToast(context, msg)
+    }
 
     companion object {
         const val CONTENT_SEARCH_HISTORY = 0x00

@@ -10,7 +10,6 @@ interface PlayHistoryContract {
     interface View : BaseView<Presenter> {
         fun onPlayHistoryLoad(playHistory: List<PlayHistory>)
         fun onNoPlayHistory()
-        fun onFailure(msg: String)
     }
 
     interface Presenter : BasePresenter {

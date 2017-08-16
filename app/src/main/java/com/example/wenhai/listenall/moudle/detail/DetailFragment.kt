@@ -26,6 +26,10 @@ import com.example.wenhai.listenall.utils.GlideApp
 import com.example.wenhai.listenall.utils.ToastUtil
 
 class DetailFragment : Fragment(), DetailContract.View {
+    override fun onFailure(msg: String) {
+        ToastUtil.showToast(context, msg)
+    }
+
     companion object {
         const val TAG = "DetailFragment"
         const val TYPE_ALBUM = 0

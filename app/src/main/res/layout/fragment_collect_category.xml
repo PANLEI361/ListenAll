@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    <!--category-->
+    <ScrollView
+        android:id="@+id/filter_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#ececec"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/filter_all"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginEnd="5dp"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/selector_white"
+                android:gravity="center"
+                android:text="全部歌单"
+                android:textColor="@color/colorBlack"
+                android:textSize="17sp" />
+
+            <!--语种-->
+            <GridLayout
+                android:id="@+id/filter_language"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:columnCount="4">
+
+            </GridLayout>
+
+            <!--风格-->
+            <GridLayout
+                android:id="@+id/filter_style"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:columnCount="4">
+
+            </GridLayout>
+
+            <!--场景-->
+            <GridLayout
+                android:id="@+id/filter_scene"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:columnCount="4">
+
+            </GridLayout>
+
+            <!--心情-->
+            <GridLayout
+                android:id="@+id/filter_mood"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:columnCount="4">
+
+            </GridLayout>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

@@ -13,7 +13,6 @@ interface ArtistListContract {
     }
 
     interface View : BaseView<Presenter> {
-        fun onFailure(msg: String)
         fun onArtistsLoad(artists: List<Artist>)
 
     }

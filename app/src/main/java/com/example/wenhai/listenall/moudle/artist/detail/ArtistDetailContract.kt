@@ -17,7 +17,6 @@ interface ArtistDetailContract {
     }
 
     interface View : BaseView<Presenter> {
-        fun onFailure(msg: String)
         fun onArtistDetail(artist: Artist)
         fun onHotSongsLoad(hotSongs: List<Song>)
         fun onAlbumsLoad(albums: List<Album>)
