@@ -29,10 +29,10 @@ class ArtistListFragment : Fragment(), ArtistListContract.View {
     @BindView(R.id.artist_list)
     lateinit var mArtistList: RecyclerView
 
-    lateinit var mTabs: ArrayList<Button>
+    private lateinit var mTabs: ArrayList<Button>
 
-    lateinit var mPresenter: ArtistListContract.Presenter
-    lateinit var mUnbinder: Unbinder
+    private lateinit var mPresenter: ArtistListContract.Presenter
+    private lateinit var mUnbinder: Unbinder
     override fun onFailure(msg: String) {
         ToastUtil.showToast(context, msg)
     }
@@ -52,7 +52,7 @@ class ArtistListFragment : Fragment(), ArtistListContract.View {
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val contentView = inflater !!.inflate(R.layout.fragment_artist, container, false)
         mUnbinder = ButterKnife.bind(this, contentView)
-        mTabs = ArrayList<Button>(5)
+        mTabs = ArrayList(5)
         mTabs.add(contentView.findViewById(R.id.singer_all))
         mTabs.add(contentView.findViewById(R.id.singer_china))
         mTabs.add(contentView.findViewById(R.id.singer_en))
@@ -113,7 +113,7 @@ class ArtistListFragment : Fragment(), ArtistListContract.View {
     }
 
     @Suppress("DEPRECATION")
-    fun setTab(position: Int) {
+    private fun setTab(position: Int) {
         for (tab in mTabs) {
             tab.setTextColor(context.resources.getColor(R.color.colorGray))
         }
@@ -126,7 +126,7 @@ class ArtistListFragment : Fragment(), ArtistListContract.View {
         mUnbinder.unbind()
     }
 
-    inner class ArtistAdapter(val artists: List<Artist>) : RecyclerView.Adapter<ArtistAdapter.ViewHolder>() {
+    inner class ArtistAdapter(private val artists: List<Artist>) : RecyclerView.Adapter<ArtistAdapter.ViewHolder>() {
         override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
             val artist = artists[position]
             holder !!.artistName.text = artist.name

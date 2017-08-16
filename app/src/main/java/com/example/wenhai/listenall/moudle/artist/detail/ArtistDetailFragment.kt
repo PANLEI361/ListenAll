@@ -42,17 +42,17 @@ class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
 
     //歌手热门歌曲
     lateinit var mHotSongsView: LinearLayout
-    lateinit var mHotSongList: RecyclerView
+    private lateinit var mHotSongList: RecyclerView
 
     //歌手专辑
     lateinit var mAlbumsView: LinearLayout
-    lateinit var mAlbumList: RecyclerView
+    private lateinit var mAlbumList: RecyclerView
 
     //歌手详情
     lateinit var mArtistInfoView: LinearLayout
-    lateinit var mArtistDesc: TextView
+    private lateinit var mArtistDesc: TextView
 
-    lateinit var mUnbinder: Unbinder
+    private lateinit var mUnbinder: Unbinder
     lateinit var mPresenter: ArtistDetailContract.Presenter
     lateinit var artist: Artist
 
@@ -172,7 +172,7 @@ class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
         }
 
         override fun getPageTitle(position: Int): CharSequence {
-            val title = when (position) {
+            return when (position) {
                 0 -> {
                     "热门歌曲"
                 }
@@ -186,7 +186,6 @@ class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
                     ""
                 }
             }
-            return title
         }
 
         override fun isViewFromObject(view: View?, `object`: Any?): Boolean = view == `object`
@@ -195,7 +194,7 @@ class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
 
     }
 
-    inner class HotSongsAdapter(val context: Context, var hotSongs: List<Song>) : RecyclerView.Adapter<HotSongsAdapter.ViewHolder>() {
+    inner class HotSongsAdapter(val context: Context, private var hotSongs: List<Song>) : RecyclerView.Adapter<HotSongsAdapter.ViewHolder>() {
 
         override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
             val song = hotSongs[position]
@@ -229,7 +228,7 @@ class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
         }
     }
 
-    inner class AlbumAdapter(val context: Context, var albums: List<Album>) : RecyclerView.Adapter<AlbumAdapter.ViewHolder>() {
+    inner class AlbumAdapter(val context: Context, private var albums: List<Album>) : RecyclerView.Adapter<AlbumAdapter.ViewHolder>() {
         override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
             val itemView = LayoutInflater.from(context).inflate(R.layout.item_artist_detail_album, parent, false)
             return ViewHolder(itemView)

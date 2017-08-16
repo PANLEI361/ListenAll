@@ -19,20 +19,20 @@ class ProgressImageButton constructor(context: Context, attrs: AttributeSet?, de
 
     var progress: Float = 0.toFloat()
         set(value) {
-            if (value - 0 < 0.000000001f || value - 100 > 0.00000001f) {
-                field = 0f
+            field = if (value - 0 < 0.000000001f || value - 100 > 0.00000001f) {
+                0f
             } else {
-                field = value
+                value
             }
             invalidate()
         }
     private var progressStokeWidth: Int = 0
     private val borderStokeWidth: Int = 3
-    internal var radiusBorder: Int = 0
-    internal var radiusInside: Int = 0
+    private var radiusBorder: Int = 0
+    private var radiusInside: Int = 0
     private val mPaint: Paint = Paint(Paint.ANTI_ALIAS_FLAG)
     private var mDrawable: Drawable? = null
-    var progressBounds: RectF = RectF()
+    private var progressBounds: RectF = RectF()
 
     init {
         mPaint.style = Paint.Style.STROKE

@@ -10,7 +10,7 @@ internal class AlbumListPresenter(val view: AlbumListContract.View) : AlbumListC
         const val TAG = "AlbumListPresenter"
     }
 
-    val musicRepository: MusicRepository = MusicRepository()
+    private val musicRepository: MusicRepository = MusicRepository()
 
     init {
         view.setPresenter(this)
@@ -18,12 +18,16 @@ internal class AlbumListPresenter(val view: AlbumListContract.View) : AlbumListC
 
     override fun loadNewAlbums() {
         musicRepository.loadNewAlbum(14, object : LoadAlbumCallback {
+            override fun onStart() {
+
+            }
+
             override fun onSuccess(albumList: List<Album>) {
                 view.setNewAlbums(albumList)
             }
 
-            override fun onFailure() {
-                LogUtil.e(TAG, "load new albums failed")
+            override fun onFailure(msg: String) {
+                LogUtil.e(TAG, msg)
             }
         })
     }

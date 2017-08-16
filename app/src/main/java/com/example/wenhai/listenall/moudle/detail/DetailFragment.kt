@@ -51,12 +51,12 @@ class DetailFragment : Fragment(), DetailContract.View {
     @BindView(R.id.detail_song_list)
     lateinit var mSongList: RecyclerView
 
-    lateinit var mSongListAdapter: SongListAdapter
+    private lateinit var mSongListAdapter: SongListAdapter
 
 
     lateinit var mPresenter: DetailContract.Presenter
-    lateinit var mUnBinder: Unbinder
-    var mLoadType: Int = TYPE_COLLECT
+    private lateinit var mUnBinder: Unbinder
+    private var mLoadType: Int = TYPE_COLLECT
 
 
     override fun setPresenter(presenter: DetailContract.Presenter) {
@@ -87,7 +87,7 @@ class DetailFragment : Fragment(), DetailContract.View {
         } else {
             getString(R.string.album_detail)
         }
-        mSongListAdapter = SongListAdapter(context, ArrayList<Song>())
+        mSongListAdapter = SongListAdapter(context, ArrayList())
         mSongList.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         mSongList.adapter = mSongListAdapter
     }
@@ -164,7 +164,7 @@ class DetailFragment : Fragment(), DetailContract.View {
         super.onDestroy()
     }
 
-    inner class SongListAdapter(val context: Context, var songList: List<Song>) : RecyclerView.Adapter<SongListAdapter.ViewHolder>() {
+    inner class SongListAdapter(val context: Context, private var songList: List<Song>) : RecyclerView.Adapter<SongListAdapter.ViewHolder>() {
 
         override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
             val song = songList[position]

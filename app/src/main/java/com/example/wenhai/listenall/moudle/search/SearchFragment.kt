@@ -45,11 +45,11 @@ class SearchFragment : Fragment(), SearchContract.View {
     @BindView(R.id.search_content_list)
     lateinit var mContentList: RecyclerView
 
-    lateinit var mUnBinder: Unbinder
+    private lateinit var mUnBinder: Unbinder
     lateinit var mPresenter: SearchContract.Presenter
-    var searchKeyword = ""
-    lateinit var resultSongs: List<Song>
-    var currentContent = CONTENT_SEARCH_HISTORY
+    private var searchKeyword = ""
+    private lateinit var resultSongs: List<Song>
+    private var currentContent = CONTENT_SEARCH_HISTORY
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -184,7 +184,7 @@ class SearchFragment : Fragment(), SearchContract.View {
         super.onDestroy()
     }
 
-    inner class ResultSongsAdapter(var songs: List<Song>) : RecyclerView.Adapter<ResultSongsAdapter.ViewHolder>() {
+    inner class ResultSongsAdapter(private var songs: List<Song>) : RecyclerView.Adapter<ResultSongsAdapter.ViewHolder>() {
         override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
             val song = songs[position]
             if (holder != null) {
@@ -217,7 +217,7 @@ class SearchFragment : Fragment(), SearchContract.View {
         }
     }
 
-    inner class SearchHistoryAdapter(var history: List<SearchHistory>) : RecyclerView.Adapter<SearchHistoryAdapter.ViewHolder>() {
+    inner class SearchHistoryAdapter(private var history: List<SearchHistory>) : RecyclerView.Adapter<SearchHistoryAdapter.ViewHolder>() {
         override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
             val itemView = LayoutInflater.from(context).inflate(R.layout.item_search_history, parent, false)
             return ViewHolder(itemView)
@@ -251,7 +251,7 @@ class SearchFragment : Fragment(), SearchContract.View {
         }
     }
 
-    inner class SearchRecommendAdapter(var keywords: List<String>)
+    inner class SearchRecommendAdapter(private var keywords: List<String>)
         : RecyclerView.Adapter<SearchRecommendAdapter.ViewHolder>() {
         override fun getItemCount(): Int = keywords.size
 

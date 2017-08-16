@@ -12,4 +12,8 @@
         <item name="android:textSize">17sp</item>
     </style>
 
+    <style name="mainTabLayoutText" parent="Base.TextAppearance.AppCompat.Button">
+        <item name="android:textSize">18sp</item>
+    </style>
+
 </resources>

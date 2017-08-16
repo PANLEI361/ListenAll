@@ -50,14 +50,14 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
     lateinit var mNewAlbums: GridView
     @BindView(R.id.main_online_scroll)
     lateinit var mScrollView: ScrollView
-    var mScrollY = 0
+    private var mScrollY = 0
 
-    lateinit var mUnBinder: Unbinder
-    lateinit var mPresenter: OnLineContract.Presenter
-    var isFirstStart = true
+    private lateinit var mUnBinder: Unbinder
+    private lateinit var mPresenter: OnLineContract.Presenter
+    private var isFirstStart = true
 
-    lateinit var mHotCollectList: List<Collect>
-    lateinit var mNewAlbumList: List<Album>
+    private lateinit var mHotCollectList: List<Collect>
+    private lateinit var mNewAlbumList: List<Album>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -128,7 +128,7 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
         }
     }
 
-    fun startDetailFragment(data: Bundle) {
+    private fun startDetailFragment(data: Bundle) {
         val detailFragment = DetailFragment()
         detailFragment.arguments = data
         FragmentUtil.addFragmentToMainView(fragmentManager, detailFragment)
@@ -192,7 +192,7 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
         }
     }
 
-    class HotCollectsAdapter(val context: Context, var hotCollects: List<Collect>) : BaseAdapter() {
+    class HotCollectsAdapter(val context: Context, private var hotCollects: List<Collect>) : BaseAdapter() {
         @SuppressLint("ViewHolder")
         override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
             val itemView = LayoutInflater.from(context).inflate(R.layout.item_main_hot_collect, parent, false)
@@ -213,7 +213,7 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
 
     }
 
-    class NewAlbumsAdapter(val context: Context, var newAlbums: List<Album>) : BaseAdapter() {
+    class NewAlbumsAdapter(val context: Context, private var newAlbums: List<Album>) : BaseAdapter() {
         @SuppressLint("ViewHolder")
         override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
             val itemView = LayoutInflater.from(context).inflate(R.layout.item_main_new_album, parent, false)

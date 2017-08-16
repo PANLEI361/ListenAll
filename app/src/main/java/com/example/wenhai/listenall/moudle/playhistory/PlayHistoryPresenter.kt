@@ -9,7 +9,7 @@ import com.example.wenhai.listenall.utils.DAOUtil
 internal class PlayHistoryPresenter(val view: PlayHistoryContract.View) : PlayHistoryContract.Presenter {
 
 
-    val musicRepository: MusicRepository
+    private val musicRepository: MusicRepository
 
     init {
         view.setPresenter(this)

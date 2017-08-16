@@ -15,7 +15,10 @@ internal class CollectFilterPresenter(val view: CollectFilterContract.View) : Co
 
     override fun loadCollectByCategory(category: String) {
         musicRepository.loadCollectByCategory(category, object : LoadCollectByCategoryCallback {
-            override fun onFailure() {
+            override fun onStart() {
+            }
+
+            override fun onFailure(msg: String) {
                 view.onFailure("获取歌单失败")
             }
 

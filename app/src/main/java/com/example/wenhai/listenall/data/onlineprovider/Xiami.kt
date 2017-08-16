@@ -71,11 +71,13 @@ internal class Xiami : MusicSource {
 
     override fun loadBanner(callback: LoadBannerCallback) {
         val url = "http://www.xiami.com/"
+        callback.onStart()
         LoadBannerTask(callback).execute(url)
     }
 
     override fun loadHotCollect(count: Int, callback: LoadCollectCallback) {
         val url = "http://www.xiami.com/collect/recommend/page/1"
+        callback.onStart()
         LoadCollectTask(count, callback).execute(url)
     }
 
@@ -83,6 +85,7 @@ internal class Xiami : MusicSource {
 //        type contains "all" "huayu" "oumei" "ri" "han"
         //presenting "全部" "华语"  "欧美"  "日本" "韩国"
         val url = "http://www.xiami.com/music/newalbum/type/all/page/1"
+        callback.onStart()
         LoadNewAlbumTask(count, callback).execute(url)
     }
 
@@ -90,6 +93,7 @@ internal class Xiami : MusicSource {
         val url = BASE_URL + "id=$id" + SUFFIX_COLLECT_DETAIL
         OkHttpUtil.getForXiami(url, object : BaseResponseCallback() {
             override fun onStart() {
+                callback.onStart()
             }
 
             override fun onJsonObjectResponse(jsonObject: JSONObject) {
@@ -99,7 +103,7 @@ internal class Xiami : MusicSource {
 
             override fun onFailure(msg: String) {
                 LogUtil.e(TAG, msg)
-                callback.onFailure()
+                callback.onFailure(msg)
             }
 
         })
@@ -159,13 +163,14 @@ internal class Xiami : MusicSource {
         val url = PREFIX_SONG_DETAIL + id + SUFFIX_SONG_DETAIL
         OkHttpUtil.getForXiami(url, object : BaseResponseCallback() {
             override fun onStart() {
+                callback.onStart()
             }
 
             override fun onJsonObjectResponse(jsonObject: JSONObject) {
                 val songInfo = jsonObject.getJSONObject("data")
                 if (songInfo.isNull("trackList")) {
                     //不能播放
-                    callback.onFailure()
+                    callback.onFailure("当前歌曲不能播放，请切换平台试试")
                 } else {
                     val trackList: JSONArray = songInfo.getJSONArray("trackList")
                     if (trackList.length() > 0) {
@@ -191,14 +196,14 @@ internal class Xiami : MusicSource {
                         song.artistId = track.getLong("artist_id")
                         callback.onSuccess(song)
                     } else {
-                        callback.onFailure()
+                        callback.onFailure("当前歌曲不能播放，请切换平台试试")
                     }
 
                 }
             }
 
             override fun onFailure(msg: String) {
-                callback.onFailure()
+                callback.onFailure(msg)
             }
 
         })
@@ -231,7 +236,7 @@ internal class Xiami : MusicSource {
         val url = BASE_URL + "id=$id" + SUFFIX_ALBUM_DETAIL
         OkHttpUtil.getForXiami(url, object : BaseResponseCallback() {
             override fun onStart() {
-
+                callback.onStart()
             }
 
             override fun onJsonObjectResponse(jsonObject: JSONObject) {
@@ -251,7 +256,7 @@ internal class Xiami : MusicSource {
             }
 
             override fun onFailure(msg: String) {
-                callback.onFailure()
+                callback.onFailure(msg)
                 LogUtil.e(TAG, msg)
             }
 
@@ -263,20 +268,21 @@ internal class Xiami : MusicSource {
         val url = PREFIX_SEARCH_SONG + encodedKeyword + SUFFIX_SEARCH_SONG
         OkHttpUtil.getForXiami(url, object : BaseResponseCallback() {
             override fun onStart() {
+                callback.onStart()
             }
 
             override fun onJsonObjectResponse(jsonObject: JSONObject) {
                 super.onJsonObjectResponse(jsonObject)
                 val songs: ArrayList<Song>? = getSongsFromJson(jsonObject.getJSONArray("songs"))
                 if (songs == null || songs.size == 0) {
-                    callback.onFailure()
+                    callback.onFailure("搜索失败")
                 } else {
                     callback.onSuccess(songs)
                 }
             }
 
             override fun onFailure(msg: String) {
-                callback.onFailure()
+                callback.onFailure(msg)
             }
 
         })
@@ -288,7 +294,7 @@ internal class Xiami : MusicSource {
         OkHttpUtil.getForXiami(url, object : BaseResponseCallback() {
 
             override fun onStart() {
-                super.onStart()
+                callback.onStart()
             }
 
             override fun onHtmlResponse(html: String) {
@@ -298,7 +304,7 @@ internal class Xiami : MusicSource {
 
             override fun onFailure(msg: String) {
                 super.onFailure(msg)
-                callback.onFailure()
+                callback.onFailure(msg)
             }
 
         })
@@ -335,9 +341,13 @@ internal class Xiami : MusicSource {
         val page = 1.toString()
         val url = URL_PREFIX_LOAD_ARTISTS + "$type" + URL_INFIX_LOAD_ARTISTS + page
         OkHttpUtil.getForXiami(url, object : BaseResponseCallback() {
+            override fun onStart() {
+                callback.onStart()
+            }
+
             override fun onFailure(msg: String) {
                 super.onFailure(msg)
-                callback.onFailure()
+                callback.onFailure(msg)
             }
 
             override fun onHtmlResponse(html: String) {
@@ -379,6 +389,10 @@ internal class Xiami : MusicSource {
     override fun loadArtistDetail(artist: Artist, callback: LoadArtistDetailCallback) {
         val url = URL_HOME + artist.homePageSuffix
         OkHttpUtil.getForXiami(url, object : BaseResponseCallback() {
+            override fun onStart() {
+                callback.onStart()
+            }
+
             override fun onHtmlResponse(html: String) {
                 super.onHtmlResponse(html)
                 val detailedArtist = parseAndAddArtistDetail(html, artist)
@@ -387,7 +401,7 @@ internal class Xiami : MusicSource {
 
             override fun onFailure(msg: String) {
                 super.onFailure(msg)
-                callback.onFailure()
+                callback.onFailure(msg)
             }
 
         })
@@ -412,6 +426,10 @@ internal class Xiami : MusicSource {
 //        后面加 ?page=1 指定页数
         val url = URL_HOME + artist.hotSongSuffix + "?page=1"
         OkHttpUtil.getForXiami(url, object : BaseResponseCallback() {
+            override fun onStart() {
+                callback.onStart()
+            }
+
             override fun onHtmlResponse(html: String) {
                 super.onHtmlResponse(html)
                 val hotSongs = parseArtistHotSongs(html)
@@ -420,7 +438,7 @@ internal class Xiami : MusicSource {
 
             override fun onFailure(msg: String) {
                 super.onFailure(msg)
-                callback.onFailure()
+                callback.onFailure(msg)
             }
 
         })
@@ -459,6 +477,9 @@ internal class Xiami : MusicSource {
 //        ?page=2
         val url = URL_HOME + artist.albumSuffix + "?page=1"
         OkHttpUtil.getForXiami(url, object : BaseResponseCallback() {
+            override fun onStart() {
+                callback.onStart()
+            }
 
             override fun onHtmlResponse(html: String) {
                 super.onHtmlResponse(html)
@@ -467,8 +488,7 @@ internal class Xiami : MusicSource {
             }
 
             override fun onFailure(msg: String) {
-                super.onFailure(msg)
-                callback.onFailure()
+                callback.onFailure(msg)
             }
 
         })
@@ -508,7 +528,7 @@ internal class Xiami : MusicSource {
         }
         OkHttpUtil.getForXiami(url, object : BaseResponseCallback() {
             override fun onStart() {
-                super.onStart()
+                callback.onStart()
             }
 
             override fun onHtmlResponse(html: String) {
@@ -519,7 +539,7 @@ internal class Xiami : MusicSource {
 
             override fun onFailure(msg: String) {
                 super.onFailure(msg)
-                callback.onFailure()
+                callback.onFailure(msg)
             }
 
         })
@@ -577,7 +597,7 @@ internal class Xiami : MusicSource {
         override fun onPostExecute(result: List<String>?) {
             super.onPostExecute(result)
             if (result == null || result.isEmpty()) {
-                callback.onFailure()
+                callback.onFailure("")
             } else {
                 callback.onSuccess(result)
             }
@@ -616,7 +636,7 @@ internal class Xiami : MusicSource {
         override fun onPostExecute(result: List<Collect>?) {
             super.onPostExecute(result)
             if (result == null || result.isEmpty()) {
-                callback.onFailure()
+                callback.onFailure("获取热门歌单失败")
             } else {
                 callback.onSuccess(result)
             }
@@ -667,7 +687,7 @@ internal class Xiami : MusicSource {
         override fun onPostExecute(result: List<Album>?) {
             super.onPostExecute(result)
             if (result == null || result.isEmpty()) {
-                callback.onFailure()
+                callback.onFailure("获取最新音乐失败")
             } else {
                 callback.onSuccess(result)
             }

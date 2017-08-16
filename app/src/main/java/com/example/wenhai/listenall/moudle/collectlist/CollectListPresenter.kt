@@ -6,7 +6,7 @@ import com.example.wenhai.listenall.data.bean.Collect
 import com.example.wenhai.listenall.utils.LogUtil
 
 internal class CollectListPresenter(val view: CollectListContract.View) : CollectListContract.Presenter {
-    val musicRepository: MusicRepository = MusicRepository()
+    private val musicRepository: MusicRepository = MusicRepository()
 
     init {
         view.setPresenter(this)
@@ -15,7 +15,10 @@ internal class CollectListPresenter(val view: CollectListContract.View) : Collec
 
     override fun loadCollects(count: Int) {
         musicRepository.loadHotCollect(count, object : LoadCollectCallback {
-            override fun onFailure() {
+            override fun onStart() {
+            }
+
+            override fun onFailure(msg: String) {
                 LogUtil.e(TAG, "load collects failed in CollectListPresenter")
             }
 

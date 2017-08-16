@@ -37,7 +37,7 @@ class CollectFilterFragment : Fragment(), CollectFilterContract.View {
     private lateinit var mCollectCategoryFragment: CollectCategoryFragment
     private var isFilterShown = false
     private var curCategory: String = ""
-    lateinit var mPresenter: CollectFilterContract.Presenter
+    private lateinit var mPresenter: CollectFilterContract.Presenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -126,22 +126,22 @@ class CollectFilterFragment : Fragment(), CollectFilterContract.View {
         mUnbinder.unbind()
     }
 
-    inner class CollectListAdapter(val context: Context, var collects: List<Collect>) : RecyclerView.Adapter<CollectListAdapter.ViewHolder>() {
+    inner class CollectListAdapter(val context: Context, private var collects: List<Collect>) : RecyclerView.Adapter<CollectListAdapter.ViewHolder>() {
 
         override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
             val itemView = LayoutInflater.from(context).inflate(R.layout.item_collect_list, parent, false)
             return ViewHolder(itemView)
         }
 
-        fun setData(newCollects: List<Collect>) {
-            collects = newCollects
-            notifyDataSetChanged()
-        }
-
-        fun addData(addCollects: List<Collect>) {
-            (collects as ArrayList<Collect>).addAll(addCollects)
-            notifyDataSetChanged()
-        }
+//        fun setData(newCollects: List<Collect>) {
+//            collects = newCollects
+//            notifyDataSetChanged()
+//        }
+//
+//        fun addData(addCollects: List<Collect>) {
+//            (collects as ArrayList<Collect>).addAll(addCollects)
+//            notifyDataSetChanged()
+//        }
 
         override fun getItemCount(): Int = collects.size
 

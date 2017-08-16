@@ -43,6 +43,10 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
     lateinit var mDrawer: DrawerLayout
     @BindView(R.id.slide_menu_app_version)
     lateinit var smTvAppVersion: TextView
+    @BindView(R.id.slide_menu_cover)
+    lateinit var smCover: ImageView
+    @BindView(R.id.slide_menu_title)
+    lateinit var smTitle: TextView
     @BindView(R.id.slide_only_wifi_switcher)
     lateinit var smSwitchOnlyWifi: Switch
     @BindView(R.id.slide_set_time_close_switcher)
@@ -73,13 +77,13 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
     lateinit var mBtnControl: ProgressImageButton
 
 
-    var connection: ServiceConnection? = null
+    private var connection: ServiceConnection? = null
     lateinit var playService: PlayService
-    var isPlaying = false
-    var currentSong: Song? = null
+    private var isPlaying = false
+    private var currentSong: Song? = null
 
-    lateinit var currentPlayList: ArrayList<Song>
-    var backKeyEventListeners: ArrayList<OnBackKeyEventListener>? = null
+    private lateinit var currentPlayList: ArrayList<Song>
+    private var backKeyEventListeners: ArrayList<OnBackKeyEventListener>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -236,11 +240,17 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
     override fun onPlayStart() {
         isPlaying = true
         setPlayIcon(isPlaying)
+        GlideApp.with(this).load(currentSong?.albumCoverUrl).into(smCover)
+        smTitle.text = currentSong?.name
+        smTvAppVersion.text = currentSong?.artistName
     }
 
     override fun onPlayPause() {
         isPlaying = false
         setPlayIcon(isPlaying)
+        smCover.setImageResource(R.drawable.ic_main_android)
+        smTitle.text = getString(R.string.app_name)
+        smTvAppVersion.text = AppUtil.getAppVersionName(this)
     }
 
     override fun onPlayStop() {

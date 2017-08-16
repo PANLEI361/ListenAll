@@ -6,7 +6,7 @@ import com.example.wenhai.listenall.data.MusicRepository
 import com.example.wenhai.listenall.data.bean.Artist
 
 internal class ArtistListPresenter(val view: ArtistListContract.View) : ArtistListContract.Presenter {
-    val musicRepository: MusicRepository = MusicRepository()
+    private val musicRepository: MusicRepository = MusicRepository()
 
     init {
         view.setPresenter(this)
@@ -14,7 +14,11 @@ internal class ArtistListPresenter(val view: ArtistListContract.View) : ArtistLi
 
     override fun loadArtists(region: ArtistRegion) {
         musicRepository.loadArtists(region, object : LoadArtistsCallback {
-            override fun onFailure() {
+            override fun onStart() {
+
+            }
+
+            override fun onFailure(msg: String) {
                 view.onFailure("获取艺人列表失败")
             }
 

@@ -16,7 +16,7 @@ internal class DetailPresenter(val view: DetailContract.View) : DetailContract.P
         const val TAG = "DetailPresenter"
     }
 
-    val musicRepository: MusicRepository = MusicRepository()
+    private val musicRepository: MusicRepository = MusicRepository()
 
     init {
         view.setPresenter(this)
@@ -25,7 +25,10 @@ internal class DetailPresenter(val view: DetailContract.View) : DetailContract.P
     override fun loadSongsDetails(id: Long, type: Int) {
         if (type == DetailFragment.TYPE_COLLECT) {
             musicRepository.loadCollectDetail(id, object : LoadCollectDetailCallback {
-                override fun onFailure() {
+                override fun onStart() {
+                }
+
+                override fun onFailure(msg: String) {
                     LogUtil.e(TAG, "collect detail load failed")
                 }
 
@@ -36,7 +39,10 @@ internal class DetailPresenter(val view: DetailContract.View) : DetailContract.P
             })
         } else {
             musicRepository.loadAlbumDetail(id, object : LoadAlbumDetailCallback {
-                override fun onFailure() {
+                override fun onStart() {
+                }
+
+                override fun onFailure(msg: String) {
                     LogUtil.e(TAG, "album detail load failed")
                 }
 
@@ -50,7 +56,10 @@ internal class DetailPresenter(val view: DetailContract.View) : DetailContract.P
 
     override fun loadSongDetail(song: Song) {
         musicRepository.loadSongDetail(song, object : LoadSongDetailCallback {
-            override fun onFailure() {
+            override fun onStart() {
+            }
+
+            override fun onFailure(msg: String) {
                 view.onLoadFailed("当前歌曲不能播放，请切换其他平台搜索")
             }
 

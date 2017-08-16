@@ -30,8 +30,8 @@ class PlayHistoryFragment : Fragment(), PlayHistoryContract.View {
     @BindView(R.id.play_history_list)
     lateinit var mHistoryList: RecyclerView
 
-    lateinit var mUnbinder: Unbinder
-    lateinit var mPresenter: PlayHistoryContract.Presenter
+    private lateinit var mUnbinder: Unbinder
+    private lateinit var mPresenter: PlayHistoryContract.Presenter
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         PlayHistoryPresenter(this)
@@ -73,7 +73,7 @@ class PlayHistoryFragment : Fragment(), PlayHistoryContract.View {
         ToastUtil.showToast(context, msg)
     }
 
-    inner class PlayHistoryAdapter(var playHistoryList: List<PlayHistory>) : RecyclerView.Adapter<PlayHistoryAdapter.ViewHolder>() {
+    inner class PlayHistoryAdapter(private var playHistoryList: List<PlayHistory>) : RecyclerView.Adapter<PlayHistoryAdapter.ViewHolder>() {
         override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
             val itemView = LayoutInflater.from(context).inflate(R.layout.item_play_history, parent, false)
             return ViewHolder(itemView)

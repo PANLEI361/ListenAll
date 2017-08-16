@@ -12,7 +12,7 @@ import com.example.wenhai.listenall.data.bean.Song
 internal class ArtistDetailPresenter(val view: ArtistDetailContract.View) : ArtistDetailContract.Presenter {
 
 
-    val musicRepository: MusicRepository = MusicRepository()
+    private val musicRepository: MusicRepository = MusicRepository()
 
     init {
         view.setPresenter(this)
@@ -20,9 +20,13 @@ internal class ArtistDetailPresenter(val view: ArtistDetailContract.View) : Arti
 
     override fun loadArtistHotSongs(artist: Artist) {
         musicRepository.loadArtistHotSongs(artist, object : LoadArtistHotSongsCallback {
-            override fun onFailure() {
+            override fun onStart() {
+            }
+
+            override fun onFailure(msg: String) {
                 view.onFailure("获取艺人信息失败")
             }
+
 
             override fun onSuccess(hotSongs: List<Song>) {
                 view.onHotSongsLoad(hotSongs)
@@ -34,7 +38,11 @@ internal class ArtistDetailPresenter(val view: ArtistDetailContract.View) : Arti
 
     override fun loadArtistAlbums(artist: Artist) {
         musicRepository.loadArtistAlbums(artist, object : LoadArtistAlbumsCallback {
-            override fun onFailure() {
+
+            override fun onStart() {
+            }
+
+            override fun onFailure(msg: String) {
                 view.onFailure("获取艺人专辑失败")
             }
 
@@ -48,7 +56,10 @@ internal class ArtistDetailPresenter(val view: ArtistDetailContract.View) : Arti
 
     override fun loadArtistDetail(artist: Artist) {
         musicRepository.loadArtistDetail(artist, object : LoadArtistDetailCallback {
-            override fun onFailure() {
+            override fun onStart() {
+            }
+
+            override fun onFailure(msg: String) {
                 view.onFailure("获取艺人详情失败")
             }
 
@@ -62,7 +73,10 @@ internal class ArtistDetailPresenter(val view: ArtistDetailContract.View) : Arti
 
     override fun loadSongDetail(song: Song) {
         musicRepository.loadSongDetail(song, object : LoadSongDetailCallback {
-            override fun onFailure() {
+            override fun onStart() {
+            }
+
+            override fun onFailure(msg: String) {
                 view.onFailure("当前歌曲无法播放")
             }
 

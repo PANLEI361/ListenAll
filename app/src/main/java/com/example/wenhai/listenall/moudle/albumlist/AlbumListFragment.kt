@@ -23,10 +23,6 @@ import com.example.wenhai.listenall.utils.GlideApp
 import com.example.wenhai.listenall.utils.ToastUtil
 
 class AlbumListFragment : Fragment(), AlbumListContract.View {
-    override fun onFailure(msg: String) {
-        ToastUtil.showToast(context, msg)
-    }
-
     @BindView(R.id.action_bar_title)
     lateinit var mTitle: TextView
     @BindView(R.id.new_albums)
@@ -73,6 +69,10 @@ class AlbumListFragment : Fragment(), AlbumListContract.View {
     override fun setNewAlbums(albumList: List<Album>) {
         mAlbumList = albumList
         mGridNewAlbums.adapter = AlbumListAdapter(context, mAlbumList)
+    }
+
+    override fun onFailure(msg: String) {
+        ToastUtil.showToast(context, msg)
     }
 
     @OnClick(R.id.action_bar_back)

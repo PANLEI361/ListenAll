@@ -61,19 +61,19 @@ class PlayFragment : Fragment(), PlayStatusObserver {
     lateinit var mBtnSongList: ImageButton
 
     lateinit var coverView: LinearLayout
-    lateinit var mTvArtistName: TextView
-    lateinit var mTvProvider: TextView
-    lateinit var mIvCover: ImageView
+    private lateinit var mTvArtistName: TextView
+    private lateinit var mTvProvider: TextView
+    private lateinit var mIvCover: ImageView
 
     lateinit var lyricView: LinearLayout
 
 
-    lateinit var mUnBinder: Unbinder
-    var mCurrentSong: Song? = null
-    lateinit var mCurrentPlayList: ArrayList<Song>
+    private lateinit var mUnBinder: Unbinder
+    private var mCurrentSong: Song? = null
+    private lateinit var mCurrentPlayList: ArrayList<Song>
     lateinit var playService: PlayService
-    var playMode: PlayService.PlayMode = PlayService.PlayMode.REPEAT_LIST
-    var isPlaying: Boolean = false
+    private var playMode: PlayService.PlayMode = PlayService.PlayMode.REPEAT_LIST
+    private var isPlaying: Boolean = false
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -207,10 +207,10 @@ class PlayFragment : Fragment(), PlayStatusObserver {
         val hour = length / 3600
         val minute = (length - hour * 3600) / 60
         val second = length % 60
-        if (hour == 0) {
-            return "${formatStringNumber(minute)}:${formatStringNumber(second)}"
+        return if (hour == 0) {
+            "${formatStringNumber(minute)}:${formatStringNumber(second)}"
         } else {
-            return "${formatStringNumber(hour)}:${formatStringNumber(minute)}:${formatStringNumber(second)}"
+            "${formatStringNumber(hour)}:${formatStringNumber(minute)}:${formatStringNumber(second)}"
         }
     }
 
@@ -328,12 +328,12 @@ class PlayFragment : Fragment(), PlayStatusObserver {
 
     inner class PlayPagerAdapter : PagerAdapter() {
         override fun instantiateItem(container: ViewGroup?, position: Int): Any {
-            if (position == 0) {
+            return if (position == 0) {
                 container !!.addView(coverView, 0)
-                return coverView
+                coverView
             } else {
                 container !!.addView(lyricView, 1)
-                return lyricView
+                lyricView
             }
         }
 

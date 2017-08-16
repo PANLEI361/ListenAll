@@ -1,5 +1,6 @@
 package com.example.wenhai.listenall.base
 
 interface BaseCallBack {
-    fun onFailure()
+    fun onStart()
+    fun onFailure(msg: String)
 }

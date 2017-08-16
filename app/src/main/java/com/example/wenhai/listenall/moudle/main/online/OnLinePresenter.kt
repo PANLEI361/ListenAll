@@ -20,11 +20,14 @@ internal class OnLinePresenter(var view: OnLineContract.View) : OnLineContract.P
 
     override fun loadBanner(provider: MusicProvider) {
         musicRepository.loadBanner(object : LoadBannerCallback {
+            override fun onStart() {
+            }
+
             override fun onSuccess(imgUrlList: List<String>) {
                 view.setBanner(imgUrlList)
             }
 
-            override fun onFailure() {
+            override fun onFailure(msg: String) {
                 LogUtil.e(TAG, "banner load failed")
             }
         })
@@ -32,7 +35,10 @@ internal class OnLinePresenter(var view: OnLineContract.View) : OnLineContract.P
 
     override fun loadHotCollects() {
         musicRepository.loadHotCollect(6, object : LoadCollectCallback {
-            override fun onFailure() {
+            override fun onStart() {
+            }
+
+            override fun onFailure(msg: String) {
                 LogUtil.e(TAG, "hot collect load failed")
             }
 
@@ -45,7 +51,10 @@ internal class OnLinePresenter(var view: OnLineContract.View) : OnLineContract.P
 
     override fun loadNewAlbums() {
         musicRepository.loadNewAlbum(6, object : LoadAlbumCallback {
-            override fun onFailure() {
+            override fun onStart() {
+            }
+
+            override fun onFailure(msg: String) {
                 LogUtil.e(TAG, "new albums load failed")
             }
 

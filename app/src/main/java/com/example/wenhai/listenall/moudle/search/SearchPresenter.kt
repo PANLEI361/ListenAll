@@ -9,7 +9,7 @@ import com.example.wenhai.listenall.data.bean.Song
 internal class SearchPresenter(val view: SearchContract.View) : SearchContract.Presenter {
 
 
-    val musicRepository: MusicRepository = MusicRepository()
+    private val musicRepository: MusicRepository = MusicRepository()
 
     init {
         view.setPresenter(this)
@@ -17,7 +17,10 @@ internal class SearchPresenter(val view: SearchContract.View) : SearchContract.P
 
     override fun searchByKeyWord(keyword: String) {
         musicRepository.searchByKeyword(keyword, object : LoadSearchResultCallback {
-            override fun onFailure() {
+            override fun onStart() {
+            }
+
+            override fun onFailure(msg: String) {
 
             }
 
@@ -31,7 +34,10 @@ internal class SearchPresenter(val view: SearchContract.View) : SearchContract.P
 
     override fun loadSearchRecommend(keyword: String) {
         musicRepository.loadSearchRecommend(keyword, object : LoadSearchRecommendCallback {
-            override fun onFailure() {
+            override fun onStart() {
+            }
+
+            override fun onFailure(msg: String) {
             }
 
             override fun onSuccess(recommendKeyword: List<String>) {
@@ -43,7 +49,10 @@ internal class SearchPresenter(val view: SearchContract.View) : SearchContract.P
 
     override fun loadSongDetail(song: Song) {
         musicRepository.loadSongDetail(song, object : LoadSongDetailCallback {
-            override fun onFailure() {
+            override fun onStart() {
+            }
+
+            override fun onFailure(msg: String) {
                 view.onLoadFailure("当前歌曲不能播放，请切换其他平台试试")
             }
 

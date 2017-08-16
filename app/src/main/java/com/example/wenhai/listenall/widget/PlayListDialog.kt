@@ -23,7 +23,7 @@ import butterknife.Unbinder
 import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.data.bean.Song
 
-class PlayListDialog(context: Context, var songList: ArrayList<Song>, themeId: Int) : Dialog(context, themeId) {
+class PlayListDialog(context: Context, private var songList: ArrayList<Song>, themeId: Int) : Dialog(context, themeId) {
 
     constructor(context: Context, songList: ArrayList<Song>) : this(context, songList, android.R.style.Theme_Holo_Light_Dialog)
 
@@ -36,7 +36,7 @@ class PlayListDialog(context: Context, var songList: ArrayList<Song>, themeId: I
 
     lateinit var unbinder: Unbinder
     lateinit var adapter: SongListAdapter
-    lateinit var itemClickListener: OnItemClickListener
+    private lateinit var itemClickListener: OnItemClickListener
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -92,8 +92,8 @@ class PlayListDialog(context: Context, var songList: ArrayList<Song>, themeId: I
     }
 
     inner class SongListAdapter(val context: Context, songList: ArrayList<Song>) : RecyclerView.Adapter<SongListAdapter.ViewHolder>() {
-        lateinit var listener: OnItemClickListener
-        var songList: ArrayList<Song> = ArrayList()
+        private lateinit var listener: OnItemClickListener
+        private var songList: ArrayList<Song> = ArrayList()
             set(value) {
                 field = value
                 notifyDataSetChanged()

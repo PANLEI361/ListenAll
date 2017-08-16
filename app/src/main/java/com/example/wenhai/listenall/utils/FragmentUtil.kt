@@ -6,7 +6,7 @@ import android.support.v4.app.FragmentTransaction
 import com.example.wenhai.listenall.R
 
 /**
- * 在 Activity 中对 Fragment 执行操作的工具类
+ * 对 Fragment 执行操作的工具类
  *
  * Created by Wenhai on 2017/7/30.
  */

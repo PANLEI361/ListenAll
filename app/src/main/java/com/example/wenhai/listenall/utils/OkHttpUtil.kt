@@ -14,7 +14,7 @@ object OkHttpUtil {
     const val TAG = "OkHttpUtil"
 
     @JvmStatic
-    var client: OkHttpClient? = null
+    private var client: OkHttpClient? = null
 
     @JvmStatic
     fun getHttpClient(): OkHttpClient {
@@ -59,15 +59,14 @@ object OkHttpUtil {
                 } else {
                     val body = response.body() !!.string()
                     LogUtil.d("response:", body)
-                    if (body.startsWith("jsonp")) {
-                        val realJsonStr = body.substring(body.indexOf("(") + 1, body.lastIndexOf(")"))
-                        callback.onJsonObjectResponse(JSONObject(realJsonStr).getJSONObject("data"))
-                    } else if (body.startsWith("{")) {
-                        callback.onJsonObjectResponse(JSONObject(body))
-                    } else if (body.contains("</")) {
-                        callback.onHtmlResponse(body)
-                    } else {
-                        callback.onFailure("response body:$body")
+                    when {
+                        body.startsWith("jsonp") -> {
+                            val realJsonStr = body.substring(body.indexOf("(") + 1, body.lastIndexOf(")"))
+                            callback.onJsonObjectResponse(JSONObject(realJsonStr).getJSONObject("data"))
+                        }
+                        body.startsWith("{") -> callback.onJsonObjectResponse(JSONObject(body))
+                        body.contains("</") -> callback.onHtmlResponse(body)
+                        else -> callback.onFailure("response body:$body")
                     }
                 }
 

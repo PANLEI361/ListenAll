@@ -2,12 +2,14 @@ package com.example.wenhai.listenall.moudle.main
 
 import android.content.Context
 import android.os.Bundle
+import android.support.design.widget.TabLayout
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
 import android.support.v4.view.ViewPager
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,7 +17,6 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
-import android.widget.LinearLayout
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
@@ -27,15 +28,7 @@ import com.example.wenhai.listenall.moudle.search.SearchFragment
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.LogUtil
 
-/**
- * main Fragment
- *
- * Created by Wenhai on 2017/8/4.
- */
-
-
 class MainFragment : Fragment() {
-
 
     companion object {
         const val TAG = "MainFragment"
@@ -43,29 +36,28 @@ class MainFragment : Fragment() {
         const val PAGE_POSITION_MY_SONGS = 0
         const val PAGE_POSITION_ONLINE_SONGS = 1
         const val PAGE_COUNT = 2
-
     }
 
     @BindView(R.id.main_pager)
     lateinit var mPager: ViewPager
-    @BindView(R.id.main_btn_local_songs)
-    lateinit var mBtnMySongs: Button
-    @BindView(R.id.main_btn_online_songs)
-    lateinit var mBtnOnlineSongs: Button
+    //    @BindView(R.id.main_btn_local_songs)
+//    lateinit var mBtnMySongs: Button
+//    @BindView(R.id.main_btn_online_songs)
+//    lateinit var mBtnOnlineSongs: Button
     @BindView(R.id.main_btn_search)
     lateinit var mBtnSearch: ImageButton
     @BindView(R.id.main_et_search)
     lateinit var mEtSearch: EditText
     @BindView(R.id.main_tab)
-    lateinit var mTab: LinearLayout
+    lateinit var mTab: TabLayout
     @BindView(R.id.main_btn_cancel)
     lateinit var mCancelSearch: Button
 
 
-    lateinit var mUnBinder: Unbinder
-    lateinit var mPagerAdapter: MainPagerAdapter
+    private lateinit var mUnBinder: Unbinder
+    private lateinit var mPagerAdapter: MainPagerAdapter
     var searchFragment: SearchFragment? = null
-    var textWatch: TextWatcher? = null
+    private var textWatch: TextWatcher? = null
     var isTextChangedByUser = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -90,49 +82,17 @@ class MainFragment : Fragment() {
     fun initView() {
         mPagerAdapter = MainPagerAdapter(fragmentManager)
         mPager.adapter = mPagerAdapter
-        onButtonClick(mBtnMySongs)
-        mPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
-            override fun onPageScrollStateChanged(state: Int) {
-            }
 
-            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
-            }
-
-            @Suppress("DEPRECATION")
-            override fun onPageSelected(position: Int) {
-                when (position) {
-                    PAGE_POSITION_MY_SONGS -> {
-                        mBtnMySongs.setTextColor(resources.getColor(R.color.colorBlack))
-                        mBtnOnlineSongs.setTextColor(resources.getColor(R.color.colorNotSelected))
-                    }
-                    PAGE_POSITION_ONLINE_SONGS -> {
-                        mBtnOnlineSongs.setTextColor(resources.getColor(R.color.colorBlack))
-                        mBtnMySongs.setTextColor(resources.getColor(R.color.colorNotSelected))
-                    }
-                }
-            }
-
-        })
+        mTab.setupWithViewPager(mPager)
+        mTab.tabGravity = Gravity.NO_GRAVITY
 
     }
 
     @Suppress("DEPRECATION")
-    @OnClick(R.id.main_btn_local_songs, R.id.main_btn_online_songs, R.id.main_btn_slide_menu,
-            R.id.main_btn_search, R.id.main_btn_cancel)
+    @OnClick(R.id.main_btn_slide_menu, R.id.main_btn_search, R.id.main_btn_cancel)
     fun onButtonClick(v: View) {
         mEtSearch.clearFocus()
         when (v.id) {
-            R.id.main_btn_local_songs -> {
-                mEtSearch.animation
-                mPager.currentItem = PAGE_POSITION_MY_SONGS
-                mBtnMySongs.setTextColor(resources.getColor(R.color.colorBlack))
-                mBtnOnlineSongs.setTextColor(resources.getColor(R.color.colorNotSelected))
-            }
-            R.id.main_btn_online_songs -> {
-                mPager.currentItem = PAGE_POSITION_ONLINE_SONGS
-                mBtnOnlineSongs.setTextColor(resources.getColor(R.color.colorBlack))
-                mBtnMySongs.setTextColor(resources.getColor(R.color.colorNotSelected))
-            }
             R.id.main_btn_slide_menu -> (activity as MainActivity).openDrawer()
             R.id.main_btn_search -> {
                 showSearchBar()
@@ -203,7 +163,7 @@ class MainFragment : Fragment() {
 
     }
 
-    fun showSoftInput() {
+    private fun showSoftInput() {
         mEtSearch.requestFocus()
         val inputManager: InputMethodManager = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         inputManager.showSoftInput(mEtSearch, InputMethodManager.SHOW_FORCED)
@@ -226,24 +186,32 @@ class MainFragment : Fragment() {
 
     class MainPagerAdapter(fragmentManager: FragmentManager)
         : FragmentPagerAdapter(fragmentManager) {
-        var onlineFragment: OnLineFragment? = null
-        var localFragment: LocalFragment? = null
+        private var onlineFragment: OnLineFragment? = null
+        private var localFragment: LocalFragment? = null
 
         override fun getItem(position: Int): Fragment {
             LogUtil.d("MainPagerAdapter", "getItem:$position")
-            if (position == PAGE_POSITION_ONLINE_SONGS) {
+            return if (position == PAGE_POSITION_ONLINE_SONGS) {
                 if (onlineFragment == null) {
                     onlineFragment = OnLineFragment()
                 }
-                return onlineFragment as OnLineFragment
+                onlineFragment as OnLineFragment
             } else {
                 if (localFragment == null) {
                     localFragment = LocalFragment()
                 }
-                return localFragment as LocalFragment
+                localFragment as LocalFragment
             }
         }
 
         override fun getCount(): Int = PAGE_COUNT
+
+        override fun getPageTitle(position: Int): CharSequence {
+            return if (position == PAGE_POSITION_MY_SONGS) {
+                "我的"
+            } else {
+                "发现音乐"
+            }
+        }
     }
 }

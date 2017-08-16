@@ -36,9 +36,9 @@ internal class CollectListFragment : Fragment(), CollectListContract.View {
     @BindView(R.id.action_bar_title)
     lateinit var mTitle: TextView
 
-    lateinit var mUnBinder: Unbinder
-    lateinit var mPresenter: CollectListContract.Presenter
-    lateinit var mCollectListAdapter: CollectListAdapter
+    private lateinit var mUnBinder: Unbinder
+    private lateinit var mPresenter: CollectListContract.Presenter
+    private lateinit var mCollectListAdapter: CollectListAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,7 +61,7 @@ internal class CollectListFragment : Fragment(), CollectListContract.View {
         mTitle.text = context.getString(R.string.main_hot_collect)
         mRvCollectList.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
 
-        mCollectListAdapter = CollectListAdapter(context, ArrayList<Collect>())
+        mCollectListAdapter = CollectListAdapter(context, ArrayList())
         mRvCollectList.adapter = mCollectListAdapter
         mPresenter.loadCollects(10)
     }
@@ -80,7 +80,7 @@ internal class CollectListFragment : Fragment(), CollectListContract.View {
         mUnBinder.unbind()
     }
 
-    inner class CollectListAdapter(val context: Context, var collects: List<Collect>) : RecyclerView.Adapter<CollectListAdapter.ViewHolder>() {
+    inner class CollectListAdapter(val context: Context, private var collects: List<Collect>) : RecyclerView.Adapter<CollectListAdapter.ViewHolder>() {
 
         override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
             val itemView = LayoutInflater.from(context).inflate(R.layout.item_collect_list, parent, false)
@@ -92,10 +92,10 @@ internal class CollectListFragment : Fragment(), CollectListContract.View {
             notifyDataSetChanged()
         }
 
-        fun addData(addCollects: List<Collect>) {
-            (collects as ArrayList<Collect>).addAll(addCollects)
-            notifyDataSetChanged()
-        }
+//        fun addData(addCollects: List<Collect>) {
+//            (collects as ArrayList<Collect>).addAll(addCollects)
+//            notifyDataSetChanged()
+//        }
 
         override fun getItemCount(): Int = collects.size
 

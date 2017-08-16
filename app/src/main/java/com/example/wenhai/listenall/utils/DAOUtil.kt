@@ -8,7 +8,7 @@ import com.example.wenhai.listenall.data.bean.DaoSession
 object DAOUtil {
 
     const val TAG = "DAOUtil"
-    const val DATABASE_NAME = "ListenAll.db"
+    private const val DATABASE_NAME = "ListenAll.db"
 
     @JvmStatic
     private var daoSession: DaoSession? = null
