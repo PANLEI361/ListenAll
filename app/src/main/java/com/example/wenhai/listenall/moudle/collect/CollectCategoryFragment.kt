@@ -46,11 +46,11 @@ class CollectCategoryFragment : Fragment(), MainActivity.OnBackKeyEventListener 
     private val mFilterTextViews: ArrayList<TextView> = ArrayList()
 
     private lateinit var mUnbinder: Unbinder
-    private lateinit var curFilter: String
+    private lateinit var curCategory: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        curFilter = arguments.getString("curFilter")
+        curCategory = arguments.getString("curCategory")
         (activity as MainActivity).addBackKeyEventListener(this)
     }
 
@@ -62,7 +62,7 @@ class CollectCategoryFragment : Fragment(), MainActivity.OnBackKeyEventListener 
     }
 
     private fun initView() {
-        if (curFilter == "全部歌单") {
+        if (curCategory == "全部歌单") {
             mFilterAll.setBackgroundResource(R.drawable.bg_white_black_border)
         }
         val lan = context.resources.getStringArray(R.array.filter_language)
@@ -137,7 +137,7 @@ class CollectCategoryFragment : Fragment(), MainActivity.OnBackKeyEventListener 
                     onFilterChosen(textView.text.toString())
                 }
             }
-            if (textView.text == curFilter) {
+            if (textView.text == curCategory) {
                 textView.setBackgroundResource(R.drawable.bg_white_black_border)
             }
             val lp = GridLayout.LayoutParams()
@@ -160,7 +160,7 @@ class CollectCategoryFragment : Fragment(), MainActivity.OnBackKeyEventListener 
     }
 
     private fun onFilterChosen(filter: String) {
-        curFilter = filter
+        curCategory = filter
         for (textView in mFilterTextViews) {
             @Suppress("DEPRECATION")
             textView.setBackgroundColor(context.resources.getColor(R.color.colorWhite))

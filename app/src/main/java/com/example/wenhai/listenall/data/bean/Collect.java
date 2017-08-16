@@ -19,6 +19,7 @@ public class Collect {
     private MusicProvider source;//来源
     private int playTimes;//播放次数
     private long createDate;//创建时间
+    private long updateDate;//更新时间
     private ArrayList<Song> songs;//歌曲
 
     public long getCreateDate() {
@@ -83,6 +84,14 @@ public class Collect {
 
     public void setSongDownloadNumber(int songDownloadNumber) {
         this.songDownloadNumber = songDownloadNumber;
+    }
+
+    public long getUpdateDate() {
+        return updateDate;
+    }
+
+    public void setUpdateDate(long updateDate) {
+        this.updateDate = updateDate;
     }
 
     public MusicProvider getSource() {

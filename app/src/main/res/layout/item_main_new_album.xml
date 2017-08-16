@@ -10,7 +10,7 @@
         android:id="@+id/main_iv_new_album_cover"
         android:layout_width="95dp"
         android:layout_height="95dp"
-        android:scaleType="fitCenter"
+        android:scaleType="centerCrop"
         android:src="@drawable/ic_main_android"
         tools:ignore="ContentDescription" />
 

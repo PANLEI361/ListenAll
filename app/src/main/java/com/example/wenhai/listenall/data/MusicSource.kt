@@ -24,6 +24,7 @@ interface MusicSource {
     fun loadArtistDetail(artist: Artist, callback: LoadArtistDetailCallback)
     fun loadArtistHotSongs(artist: Artist, callback: LoadArtistHotSongsCallback)
     fun loadArtistAlbums(artist: Artist, callback: LoadArtistAlbumsCallback)
+    fun loadCollectByCategory(category: String, callback: LoadCollectByCategoryCallback)
 }
 
 
@@ -74,4 +75,8 @@ interface LoadArtistHotSongsCallback : BaseCallBack {
 
 interface LoadArtistAlbumsCallback : BaseCallBack {
     fun onSuccess(albums: List<Album>)
+}
+
+interface LoadCollectByCategoryCallback : BaseCallBack {
+    fun onSuccess(collects: List<Collect>)
 }

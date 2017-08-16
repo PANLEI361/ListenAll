@@ -5,6 +5,8 @@ import com.example.wenhai.listenall.data.bean.Song
 import com.example.wenhai.listenall.data.onlineprovider.Xiami
 
 internal class MusicRepository() : MusicSource {
+
+
     var musicSource: MusicSource
 
     init {
@@ -88,6 +90,10 @@ internal class MusicRepository() : MusicSource {
 
     override fun loadArtistAlbums(artist: Artist, callback: LoadArtistAlbumsCallback) {
         musicSource.loadArtistAlbums(artist, callback)
+    }
+
+    override fun loadCollectByCategory(category: String, callback: LoadCollectByCategoryCallback) {
+        musicSource.loadCollectByCategory(category, callback)
     }
 }
 

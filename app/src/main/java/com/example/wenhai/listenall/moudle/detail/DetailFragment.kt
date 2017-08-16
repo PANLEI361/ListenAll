@@ -133,7 +133,7 @@ class DetailFragment : Fragment(), DetailContract.View {
             GlideApp.with(context).load(collect.coverUrl)
                     .placeholder(R.drawable.ic_main_all_music)
                     .into(mCover)
-            val displayDate = "创建时间：${DateUtil.getDate(collect.createDate)}"
+            val displayDate = "更新时间：${DateUtil.getDate(collect.updateDate)}"
             mDate.text = displayDate
             mSongListAdapter.setData(collect.songs)
         })

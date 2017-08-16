@@ -10,6 +10,7 @@ import com.example.wenhai.listenall.data.LoadArtistDetailCallback
 import com.example.wenhai.listenall.data.LoadArtistHotSongsCallback
 import com.example.wenhai.listenall.data.LoadArtistsCallback
 import com.example.wenhai.listenall.data.LoadBannerCallback
+import com.example.wenhai.listenall.data.LoadCollectByCategoryCallback
 import com.example.wenhai.listenall.data.LoadCollectCallback
 import com.example.wenhai.listenall.data.LoadCollectDetailCallback
 import com.example.wenhai.listenall.data.LoadSearchRecommendCallback
@@ -49,7 +50,6 @@ internal class Xiami : MusicSource {
         val SUFFIX_ALBUM_DETAIL = "&page=1&limit=20&callback=jsonp217&r=album/detail"
         val PREFIX_SEARCH_SONG = "http://api.xiami.com/web?v=2.0&app_key=1&key="
         val SUFFIX_SEARCH_SONG = "&page=1&limit=50&callback=jsonp154&r=search/songs"
-        //        http://www.xiami.com/ajax/search-index?key=%E6%88%91&_=1502344376948
         val PREFIX_SEARCH_RECOMMEND = "http://www.xiami.com/ajax/search-index?key="
         //后面加时间
         val INFIX_SEARCH_RECOMMEND = "&_="
@@ -114,6 +114,7 @@ internal class Xiami : MusicSource {
         collect.coverUrl = data.getString("logo")
         collect.songCount = data.getInt("songs_count")
         collect.createDate = data.getLong("gmt_create")
+        collect.updateDate = data.getLong("gmt_modify")
         collect.playTimes = data.getInt("play_count")
         collect.songs = getSongsFromJson(data.getJSONArray("songs"))
         return collect
@@ -122,7 +123,7 @@ internal class Xiami : MusicSource {
     private fun getSongsFromJson(songs: JSONArray?): ArrayList<Song>? {
         val songCount = songs !!.length()
         val songList = ArrayList<Song>(songCount)
-        for (i in 0..songCount - 1) {
+        for (i in 0 until songCount) {
             val song = Song()
             val jsonSong: JSONObject = songs.get(i) as JSONObject
             song.songId = jsonSong.getLong("song_id")
@@ -212,14 +213,14 @@ internal class Xiami : MusicSource {
         val remainder = location.substring(1).length % num
 
         val result = ArrayList<String>()
-        (0..remainder - 1).mapTo(result) { location.substring(it * (avgLen + 1) + 1, (it + 1) * (avgLen + 1) + 1) }
-        (0..num - remainder - 1).mapTo(result) { location.substring((avgLen + 1) * remainder).substring(it * avgLen + 1, (it + 1) * avgLen + 1) }
+        (0 until remainder).mapTo(result) { location.substring(it * (avgLen + 1) + 1, (it + 1) * (avgLen + 1) + 1) }
+        (0 until num - remainder).mapTo(result) { location.substring((avgLen + 1) * remainder).substring(it * avgLen + 1, (it + 1) * avgLen + 1) }
 
         val s = ArrayList<String>()
-        for (i in 0..avgLen - 1) {
-            (0..num - 1).mapTo(s) { result[it][i].toString() }
+        for (i in 0 until avgLen) {
+            (0 until num).mapTo(s) { result[it][i].toString() }
         }
-        (0..remainder - 1).mapTo(s) { result[it][result[it].length - 1].toString() }
+        (0 until remainder).mapTo(s) { result[it][result[it].length - 1].toString() }
 
         val joinStr = s.joinToString("")
         val listenFile = URLDecoder.decode(joinStr, "utf-8").replace("^", "0")
@@ -499,6 +500,59 @@ internal class Xiami : MusicSource {
         return albums
     }
 
+    override fun loadCollectByCategory(category: String, callback: LoadCollectByCategoryCallback) {
+        val url = if (category == "全部歌单") {
+            "http://www.xiami.com/collect/recommend/page/1" //热门
+        } else {
+            "http://www.xiami.com/search/collect?key=${URLEncoder.encode(category, "utf-8")}"
+        }
+        OkHttpUtil.getForXiami(url, object : BaseResponseCallback() {
+            override fun onStart() {
+                super.onStart()
+            }
+
+            override fun onHtmlResponse(html: String) {
+                super.onHtmlResponse(html)
+                val collects = parseCollectsFromHTML(html)
+                callback.onSuccess(collects)
+            }
+
+            override fun onFailure(msg: String) {
+                super.onFailure(msg)
+                callback.onFailure()
+            }
+
+        })
+
+    }
+
+    private fun parseCollectsFromHTML(html: String): List<Collect> {
+        val document = Jsoup.parse(html)
+        val collects = ArrayList<Collect>()
+        val page = document.getElementById("page")
+        val list = page.getElementsByClass("block_items clearfix")
+        for (i in 0 until list.size) {
+            val element = list[i]
+            val a = element.select("a").first()
+            val title = a.attr("title")
+            val ref = a.attr("href")
+            val id = getIdFromHref(ref)
+            val coverUrl = a.select("img").first().attr("src")
+            val collect = Collect()
+            collect.id = id.toLong()
+            collect.title = title
+            collect.coverUrl = coverUrl.substring(0, coverUrl.length - 11)
+            collect.source = MusicProvider.XIAMI
+            collects.add(collect)
+        }
+        return collects
+    }
+
+    private fun getIdFromHref(ref: String): Int {
+        val idStr = ref.substring(ref.lastIndexOf('/') + 1)
+        return Integer.valueOf(idStr) !!
+    }
+
 
     //AsyncTasks
     internal class LoadBannerTask(val callback: LoadBannerCallback)
@@ -510,9 +564,8 @@ internal class Xiami : MusicSource {
                 val slider: Element? = document.getElementById("slider")
                 val items: Elements = slider !!.getElementsByClass("item")
                 val imgUrlList = ArrayList<String>(items.size)
-                (0..items.size - 1).mapTo(imgUrlList) {
+                (0 until items.size).mapTo(imgUrlList) {
                     items[it].select("a").first().select("img").first().attr("src")
-                    //                    val ref = items[i].select("a").first().attr("href")
                 }
 
                 return imgUrlList
@@ -540,7 +593,7 @@ internal class Xiami : MusicSource {
                 val page = document.getElementById("page")
                 val list = page.getElementsByClass("block_items clearfix")
                 val collectList = ArrayList<Collect>(6)
-                for (i in 0..count - 1) {
+                for (i in 0 until count) {
                     val element = list[i]
                     val a = element.select("a").first()
                     val title = a.attr("title")
@@ -586,7 +639,7 @@ internal class Xiami : MusicSource {
                 val albums = albumElement.getElementsByClass("album")
                 val albumList = ArrayList<Album>(count)
                 if (albums.size > 0) {
-                    for (i in 0..count - 1) {
+                    for (i in 0 until count) {
                         val imgElement = albums[i].getElementsByClass("image").first()
                         val onclick: String = imgElement.select("b").first().attr("onclick")
                         val id = onclick.substring(onclick.indexOf('(', 0, false) + 1, onclick.indexOf(',', 0, false))
