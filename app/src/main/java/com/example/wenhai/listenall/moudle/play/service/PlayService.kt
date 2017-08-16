@@ -12,7 +12,6 @@ import com.example.wenhai.listenall.data.bean.PlayHistoryDao
 import com.example.wenhai.listenall.data.bean.Song
 import com.example.wenhai.listenall.utils.DAOUtil
 import com.example.wenhai.listenall.utils.LogUtil
-import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
@@ -49,15 +48,15 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
         REPEAT_ONE, REPEAT_LIST, SHUFFLE
     }
 
-    lateinit var mediaPlayer: MediaPlayer
-    val binder: Binder = ControlBinder()
-    lateinit var mStatusObservers: ArrayList<PlayStatusObserver>
-    lateinit var timer: Timer
+    private lateinit var mediaPlayer: MediaPlayer
+    private val binder: Binder = ControlBinder()
+    private lateinit var mStatusObservers: ArrayList<PlayStatusObserver>
+    private lateinit var timer: Timer
 
-    var updateProgressTask: TimerTask? = null
+    private var updateProgressTask: TimerTask? = null
     //播放状态
     lateinit var playStatus: PlayStatus
-    var isFirstStart = true
+    private var isFirstStart = true
 
     override fun onCreate() {
         super.onCreate()
@@ -95,11 +94,12 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
         mStatusObservers = ArrayList()
 
         try {
-            val objectInputStream: ObjectInputStream = ObjectInputStream(openFileInput(STATUS_TMP_FILE_NAME))
+            val objectInputStream = ObjectInputStream(openFileInput(STATUS_TMP_FILE_NAME))
             playStatus = objectInputStream.readObject() as PlayStatus
             objectInputStream.close()
-        } catch (e: FileNotFoundException) {
-            //第一次安装时
+        } catch (e: IOException) {
+            LogUtil.e(TAG, "读取文件出错")
+            //出错后直接新建一个 playStatus
             playStatus = PlayStatus()
             //防止第一次 onPrepare 不播放歌曲
             isFirstStart = false
@@ -131,7 +131,9 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
         }
 
         setStreamUrlAndPrepareAsync(newSong.listenFileUrl)
-        playStatus.currentSong !!.isPlaying = false
+        if (playStatus.currentSong != null) {
+            playStatus.currentSong !!.isPlaying = false
+        }
         playStatus.currentSong = newSong
 
         //add to playList
@@ -425,7 +427,7 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
         }
         //save status
         val outputStream = openFileOutput(STATUS_TMP_FILE_NAME, Context.MODE_PRIVATE)
-        val os: ObjectOutputStream = ObjectOutputStream(outputStream)
+        val os = ObjectOutputStream(outputStream)
         os.writeObject(playStatus)
         os.close()
 
