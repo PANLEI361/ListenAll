@@ -66,6 +66,7 @@ internal class Xiami : MusicSource {
         val URL_PREFIX_LOAD_ARTISTS = "http://www.xiami.com/artist/index/c/2/type/"
         val URL_INFIX_LOAD_ARTISTS = "/class/0/page/"
         val URL_HOME = "http://www.xiami.com"
+        val CATEGORY_HOT_COLLECT = "热门歌单"
     }
 
 
@@ -228,8 +229,7 @@ internal class Xiami : MusicSource {
         (0 until remainder).mapTo(s) { result[it][result[it].length - 1].toString() }
 
         val joinStr = s.joinToString("")
-        val listenFile = URLDecoder.decode(joinStr, "utf-8").replace("^", "0")
-        return listenFile
+        return URLDecoder.decode(joinStr, "utf-8").replace("^", "0")
     }
 
     override fun loadAlbumDetail(id: Long, callback: LoadAlbumDetailCallback) {
@@ -521,7 +521,7 @@ internal class Xiami : MusicSource {
     }
 
     override fun loadCollectByCategory(category: String, callback: LoadCollectByCategoryCallback) {
-        val url = if (category == "全部歌单") {
+        val url = if (category == CATEGORY_HOT_COLLECT) {
             "http://www.xiami.com/collect/recommend/page/1" //热门
         } else {
             "http://www.xiami.com/search/collect?key=${URLEncoder.encode(category, "utf-8")}"
@@ -575,7 +575,7 @@ internal class Xiami : MusicSource {
 
 
     //AsyncTasks
-    internal class LoadBannerTask(val callback: LoadBannerCallback)
+    internal class LoadBannerTask(private val callback: LoadBannerCallback)
         : AsyncTask<String, Void, List<String>?>() {
 
         override fun doInBackground(vararg url: String?): List<String>? {
@@ -605,7 +605,7 @@ internal class Xiami : MusicSource {
 
     }
 
-    internal class LoadCollectTask(val count: Int, val callback: LoadCollectCallback)
+    internal class LoadCollectTask(private val count: Int, private val callback: LoadCollectCallback)
         : AsyncTask<String, Void, List<Collect>?>() {
         override fun doInBackground(vararg url: String?): List<Collect>? {
             val document: Document? = Jsoup.connect("http://www.xiami.com/collect/recommend/page/1").get()
@@ -650,7 +650,7 @@ internal class Xiami : MusicSource {
 
     }
 
-    internal class LoadNewAlbumTask(val count: Int, val callback: LoadAlbumCallback)
+    internal class LoadNewAlbumTask(private val count: Int, private val callback: LoadAlbumCallback)
         : AsyncTask<String, Void, List<Album>?>() {
         override fun doInBackground(vararg url: String?): List<Album>? {
             val document = Jsoup.connect(url[0]).get()

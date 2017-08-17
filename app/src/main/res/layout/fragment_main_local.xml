@@ -42,7 +42,8 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/main_local_songs" />
+                        android:text="@string/main_local_songs"
+                        android:textColor="@color/colorBlack" />
                 </LinearLayout>
 
                 <android.support.v4.widget.Space
@@ -67,7 +68,8 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/main_recent_play" />
+                        android:text="@string/main_recent_play"
+                        android:textColor="@color/colorBlack" />
 
                 </LinearLayout>
 
@@ -93,7 +95,8 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/main_i_like" />
+                        android:text="@string/main_i_like"
+                        android:textColor="@color/colorBlack" />
 
                 </LinearLayout>
             </LinearLayout>

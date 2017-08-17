@@ -62,7 +62,7 @@ class CollectCategoryFragment : Fragment(), MainActivity.OnBackKeyEventListener 
     }
 
     private fun initView() {
-        if (curCategory == "全部歌单") {
+        if (curCategory == context.getString(R.string.main_hot_collect)) {
             mFilterAll.setBackgroundResource(R.drawable.bg_white_black_border)
         }
         val lan = context.resources.getStringArray(R.array.filter_language)
@@ -159,7 +159,7 @@ class CollectCategoryFragment : Fragment(), MainActivity.OnBackKeyEventListener 
         }
     }
 
-    private fun onFilterChosen(filter: String) {
+    fun onFilterChosen(filter: String) {
         curCategory = filter
         for (textView in mFilterTextViews) {
             @Suppress("DEPRECATION")

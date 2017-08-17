@@ -53,7 +53,6 @@ class CollectFilterFragment : Fragment(), CollectFilterContract.View {
 
     override fun initView() {
         curCategory = mFilterTitle.text.toString()
-
         mPresenter.loadCollectByCategory(curCategory)
     }
 
@@ -62,10 +61,10 @@ class CollectFilterFragment : Fragment(), CollectFilterContract.View {
         if (category != curCategory) {
             curCategory = category
             mFilterTitle.text = curCategory
-            setFilterTitleIcon(false)
             //刷新数据
             mPresenter.loadCollectByCategory(curCategory)
         }
+        setFilterTitleIcon(false)
     }
 
     fun setFilterTitleIcon(isFilterShow: Boolean) {
@@ -78,14 +77,12 @@ class CollectFilterFragment : Fragment(), CollectFilterContract.View {
         mFilterIcon.setImageResource(iconId)
     }
 
-    @OnClick(R.id.action_bar_back, R.id.collect_filter)
+    @OnClick(R.id.action_bar_back, R.id.collect_filter, R.id.collect_filter_action_bar)
     fun onClick(view: View) {
         when (view.id) {
             R.id.action_bar_back -> {
                 if (isFilterShown) {
-                    FragmentUtil.removeFragment(fragmentManager, mCollectCategoryFragment)
-                    isFilterShown = false
-                    mFilterIcon.setImageResource(R.drawable.ic_arrow_drop_down)
+                    mCollectCategoryFragment.onFilterChosen(curCategory)
                 } else {
                     FragmentUtil.removeFragment(fragmentManager, this)
                 }
@@ -100,6 +97,13 @@ class CollectFilterFragment : Fragment(), CollectFilterContract.View {
                     mCollectCategoryFragment.setTargetFragment(this, 0)
                     FragmentUtil.addFragmentToView(fragmentManager, mCollectCategoryFragment, R.id.collect_list_container)
                     setFilterTitleIcon(true)
+                } else {
+                    mCollectCategoryFragment.onFilterChosen(curCategory)
+                }
+            }
+            R.id.collect_filter_action_bar -> {
+                if (isFilterShown) {
+                    mCollectCategoryFragment.onFilterChosen(curCategory)
                 }
             }
         }

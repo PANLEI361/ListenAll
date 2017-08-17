@@ -27,6 +27,7 @@ import com.example.wenhai.listenall.moudle.collectlist.CollectListFragment
 import com.example.wenhai.listenall.moudle.detail.DetailFragment
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
+import com.example.wenhai.listenall.utils.LogUtil
 import com.example.wenhai.listenall.utils.ToastUtil
 import com.youth.banner.Banner
 import com.youth.banner.BannerConfig
@@ -34,9 +35,6 @@ import com.youth.banner.Transformer
 import com.youth.banner.loader.ImageLoader
 
 class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
-    override fun onFailure(msg: String) {
-        ToastUtil.showToast(context, msg)
-    }
 
     companion object {
         const val TAG = "OnLineFragment"
@@ -88,6 +86,7 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
 
     override fun onPause() {
         super.onPause()
+        LogUtil.d(TAG, "onPause")
         mScrollY = mScrollView.scrollY
         mBanner.stopAutoPlay()
     }
@@ -154,6 +153,10 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
     override fun setNewAlbums(newAlbums: List<Album>) {
         mNewAlbumList = newAlbums
         mNewAlbums.adapter = NewAlbumsAdapter(context, mNewAlbumList)
+    }
+
+    override fun onFailure(msg: String) {
+        ToastUtil.showToast(context, msg)
     }
 
     private fun initBanner() {

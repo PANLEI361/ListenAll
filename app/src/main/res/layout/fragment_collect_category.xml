@@ -5,6 +5,7 @@
     android:orientation="vertical">
     <!--category-->
     <ScrollView
+        android:scrollbars="none"
         android:id="@+id/filter_scroll"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -24,7 +25,7 @@
                 android:layout_marginTop="5dp"
                 android:background="@drawable/selector_white"
                 android:gravity="center"
-                android:text="全部歌单"
+                android:text="@string/main_hot_collect"
                 android:textColor="@color/colorBlack"
                 android:textSize="17sp" />
 

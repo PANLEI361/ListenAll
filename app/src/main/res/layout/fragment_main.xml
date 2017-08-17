@@ -25,6 +25,7 @@
             android:layout_width="@dimen/action_bar_btn_width"
             android:layout_height="@dimen/action_bar_btn_width"
             android:layout_marginStart="5dp"
+            android:scaleType="centerCrop"
             android:src="@drawable/ic_main_menu"
             tools:ignore="ContentDescription" />
 
@@ -40,38 +41,6 @@
             app:tabTextColor="@color/colorGray">
 
         </android.support.design.widget.TabLayout>
-
-        <!--<LinearLayout-->
-        <!--android:layout_width="0dp"-->
-        <!--android:layout_height="50dp"-->
-        <!--android:layout_weight="1"-->
-        <!--android:orientation="horizontal"-->
-        <!--android:visibility="gone">-->
-
-        <!--<Button-->
-        <!--android:id="@+id/main_btn_local_songs"-->
-        <!--style="?android:attr/buttonBarButtonStyle"-->
-        <!--android:layout_width="0dp"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:layout_marginStart="5dp"-->
-        <!--android:layout_weight="1"-->
-        <!--android:text="@string/main_mine"-->
-        <!--android:textColor="@color/colorBlack"-->
-        <!--android:textSize="@dimen/main_tab_btn_text_size"-->
-        <!--tools:ignore="NestedWeights" />-->
-
-        <!--<Button-->
-        <!--android:id="@+id/main_btn_online_songs"-->
-        <!--style="?android:attr/buttonBarButtonStyle"-->
-        <!--android:layout_width="0dp"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:layout_marginEnd="5dp"-->
-        <!--android:layout_weight="1"-->
-        <!--android:text="@string/main_song_on_net"-->
-        <!--android:textColor="@color/colorBlack"-->
-        <!--android:textSize="@dimen/main_tab_btn_text_size" />-->
-
-        <!--</LinearLayout>-->
 
         <Space
             android:id="@+id/main_top_space"
@@ -104,6 +73,7 @@
             android:layout_width="@dimen/action_bar_btn_width"
             android:layout_height="@dimen/action_bar_btn_width"
             android:layout_marginEnd="5dp"
+            android:scaleType="centerCrop"
             android:src="@drawable/ic_search"
             tools:ignore="ContentDescription" />
 

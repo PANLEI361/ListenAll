@@ -7,6 +7,7 @@
     android:orientation="vertical">
 
     <RelativeLayout
+        android:id="@+id/collect_filter_action_bar"
         android:layout_width="match_parent"
         android:layout_height="@dimen/action_bar_height"
         android:gravity="center_vertical"
@@ -36,7 +37,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="30dp"
                 android:gravity="center"
-                android:text="@string/collect_all"
+                android:text="@string/main_hot_collect"
                 android:textColor="@color/colorBlack"
                 android:textSize="18sp" />
 

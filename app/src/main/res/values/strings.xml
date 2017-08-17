@@ -13,14 +13,14 @@
 
     <!--main-->
     <string name="main_mine">我的</string>
-    <string name="main_song_on_net">发现音乐</string>
+    <string name="main_discover_music">发现音乐</string>
     <string name="main_song_list">歌单</string>
     <string name="main_album">专辑</string>
     <string name="main_local_songs">本地歌曲</string>
     <string name="main_recent_play">最近播放</string>
     <string name="main_singer">歌手</string>
-    <string name="main_collect">歌单</string>
-    <string name="main_ranking_list">排行</string>
+    <string name="main_collect">分类歌单</string>
+    <string name="main_ranking_list">排行榜</string>
     <string name="main_hot_collect">热门歌单</string>
     <string name="main_new_songs">最新音乐</string>
     <string name="main_i_like">我喜欢</string>
@@ -41,7 +41,6 @@
     <string name="singer_ea">欧美</string>
     <string name="singer_cn">华语</string>
     <string name="all">全部</string>
-    <string name="collect_all">全部歌单</string>
     <string name="main_artist_list">歌手列表</string>
     <string name="shuffle_all">随机播放全部</string>
 
