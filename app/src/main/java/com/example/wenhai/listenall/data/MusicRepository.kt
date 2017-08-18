@@ -7,7 +7,6 @@ import com.example.wenhai.listenall.moudle.ranking.RankingContract
 
 internal class MusicRepository() : MusicSource {
 
-
     private var musicSource: MusicSource
     private var curProvider: MusicProvider
 

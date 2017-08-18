@@ -11,11 +11,10 @@ import com.example.wenhai.listenall.utils.LogUtil
 
 internal class OnLinePresenter(var view: OnLineContract.View) : OnLineContract.Presenter {
 
-    var musicRepository: MusicRepository
+    private var musicRepository: MusicRepository = MusicRepository.INSTANCE
 
     init {
         view.setPresenter(this)
-        musicRepository = MusicRepository()
     }
 
     override fun loadBanner(provider: MusicProvider) {

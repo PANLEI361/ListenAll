@@ -6,7 +6,7 @@ import com.example.wenhai.listenall.data.bean.Collect
 import com.example.wenhai.listenall.utils.LogUtil
 
 internal class CollectListPresenter(val view: CollectListContract.View) : CollectListContract.Presenter {
-    private val musicRepository: MusicRepository = MusicRepository()
+    private val musicRepository: MusicRepository = MusicRepository.INSTANCE
 
     init {
         view.setPresenter(this)

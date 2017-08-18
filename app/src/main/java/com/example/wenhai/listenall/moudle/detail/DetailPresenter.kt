@@ -16,7 +16,7 @@ internal class DetailPresenter(val view: DetailContract.View) : DetailContract.P
         const val TAG = "DetailPresenter"
     }
 
-    private val musicRepository: MusicRepository = MusicRepository()
+    private val musicRepository: MusicRepository = MusicRepository.INSTANCE
 
     init {
         view.setPresenter(this)
