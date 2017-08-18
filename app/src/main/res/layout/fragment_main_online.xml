@@ -47,6 +47,7 @@
                     <ImageView
                         android:layout_width="40dp"
                         android:layout_height="40dp"
+                        android:scaleType="centerCrop"
                         android:src="@drawable/ic_main_singer"
                         tools:ignore="ContentDescription" />
 
@@ -71,6 +72,7 @@
                     <ImageView
                         android:layout_width="40dp"
                         android:layout_height="40dp"
+                        android:scaleType="centerCrop"
                         android:src="@drawable/ic_main_collect"
                         tools:ignore="ContentDescription" />
 
@@ -95,6 +97,7 @@
                     <ImageView
                         android:layout_width="40dp"
                         android:layout_height="40dp"
+                        android:scaleType="centerCrop"
                         android:src="@drawable/ic_main_equalizer"
                         tools:ignore="ContentDescription" />
 
@@ -136,6 +139,7 @@
                     android:layout_width="45dp"
                     android:layout_height="45dp"
                     android:layout_alignParentEnd="true"
+                    android:scaleType="centerCrop"
                     android:src="@drawable/ic_enter"
                     tools:ignore="ContentDescription" />
 
@@ -179,6 +183,7 @@
                     android:layout_width="45dp"
                     android:layout_height="45dp"
                     android:layout_alignParentEnd="true"
+                    android:scaleType="centerCrop"
                     android:src="@drawable/ic_enter"
                     tools:ignore="ContentDescription" />
 

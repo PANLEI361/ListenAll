@@ -52,8 +52,7 @@ class AlbumListFragment : Fragment(), AlbumListContract.View {
 
     override fun initView() {
         mTitle.text = context.getString(R.string.main_new_songs)
-        mGridNewAlbums.onItemClickListener = AdapterView.OnItemClickListener {
-            _, _, position, _ ->
+        mGridNewAlbums.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
             val album = mAlbumList[position]
             val data = Bundle()
             data.putLong(DetailFragment.ARGS_ID, album.id)
@@ -67,8 +66,10 @@ class AlbumListFragment : Fragment(), AlbumListContract.View {
     }
 
     override fun setNewAlbums(albumList: List<Album>) {
-        mAlbumList = albumList
-        mGridNewAlbums.adapter = AlbumListAdapter(context, mAlbumList)
+        activity.runOnUiThread {
+            mAlbumList = albumList
+            mGridNewAlbums.adapter = AlbumListAdapter(context, mAlbumList)
+        }
     }
 
     override fun onFailure(msg: String) {

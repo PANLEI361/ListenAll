@@ -43,8 +43,10 @@
     <string name="all">全部</string>
     <string name="main_artist_list">歌手列表</string>
     <string name="shuffle_all">随机播放全部</string>
+    <string name="ranking_official">平台官方榜</string>
+    <string name="ranking_global">全球榜</string>
 
-
+    <!--filter category-->
     <array name="filter_language">
         <item>华语</item>
         <item>欧美</item>
@@ -53,7 +55,6 @@
         <item>粤语</item>
         <item>小语种</item>
     </array>
-
     <array name="filter_style">
         <item>流行</item>
         <item>摇滚</item>
@@ -79,7 +80,6 @@
         <item>古风</item>
         <item>后摇</item>
     </array>
-
     <array name="filter_scene">
         <item>清晨</item>
         <item>夜晚</item>
@@ -94,7 +94,6 @@
         <item>散步</item>
         <item>酒吧</item>
     </array>
-
     <array name="filter_mood">
         <item>怀旧</item>
         <item>清新</item>
@@ -109,5 +108,10 @@
         <item>快乐</item>
         <item>安静</item>
         <item>思念</item>
+    </array>
+    <array name="global_ranking">
+        <item>Billboard全球榜</item>
+        <item>UK周榜</item>
+        <item>日本Oricon周榜</item>
     </array>
 </resources>

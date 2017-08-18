@@ -34,8 +34,10 @@ class DetailFragment : Fragment(), DetailContract.View {
         const val TAG = "DetailFragment"
         const val TYPE_ALBUM = 0
         const val TYPE_COLLECT = 1
+        const val TYPE_RANKING = 2
         const val ARGS_ID = "id"
         const val ARGS_TYPE = "type"
+        const val ARGS_RANKING = "ranking"
     }
 
     @BindView(R.id.action_bar_title)
@@ -57,6 +59,7 @@ class DetailFragment : Fragment(), DetailContract.View {
     lateinit var mPresenter: DetailContract.Presenter
     private lateinit var mUnBinder: Unbinder
     private var mLoadType: Int = TYPE_COLLECT
+    private lateinit var rankingCollcet: Collect
 
 
     override fun setPresenter(presenter: DetailContract.Presenter) {
@@ -73,23 +76,30 @@ class DetailFragment : Fragment(), DetailContract.View {
         val contentView = inflater !!.inflate(R.layout.fragment_detail, container, false)
         mUnBinder = ButterKnife.bind(this, contentView)
 
-        val id = arguments.getLong("id")
         mLoadType = arguments.getInt("type")
+        if (mLoadType == TYPE_RANKING) {
+            rankingCollcet = arguments.getParcelable(ARGS_RANKING)
+        } else {
+            val id = arguments.getLong("id")
+            mPresenter.loadSongsDetails(id, mLoadType)
+        }
         initView()
-        mPresenter.loadSongsDetails(id, mLoadType)
         return contentView
     }
 
 
     override fun initView() {
-        mActionBarTitle.text = if (mLoadType == TYPE_COLLECT) {
-            getString(R.string.collect_detail)
-        } else {
-            getString(R.string.album_detail)
+        mActionBarTitle.text = when (mLoadType) {
+            TYPE_COLLECT -> getString(R.string.collect_detail)
+            TYPE_ALBUM -> getString(R.string.album_detail)
+            else -> rankingCollcet.title
         }
         mSongListAdapter = SongListAdapter(context, ArrayList())
         mSongList.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         mSongList.adapter = mSongListAdapter
+        if (mLoadType == TYPE_RANKING) {
+            setRankingDetail(rankingCollcet)
+        }
     }
 
     private fun playSong(song: Song) {
@@ -135,6 +145,17 @@ class DetailFragment : Fragment(), DetailContract.View {
                     .into(mCover)
             val displayDate = "更新时间：${DateUtil.getDate(collect.updateDate)}"
             mDate.text = displayDate
+            mSongListAdapter.setData(collect.songs)
+        })
+    }
+
+    private fun setRankingDetail(collect: Collect) {
+        activity.runOnUiThread({
+            mTitle.text = collect.title
+            mArtist.visibility = View.GONE
+            GlideApp.with(context).load(collect.coverDrawable)
+                    .into(mCover)
+            mDate.visibility = View.GONE
             mSongListAdapter.setData(collect.songs)
         })
     }

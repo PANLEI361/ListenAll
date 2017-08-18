@@ -25,9 +25,9 @@ import com.example.wenhai.listenall.moudle.artist.list.ArtistListFragment
 import com.example.wenhai.listenall.moudle.collect.CollectFilterFragment
 import com.example.wenhai.listenall.moudle.collectlist.CollectListFragment
 import com.example.wenhai.listenall.moudle.detail.DetailFragment
+import com.example.wenhai.listenall.moudle.ranking.RankingFragment
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
-import com.example.wenhai.listenall.utils.LogUtil
 import com.example.wenhai.listenall.utils.ToastUtil
 import com.youth.banner.Banner
 import com.youth.banner.BannerConfig
@@ -86,7 +86,6 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
 
     override fun onPause() {
         super.onPause()
-        LogUtil.d(TAG, "onPause")
         mScrollY = mScrollView.scrollY
         mBanner.stopAutoPlay()
     }
@@ -106,6 +105,9 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
             }
             R.id.main_online_btn_collect -> {
                 FragmentUtil.addFragmentToMainView(fragmentManager, CollectFilterFragment())
+            }
+            R.id.main_online_btn_ranking_list -> {
+                FragmentUtil.addFragmentToMainView(fragmentManager, RankingFragment())
             }
         }
     }
@@ -134,8 +136,10 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
     }
 
     override fun setHotCollects(hotCollects: List<Collect>) {
-        mHotCollectList = hotCollects
-        mHotCollects.adapter = HotCollectsAdapter(context, mHotCollectList)
+        activity.runOnUiThread {
+            mHotCollectList = hotCollects
+            mHotCollects.adapter = HotCollectsAdapter(context, mHotCollectList)
+        }
     }
 
     private fun initNewAlbumsGridView() {
@@ -151,8 +155,10 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
     }
 
     override fun setNewAlbums(newAlbums: List<Album>) {
-        mNewAlbumList = newAlbums
-        mNewAlbums.adapter = NewAlbumsAdapter(context, mNewAlbumList)
+        activity.runOnUiThread {
+            mNewAlbumList = newAlbums
+            mNewAlbums.adapter = NewAlbumsAdapter(context, mNewAlbumList)
+        }
     }
 
     override fun onFailure(msg: String) {
@@ -171,8 +177,10 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
     }
 
     override fun setBanner(imgUrlList: List<String>) {
-        mBanner.setImages(imgUrlList)
-        mBanner.start()
+        activity.runOnUiThread {
+            mBanner.setImages(imgUrlList)
+            mBanner.start()
+        }
     }
 
     override fun onStart() {

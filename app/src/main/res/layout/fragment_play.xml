@@ -25,6 +25,7 @@
                 android:layout_width="@dimen/action_bar_btn_width"
                 android:layout_height="@dimen/action_bar_btn_width"
                 android:layout_marginStart="5dp"
+                android:scaleType="centerCrop"
                 android:src="@drawable/ic_action_back"
                 tools:ignore="ContentDescription" />
 
@@ -130,8 +131,8 @@
                 <ImageButton
                     android:id="@+id/play_btn_mode"
                     style="?android:attr/buttonBarButtonStyle"
-                    android:layout_width="55dp"
-                    android:layout_height="55dp"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
                     android:layout_marginEnd="5dp"
                     android:scaleType="centerInside"
                     android:src="@drawable/ic_repeat_list"
@@ -174,10 +175,10 @@
                 <ImageButton
                     android:id="@+id/play_btn_song_list"
                     style="?android:attr/buttonBarButtonStyle"
-                    android:layout_width="55dp"
-                    android:layout_height="45dp"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
                     android:layout_marginStart="5dp"
-                    android:scaleType="centerInside"
+                    android:scaleType="centerCrop"
                     android:src="@drawable/ic_play_list"
                     tools:ignore="ContentDescription" />
 

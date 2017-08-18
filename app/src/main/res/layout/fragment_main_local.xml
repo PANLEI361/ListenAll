@@ -35,7 +35,7 @@
                         style="?android:attr/buttonBarButtonStyle"
                         android:layout_width="@dimen/main_song_type_btn_size"
                         android:layout_height="@dimen/main_song_type_btn_size"
-                        android:scaleType="fitCenter"
+                        android:scaleType="centerCrop"
                         android:src="@drawable/ic_main_all_music"
                         tools:ignore="ContentDescription" />
 
@@ -61,7 +61,7 @@
                         style="?android:attr/buttonBarButtonStyle"
                         android:layout_width="@dimen/main_song_type_btn_size"
                         android:layout_height="@dimen/main_song_type_btn_size"
-                        android:scaleType="fitCenter"
+                        android:scaleType="centerCrop"
                         android:src="@drawable/ic_main_play_history"
                         tools:ignore="ContentDescription" />
 
@@ -88,7 +88,7 @@
                         style="?android:attr/buttonBarButtonStyle"
                         android:layout_width="@dimen/main_song_type_btn_size"
                         android:layout_height="@dimen/main_song_type_btn_size"
-                        android:scaleType="fitCenter"
+                        android:scaleType="centerCrop"
                         android:src="@drawable/ic_liked"
                         tools:ignore="ContentDescription" />
 

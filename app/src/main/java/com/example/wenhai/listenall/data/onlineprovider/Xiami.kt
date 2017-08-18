@@ -1,7 +1,9 @@
 package com.example.wenhai.listenall.data.onlineprovider
 
+import android.annotation.SuppressLint
 import android.os.AsyncTask
 import android.text.TextUtils
+import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.data.ArtistRegion
 import com.example.wenhai.listenall.data.LoadAlbumCallback
 import com.example.wenhai.listenall.data.LoadAlbumDetailCallback
@@ -13,8 +15,10 @@ import com.example.wenhai.listenall.data.LoadBannerCallback
 import com.example.wenhai.listenall.data.LoadCollectByCategoryCallback
 import com.example.wenhai.listenall.data.LoadCollectCallback
 import com.example.wenhai.listenall.data.LoadCollectDetailCallback
+import com.example.wenhai.listenall.data.LoadRankingCallback
 import com.example.wenhai.listenall.data.LoadSearchRecommendCallback
 import com.example.wenhai.listenall.data.LoadSearchResultCallback
+import com.example.wenhai.listenall.data.LoadSingleRankingCallback
 import com.example.wenhai.listenall.data.LoadSongDetailCallback
 import com.example.wenhai.listenall.data.MusicProvider
 import com.example.wenhai.listenall.data.MusicSource
@@ -22,8 +26,8 @@ import com.example.wenhai.listenall.data.bean.Album
 import com.example.wenhai.listenall.data.bean.Artist
 import com.example.wenhai.listenall.data.bean.Collect
 import com.example.wenhai.listenall.data.bean.Song
+import com.example.wenhai.listenall.moudle.ranking.RankingContract
 import com.example.wenhai.listenall.utils.BaseResponseCallback
-import com.example.wenhai.listenall.utils.LogUtil
 import com.example.wenhai.listenall.utils.OkHttpUtil
 import org.json.JSONArray
 import org.json.JSONException
@@ -34,60 +38,167 @@ import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 import java.net.URLDecoder
 import java.net.URLEncoder
-import java.util.Calendar
 
 /**
- * 音乐源：虾米音乐
+ * 虾米音乐
  * Created by Wenhai on 2017/8/4.
  */
 internal class Xiami : MusicSource {
-
     companion object {
         @JvmStatic
         val TAG = "Xiami"
         val BASE_URL = "http://api.xiami.com/web?v=2.0&app_key=1&"
         val SUFFIX_COLLECT_DETAIL = "&callback=jsonp122&r=collect/detail"
         val SUFFIX_ALBUM_DETAIL = "&page=1&limit=20&callback=jsonp217&r=album/detail"
+
         val PREFIX_SEARCH_SONG = "http://api.xiami.com/web?v=2.0&app_key=1&key="
         val SUFFIX_SEARCH_SONG = "&page=1&limit=50&callback=jsonp154&r=search/songs"
         val PREFIX_SEARCH_RECOMMEND = "http://www.xiami.com/ajax/search-index?key="
-        //后面加时间
-        val INFIX_SEARCH_RECOMMEND = "&_="
+
+        val INFIX_SEARCH_RECOMMEND = "&_="//后面加时间
 
 
         //get hidden listen url when "listen file" is null
-        val PREFIX_SONG_DETAIL = "http://www.xiami.com/song/playlist/id/"
+        val PREFIX_SONG_DETAIL = "/song/playlist/id/"
         val SUFFIX_SONG_DETAIL = "/object_name/default/object_id/0/cat/json"
 
         //singer type:0-全部 1-华语 2-欧美 3-日本 4-韩国
         //http://www.xiami.com/artist/index/c/2/type/1
         // c 1-本周流行 2-热门艺人
 //        http://www.xiami.com/artist/index/c/2/type/1/class/0/page/1
-        val URL_PREFIX_LOAD_ARTISTS = "http://www.xiami.com/artist/index/c/2/type/"
+        val URL_PREFIX_LOAD_ARTISTS = "/artist/index/c/2/type/"
         val URL_INFIX_LOAD_ARTISTS = "/class/0/page/"
         val URL_HOME = "http://www.xiami.com"
         val CATEGORY_HOT_COLLECT = "热门歌单"
+        //        val URL_SEARCH_ARTIST = "/search/artist?key=%E7%94%B0"
+        val URL_HOT_COLLECT = "/collect/recommend/page/1"
+        //type:all-全部 huayu-华语 oumei-欧美 ri-日本 han-韩国
+        val URL_NEW_ALBUM = "/music/newalbum/type/all/page/1"
+
+        //虾米音乐榜
+        val URL_RANKING_DATA_MUSIC = "/chart/data?c=103&type=0&page=1&limit=100&_="
+        //虾米原创榜
+        val URL_RANKING_DATA_ORIGINAL = "/chart/data?c=104&type=0&page=1&limit=100&_="
+        //虾米新歌榜
+        val URL_RANKING_DATA_NEW = "/chart/data?c=102&type=0&page=1&limit=100&_="
+        //billboard
+        val URL_RANKING_BILLBOARD = "/chart/data?c=204&type=0&page=1&limit=100&_="
+        //uk
+        val URL_RANKING_UK = "/chart/data?c=203&type=0&page=1&limit=100&_="
+        //oricon
+        val URL_RANKING_ORICON = "/chart/data?c=205&type=0&page=1&limit=100&_="
+
+        val RANKING_MUSIC = "虾米音乐榜"
+        val RANKING_ORIGIN = "虾米原创榜"
+        val RANKING_NEW = "虾米新歌榜"
     }
 
 
     override fun loadBanner(callback: LoadBannerCallback) {
-        val url = "http://www.xiami.com/"
-        callback.onStart()
-        LoadBannerTask(callback).execute(url)
+        val url = URL_HOME
+        OkHttpUtil.getForXiami(url, object : BaseResponseCallback() {
+            override fun onStart() {
+                callback.onStart()
+            }
+
+            override fun onHtmlResponse(html: String) {
+                val document = Jsoup.parse(html)
+                val slider: Element? = document.getElementById("slider")
+                val items: Elements = slider !!.getElementsByClass("item")
+                val imgUrlList = ArrayList<String>(items.size)
+                (0 until items.size).mapTo(imgUrlList) {
+                    items[it].select("a").first().select("img").first().attr("src")
+                }
+                callback.onSuccess(imgUrlList)
+            }
+
+            override fun onFailure(msg: String) {
+                super.onFailure(msg)
+                callback.onFailure(msg)
+            }
+
+        })
     }
 
     override fun loadHotCollect(count: Int, callback: LoadCollectCallback) {
-        val url = "http://www.xiami.com/collect/recommend/page/1"
-        callback.onStart()
-        LoadCollectTask(count, callback).execute(url)
+        val url = URL_HOME + URL_HOT_COLLECT
+        OkHttpUtil.getForXiami(url, object : BaseResponseCallback() {
+            override fun onStart() {
+                callback.onStart()
+            }
+
+            override fun onHtmlResponse(html: String) {
+                val document = Jsoup.parse(html)
+                val page = document.getElementById("page")
+                val list = page.getElementsByClass("block_items clearfix")
+                val collectList = ArrayList<Collect>(6)
+                for (i in 0 until count) {
+                    val element = list[i]
+                    val a = element.select("a").first()
+                    val title = a.attr("title")
+                    val ref = a.attr("href")
+                    val id = parseIdFromHref(ref)
+                    val coverUrl = a.select("img").first().attr("src")
+                    val collect = Collect()
+                    collect.id = id.toLong()
+                    collect.title = title
+                    collect.coverUrl = coverUrl.substring(0, coverUrl.length - 11)
+                    collect.source = MusicProvider.XIAMI
+                    collectList.add(collect)
+                }
+                callback.onSuccess(collectList)
+
+            }
+
+            override fun onFailure(msg: String) {
+                callback.onFailure(msg)
+            }
+        })
+
     }
 
     override fun loadNewAlbum(count: Int, callback: LoadAlbumCallback) {
-//        type contains "all" "huayu" "oumei" "ri" "han"
-        //presenting "全部" "华语"  "欧美"  "日本" "韩国"
-        val url = "http://www.xiami.com/music/newalbum/type/all/page/1"
-        callback.onStart()
-        LoadNewAlbumTask(count, callback).execute(url)
+        val url = URL_HOME + URL_NEW_ALBUM
+        OkHttpUtil.getForXiami(url, object : BaseResponseCallback() {
+            override fun onStart() {
+                callback.onStart()
+            }
+
+            override fun onHtmlResponse(html: String) {
+                val document = Jsoup.parse(html)
+                val albumElement = document.getElementById("albums")
+                val albums = albumElement.getElementsByClass("album")
+                val albumList = ArrayList<Album>(count)
+                if (albums.size > 0) {
+                    for (i in 0 until count) {
+                        val imgElement = albums[i].getElementsByClass("image").first()
+                        val onclick: String = imgElement.select("b").first().attr("onclick")
+                        val id = onclick.substring(onclick.indexOf('(', 0, false) + 1, onclick.indexOf(',', 0, false))
+                        val coverUrl = imgElement.select("img").first().attr("src")
+                        val title = albums[i].getElementsByClass("info").first()
+                                .select("p").first()
+                                .select("a").first().attr("title")
+                        val artist = albums[i].getElementsByClass("info").first()
+                                .select("p").next()
+                                .select("a").first().attr("title")
+                        val album = Album()
+                        album.coverUrl = coverUrl.substring(0, coverUrl.length - 20)
+                        album.title = title
+                        album.artist = artist
+                        album.id = id.toLong()
+                        albumList.add(album)
+                    }
+                    callback.onSuccess(albumList)
+                } else {
+                    callback.onFailure("")
+                }
+            }
+
+            override fun onFailure(msg: String) {
+                callback.onFailure(msg)
+            }
+        })
+
     }
 
     override fun loadCollectDetail(id: Long, callback: LoadCollectDetailCallback) {
@@ -98,12 +209,11 @@ internal class Xiami : MusicSource {
             }
 
             override fun onJsonObjectResponse(jsonObject: JSONObject) {
-                val collect = getCollectFormJson(jsonObject)
+                val collect = parseCollectFormJson(jsonObject)
                 callback.onSuccess(collect)
             }
 
             override fun onFailure(msg: String) {
-                LogUtil.e(TAG, msg)
                 callback.onFailure(msg)
             }
 
@@ -111,7 +221,7 @@ internal class Xiami : MusicSource {
 
     }
 
-    private fun getCollectFormJson(data: JSONObject): Collect {
+    private fun parseCollectFormJson(data: JSONObject): Collect {
         val collect = Collect()
         collect.source = MusicProvider.XIAMI
         collect.id = data.getLong("list_id")
@@ -121,11 +231,11 @@ internal class Xiami : MusicSource {
         collect.createDate = data.getLong("gmt_create")
         collect.updateDate = data.getLong("gmt_modify")
         collect.playTimes = data.getInt("play_count")
-        collect.songs = getSongsFromJson(data.getJSONArray("songs"))
+        collect.songs = parseSongsFromJson(data.getJSONArray("songs"))
         return collect
     }
 
-    private fun getSongsFromJson(songs: JSONArray?): ArrayList<Song>? {
+    private fun parseSongsFromJson(songs: JSONArray?): ArrayList<Song>? {
         val songCount = songs !!.length()
         val songList = ArrayList<Song>(songCount)
         for (i in 0 until songCount) {
@@ -161,7 +271,7 @@ internal class Xiami : MusicSource {
 
     override fun loadSongDetail(song: Song, callback: LoadSongDetailCallback) {
         val id = song.songId
-        val url = PREFIX_SONG_DETAIL + id + SUFFIX_SONG_DETAIL
+        val url = URL_HOME + PREFIX_SONG_DETAIL + id + SUFFIX_SONG_DETAIL
         OkHttpUtil.getForXiami(url, object : BaseResponseCallback() {
             override fun onStart() {
                 callback.onStart()
@@ -193,7 +303,7 @@ internal class Xiami : MusicSource {
                         song.miniAlbumCoverUrl = track.getString("pic")
                         song.albumName = track.getString("album_name")
                         song.albumId = track.getLong("album_id")
-                        song.artistName = track.getString("artist_name")
+                        song.artistName = track.getString("artist")
                         song.artistId = track.getLong("artist_id")
                         callback.onSuccess(song)
                     } else {
@@ -251,13 +361,12 @@ internal class Xiami : MusicSource {
                 album.publishDate = jsonObject.getLong("gmt_publish")
                 album.coverUrl = jsonObject.getString("album_logo")
                 album.miniCoverUrl = album.coverUrl + "@1e_1c_100Q_100w_100h"
-                album.songs = getSongsFromJson(jsonObject.getJSONArray("songs"))
+                album.songs = parseSongsFromJson(jsonObject.getJSONArray("songs"))
                 callback.onSuccess(album)
             }
 
             override fun onFailure(msg: String) {
                 callback.onFailure(msg)
-                LogUtil.e(TAG, msg)
             }
 
         })
@@ -273,7 +382,7 @@ internal class Xiami : MusicSource {
 
             override fun onJsonObjectResponse(jsonObject: JSONObject) {
                 super.onJsonObjectResponse(jsonObject)
-                val songs: ArrayList<Song>? = getSongsFromJson(jsonObject.getJSONArray("songs"))
+                val songs: ArrayList<Song>? = parseSongsFromJson(jsonObject.getJSONArray("songs"))
                 if (songs == null || songs.size == 0) {
                     callback.onFailure("搜索失败")
                 } else {
@@ -289,7 +398,7 @@ internal class Xiami : MusicSource {
     }
 
     override fun loadSearchRecommend(keyword: String, callback: LoadSearchRecommendCallback) {
-        val currentTime = Calendar.getInstance().timeInMillis
+        val currentTime = System.currentTimeMillis()
         val url = PREFIX_SEARCH_RECOMMEND + URLEncoder.encode(keyword, "utf-8") + INFIX_SEARCH_RECOMMEND + currentTime
         OkHttpUtil.getForXiami(url, object : BaseResponseCallback() {
 
@@ -298,7 +407,7 @@ internal class Xiami : MusicSource {
             }
 
             override fun onHtmlResponse(html: String) {
-                val keywordList = getRecommendKeywords(html)
+                val keywordList = parseRecommendKeywords(html)
                 callback.onSuccess(keywordList)
             }
 
@@ -311,7 +420,7 @@ internal class Xiami : MusicSource {
 
     }
 
-    private fun getRecommendKeywords(string: String): List<String> {
+    private fun parseRecommendKeywords(string: String): List<String> {
         val keywordList = ArrayList<String>()
         val document = Jsoup.parse(string)
         val result = document.getElementsByClass("result")
@@ -339,7 +448,7 @@ internal class Xiami : MusicSource {
             }
         }
         val page = 1.toString()
-        val url = URL_PREFIX_LOAD_ARTISTS + "$type" + URL_INFIX_LOAD_ARTISTS + page
+        val url = URL_HOME + URL_PREFIX_LOAD_ARTISTS + "$type" + URL_INFIX_LOAD_ARTISTS + page
         OkHttpUtil.getForXiami(url, object : BaseResponseCallback() {
             override fun onStart() {
                 callback.onStart()
@@ -556,7 +665,7 @@ internal class Xiami : MusicSource {
             val a = element.select("a").first()
             val title = a.attr("title")
             val ref = a.attr("href")
-            val id = getIdFromHref(ref)
+            val id = parseIdFromHref(ref)
             val coverUrl = a.select("img").first().attr("src")
             val collect = Collect()
             collect.id = id.toLong()
@@ -568,130 +677,114 @@ internal class Xiami : MusicSource {
         return collects
     }
 
-    private fun getIdFromHref(ref: String): Int {
+    private fun parseIdFromHref(ref: String): Int {
         val idStr = ref.substring(ref.lastIndexOf('/') + 1)
         return Integer.valueOf(idStr) !!
     }
 
+    override fun loadOfficialRanking(provider: MusicProvider, callback: LoadRankingCallback) {
+        callback.onStart()
+        val collects = ArrayList<Collect>()
+        LoadRankingListTask(collects, RANKING_MUSIC, callback)
+                .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, URL_HOME + URL_RANKING_DATA_MUSIC + System.currentTimeMillis())
+        LoadRankingListTask(collects, RANKING_ORIGIN, callback)
+                .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, URL_HOME + URL_RANKING_DATA_ORIGINAL + System.currentTimeMillis())
+        LoadRankingListTask(collects, RANKING_NEW, callback)
+                .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, URL_HOME + URL_RANKING_DATA_NEW + System.currentTimeMillis())
+    }
 
-    //AsyncTasks
-    internal class LoadBannerTask(private val callback: LoadBannerCallback)
-        : AsyncTask<String, Void, List<String>?>() {
+    override fun loadGlobalRanking(ranking: RankingContract.GlobalRanking, callback: LoadSingleRankingCallback) {
+        val collect = Collect()
+        collect.source = MusicProvider.XIAMI
+        val suffix = when (ranking) {
+            RankingContract.GlobalRanking.BILLBOARD -> {
+                collect.title = "Billboard周榜"
+                collect.coverDrawable = R.drawable.ranking_billboard
+                URL_RANKING_BILLBOARD
+            }
 
-        override fun doInBackground(vararg url: String?): List<String>? {
-            val document: Document? = Jsoup.connect(url[0]).get()
-            if (document != null) {
-                val slider: Element? = document.getElementById("slider")
-                val items: Elements = slider !!.getElementsByClass("item")
-                val imgUrlList = ArrayList<String>(items.size)
-                (0 until items.size).mapTo(imgUrlList) {
-                    items[it].select("a").first().select("img").first().attr("src")
-                }
-
-                return imgUrlList
-            } else {
-                return null
+            RankingContract.GlobalRanking.UK
+            -> {
+                collect.coverDrawable = R.drawable.ranking_uk
+                collect.title = "UK周榜"
+                URL_RANKING_UK
+            }
+            RankingContract.GlobalRanking.ORICON
+            -> {
+                collect.coverDrawable = R.drawable.ranking_oricon
+                collect.title = "日本 Oricon 周榜"
+                URL_RANKING_ORICON
             }
         }
-
-        override fun onPostExecute(result: List<String>?) {
-            super.onPostExecute(result)
-            if (result == null || result.isEmpty()) {
-                callback.onFailure("")
-            } else {
-                callback.onSuccess(result)
+        val url = URL_HOME + suffix + System.currentTimeMillis()
+        OkHttpUtil.getForXiami(url, object : BaseResponseCallback() {
+            override fun onStart() {
+                callback.onStart()
             }
-        }
+
+            override fun onHtmlResponse(html: String) {
+                collect.songs = parseRankingSongs(Jsoup.parse(html))
+                callback.onSuccess(collect)
+            }
+
+            override fun onFailure(msg: String) {
+                callback.onFailure(msg)
+            }
+        })
 
     }
 
-    internal class LoadCollectTask(private val count: Int, private val callback: LoadCollectCallback)
-        : AsyncTask<String, Void, List<Collect>?>() {
-        override fun doInBackground(vararg url: String?): List<Collect>? {
-            val document: Document? = Jsoup.connect("http://www.xiami.com/collect/recommend/page/1").get()
-            if (document != null) {
-                val page = document.getElementById("page")
-                val list = page.getElementsByClass("block_items clearfix")
-                val collectList = ArrayList<Collect>(6)
-                for (i in 0 until count) {
-                    val element = list[i]
-                    val a = element.select("a").first()
-                    val title = a.attr("title")
-                    val ref = a.attr("href")
-                    val id = getIdFromHref(ref)
-                    val coverUrl = a.select("img").first().attr("src")
-                    val collect = Collect()
-                    collect.id = id.toLong()
-                    collect.title = title
-                    collect.coverUrl = coverUrl.substring(0, coverUrl.length - 11)
-                    collect.source = MusicProvider.XIAMI
-                    collectList.add(collect)
-                }
-                return collectList
-            } else {
-                return null
-            }
+    private fun parseRankingSongs(document: Document): ArrayList<Song>? {
+        val songElements = document.getElementsByClass("song")
+        val moreElements = document.getElementsByClass("more")
+
+        val songs = ArrayList<Song>()
+        for (i in 0 until songElements.size) {
+            val element = songElements[i]
+            val song = Song()
+            song.supplier = MusicProvider.XIAMI
+            song.miniAlbumCoverUrl = element.getElementsByClass("image").first()
+                    .select("img").first().attr("src")
+            song.albumCoverUrl = song.miniAlbumCoverUrl.substring(0, song.miniAlbumCoverUrl.indexOf("@"))
+            val info = element.getElementsByClass("info").first()
+            song.name = info.select("p").first().select("a").first().text()
+            song.artistName = info.select("p").last().select("a").first().text()
+            val songId = moreElements[i].select("li").first().attr("onclick")
+            song.songId = songId.substring(songId.indexOf("(") + 1, songId.indexOf(",")).toLong()
+            songs.add(song)
         }
-
-        override fun onPostExecute(result: List<Collect>?) {
-            super.onPostExecute(result)
-            if (result == null || result.isEmpty()) {
-                callback.onFailure("获取热门歌单失败")
-            } else {
-                callback.onSuccess(result)
-            }
-        }
-
-        private fun getIdFromHref(ref: String): Int {
-            val idStr = ref.substring(ref.lastIndexOf('/') + 1)
-            return Integer.valueOf(idStr) !!
-        }
-
-
+        return songs
     }
 
-    internal class LoadNewAlbumTask(private val count: Int, private val callback: LoadAlbumCallback)
-        : AsyncTask<String, Void, List<Album>?>() {
-        override fun doInBackground(vararg url: String?): List<Album>? {
-            val document = Jsoup.connect(url[0]).get()
-            if (document != null) {
-                val albumElement = document.getElementById("albums")
-                val albums = albumElement.getElementsByClass("album")
-                val albumList = ArrayList<Album>(count)
-                if (albums.size > 0) {
-                    for (i in 0 until count) {
-                        val imgElement = albums[i].getElementsByClass("image").first()
-                        val onclick: String = imgElement.select("b").first().attr("onclick")
-                        val id = onclick.substring(onclick.indexOf('(', 0, false) + 1, onclick.indexOf(',', 0, false))
-                        val coverUrl = imgElement.select("img").first().attr("src")
-                        val title = albums[i].getElementsByClass("info").first()
-                                .select("p").first()
-                                .select("a").first().attr("title")
-                        val artist = albums[i].getElementsByClass("info").first()
-                                .select("p").next()
-                                .select("a").first().attr("title")
-                        val album = Album()
-                        album.coverUrl = coverUrl.substring(0, coverUrl.length - 20)
-                        album.title = title
-                        album.artist = artist
-                        album.id = id.toLong()
-                        albumList.add(album)
-                    }
+    @SuppressLint("StaticFieldLeak")
+    inner class LoadRankingListTask(val collects: ArrayList<Collect>, private val rankingTitle: String, private val callback: LoadRankingCallback) : AsyncTask<String, Void, Collect>() {
+
+        override fun doInBackground(vararg urls: String?): Collect {
+            val url = urls[0]
+            val collect = Collect()
+            collect.title = rankingTitle
+            collect.coverDrawable = when (rankingTitle) {
+                RANKING_MUSIC -> R.drawable.xiami_music
+                RANKING_NEW -> R.drawable.xiami_new
+                RANKING_ORIGIN -> R.drawable.xiami_original
+                else -> {
+                    - 1
                 }
-                return albumList
-            } else {
-                return null
+            }
+            collect.source = MusicProvider.XIAMI
+            val document = Jsoup.connect(url).get()
+            collect.songs = parseRankingSongs(document)
+            return collect
+        }
+
+        override fun onPostExecute(result: Collect) {
+            super.onPostExecute(result)
+            collects.add(result)
+            if (collects.size == 3) {
+                callback.onSuccess(collects)
             }
         }
 
-        override fun onPostExecute(result: List<Album>?) {
-            super.onPostExecute(result)
-            if (result == null || result.isEmpty()) {
-                callback.onFailure("获取最新音乐失败")
-            } else {
-                callback.onSuccess(result)
-            }
-        }
 
     }
 }

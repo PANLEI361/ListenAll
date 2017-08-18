@@ -5,6 +5,7 @@ import com.example.wenhai.listenall.data.bean.Album
 import com.example.wenhai.listenall.data.bean.Artist
 import com.example.wenhai.listenall.data.bean.Collect
 import com.example.wenhai.listenall.data.bean.Song
+import com.example.wenhai.listenall.moudle.ranking.RankingContract
 
 /**
  * 音乐数据接口类
@@ -25,6 +26,8 @@ interface MusicSource {
     fun loadArtistHotSongs(artist: Artist, callback: LoadArtistHotSongsCallback)
     fun loadArtistAlbums(artist: Artist, callback: LoadArtistAlbumsCallback)
     fun loadCollectByCategory(category: String, callback: LoadCollectByCategoryCallback)
+    fun loadOfficialRanking(provider: MusicProvider, callback: LoadRankingCallback)
+    fun loadGlobalRanking(ranking: RankingContract.GlobalRanking, callback: LoadSingleRankingCallback)
 }
 
 
@@ -79,4 +82,12 @@ interface LoadArtistAlbumsCallback : BaseCallBack {
 
 interface LoadCollectByCategoryCallback : BaseCallBack {
     fun onSuccess(collects: List<Collect>)
+}
+
+interface LoadRankingCallback : BaseCallBack {
+    fun onSuccess(collects: List<Collect>)
+}
+
+interface LoadSingleRankingCallback : BaseCallBack {
+    fun onSuccess(collect: Collect)
 }

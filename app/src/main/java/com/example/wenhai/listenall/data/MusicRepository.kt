@@ -3,18 +3,27 @@ package com.example.wenhai.listenall.data
 import com.example.wenhai.listenall.data.bean.Artist
 import com.example.wenhai.listenall.data.bean.Song
 import com.example.wenhai.listenall.data.onlineprovider.Xiami
+import com.example.wenhai.listenall.moudle.ranking.RankingContract
 
 internal class MusicRepository() : MusicSource {
 
 
-    var musicSource: MusicSource
+    private var musicSource: MusicSource
+    private var curProvider: MusicProvider
+
+    companion object {
+        @JvmStatic
+        val INSTANCE = MusicRepository()
+    }
 
     init {
         //default
+        curProvider = MusicProvider.XIAMI
         musicSource = Xiami()
     }
 
     constructor(sourceProvider: MusicProvider) : this() {
+        curProvider = sourceProvider
         when (sourceProvider) {
             MusicProvider.XIAMI -> {
                 musicSource = Xiami()
@@ -29,15 +38,17 @@ internal class MusicRepository() : MusicSource {
     }
 
     fun changeMusicSource(provider: MusicProvider) {
-        when (provider) {
-            MusicProvider.XIAMI -> {
-                musicSource = Xiami()
-            }
-            MusicProvider.QQMUSIC -> {
+        if (provider != curProvider) {
+            when (provider) {
+                MusicProvider.XIAMI -> {
+                    musicSource = Xiami()
+                }
+                MusicProvider.QQMUSIC -> {
 //                musicSource = QQ()
-            }
-            MusicProvider.NETEASE -> {
+                }
+                MusicProvider.NETEASE -> {
 //                musicSource = NetEase()
+                }
             }
         }
     }
@@ -95,6 +106,15 @@ internal class MusicRepository() : MusicSource {
     override fun loadCollectByCategory(category: String, callback: LoadCollectByCategoryCallback) {
         musicSource.loadCollectByCategory(category, callback)
     }
+
+    override fun loadOfficialRanking(provider: MusicProvider, callback: LoadRankingCallback) {
+        musicSource.loadOfficialRanking(provider, callback)
+    }
+
+    override fun loadGlobalRanking(ranking: RankingContract.GlobalRanking, callback: LoadSingleRankingCallback) {
+        musicSource.loadGlobalRanking(ranking, callback)
+    }
+
 }
 
 

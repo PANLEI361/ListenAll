@@ -67,8 +67,9 @@ internal class CollectListFragment : Fragment(), CollectListContract.View {
     }
 
     override fun setCollects(collects: List<Collect>) {
-        mCollectListAdapter.setData(collects)
-
+        activity.runOnUiThread {
+            mCollectListAdapter.setData(collects)
+        }
     }
 
     override fun setPresenter(presenter: CollectListContract.Presenter) {

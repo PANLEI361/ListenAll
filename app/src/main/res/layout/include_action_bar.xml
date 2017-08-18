@@ -15,6 +15,7 @@
             style="?android:attr/buttonBarButtonStyle"
             android:layout_width="@dimen/action_bar_btn_width"
             android:layout_height="@dimen/action_bar_btn_width"
+            android:scaleType="centerCrop"
             android:layout_marginStart="5dp"
             android:src="@drawable/ic_action_back" />
 
