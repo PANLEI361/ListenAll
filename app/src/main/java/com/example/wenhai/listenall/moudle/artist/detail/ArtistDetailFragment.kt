@@ -22,6 +22,7 @@ import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.data.bean.Album
 import com.example.wenhai.listenall.data.bean.Artist
 import com.example.wenhai.listenall.data.bean.Song
+import com.example.wenhai.listenall.moudle.detail.DetailContract
 import com.example.wenhai.listenall.moudle.detail.DetailFragment
 import com.example.wenhai.listenall.moudle.main.MainActivity
 import com.example.wenhai.listenall.utils.FragmentUtil
@@ -245,8 +246,8 @@ class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
             holder.item.setOnClickListener {
                 val detailFragment = DetailFragment()
                 val data = Bundle()
-                data.putLong(DetailFragment.ARGS_ID, album.id)
-                data.putInt(DetailFragment.ARGS_TYPE, DetailFragment.TYPE_ALBUM)
+                data.putLong(DetailContract.ARGS_ID, album.id)
+                data.putSerializable(DetailContract.ARGS_LOAD_TYPE, DetailContract.LoadType.ALBUM)
                 detailFragment.arguments = data
                 FragmentUtil.addFragmentToMainView(fragmentManager, detailFragment)
 

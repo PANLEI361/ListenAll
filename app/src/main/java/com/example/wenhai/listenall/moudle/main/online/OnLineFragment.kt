@@ -24,6 +24,7 @@ import com.example.wenhai.listenall.moudle.albumlist.AlbumListFragment
 import com.example.wenhai.listenall.moudle.artist.list.ArtistListFragment
 import com.example.wenhai.listenall.moudle.collect.CollectFilterFragment
 import com.example.wenhai.listenall.moudle.collectlist.CollectListFragment
+import com.example.wenhai.listenall.moudle.detail.DetailContract
 import com.example.wenhai.listenall.moudle.detail.DetailFragment
 import com.example.wenhai.listenall.moudle.ranking.RankingFragment
 import com.example.wenhai.listenall.utils.FragmentUtil
@@ -123,8 +124,8 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
         mHotCollects.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
             val collect = mHotCollectList[position]
             val data = Bundle()
-            data.putLong(DetailFragment.ARGS_ID, collect.id)
-            data.putInt(DetailFragment.ARGS_TYPE, DetailFragment.TYPE_COLLECT)
+            data.putLong(DetailContract.ARGS_ID, collect.id)
+            data.putSerializable(DetailContract.ARGS_LOAD_TYPE, DetailContract.LoadType.COLLECT)
             startDetailFragment(data)
         }
     }
@@ -147,8 +148,8 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
         mNewAlbums.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
             val album = mNewAlbumList[position]
             val data = Bundle()
-            data.putLong(DetailFragment.ARGS_ID, album.id)
-            data.putInt(DetailFragment.ARGS_TYPE, DetailFragment.TYPE_ALBUM)
+            data.putLong(DetailContract.ARGS_ID, album.id)
+            data.putSerializable(DetailContract.ARGS_LOAD_TYPE, DetailContract.LoadType.ALBUM)
             startDetailFragment(data)
         }
 

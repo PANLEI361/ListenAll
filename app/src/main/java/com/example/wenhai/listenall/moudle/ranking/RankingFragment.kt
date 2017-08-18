@@ -18,6 +18,7 @@ import butterknife.Unbinder
 import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.data.MusicProvider
 import com.example.wenhai.listenall.data.bean.Collect
+import com.example.wenhai.listenall.moudle.detail.DetailContract
 import com.example.wenhai.listenall.moudle.detail.DetailFragment
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
@@ -106,8 +107,8 @@ class RankingFragment : Fragment(), RankingContract.View {
     fun showRankingDetail(collect: Collect) {
         val detailFragment = DetailFragment()
         val args = Bundle()
-        args.putParcelable(DetailFragment.ARGS_RANKING, collect)
-        args.putInt(DetailFragment.ARGS_TYPE, DetailFragment.TYPE_RANKING)
+        args.putParcelable(DetailContract.ARGS_COLLECT, collect)
+        args.putSerializable(DetailContract.ARGS_LOAD_TYPE, DetailContract.LoadType.RANKING)
         detailFragment.arguments = args
         FragmentUtil.addFragmentToMainView(fragmentManager, detailFragment)
     }

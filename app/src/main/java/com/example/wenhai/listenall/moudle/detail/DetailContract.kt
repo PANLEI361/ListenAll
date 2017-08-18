@@ -5,6 +5,7 @@ import com.example.wenhai.listenall.base.BaseView
 import com.example.wenhai.listenall.data.bean.Album
 import com.example.wenhai.listenall.data.bean.Collect
 import com.example.wenhai.listenall.data.bean.Song
+import java.io.Serializable
 
 interface DetailContract {
 
@@ -16,11 +17,17 @@ interface DetailContract {
     }
 
     interface Presenter : BasePresenter {
-        fun loadSongsDetails(id: Long, type: Int)
+        fun loadSongsDetails(id: Long, type: LoadType)
         fun loadSongDetail(song: Song)
     }
 
-    enum class Type {
-        COLLECT, ALBUM
+    enum class LoadType : Serializable {
+        COLLECT, ALBUM, RANKING;
+    }
+
+    companion object {
+        const val ARGS_ID = "id"
+        const val ARGS_COLLECT = "collect"
+        const val ARGS_LOAD_TYPE = "type"
     }
 }

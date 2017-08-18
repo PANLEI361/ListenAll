@@ -26,18 +26,8 @@ import com.example.wenhai.listenall.utils.GlideApp
 import com.example.wenhai.listenall.utils.ToastUtil
 
 class DetailFragment : Fragment(), DetailContract.View {
-    override fun onFailure(msg: String) {
-        ToastUtil.showToast(context, msg)
-    }
-
     companion object {
         const val TAG = "DetailFragment"
-        const val TYPE_ALBUM = 0
-        const val TYPE_COLLECT = 1
-        const val TYPE_RANKING = 2
-        const val ARGS_ID = "id"
-        const val ARGS_TYPE = "type"
-        const val ARGS_RANKING = "ranking"
     }
 
     @BindView(R.id.action_bar_title)
@@ -54,18 +44,10 @@ class DetailFragment : Fragment(), DetailContract.View {
     lateinit var mSongList: RecyclerView
 
     private lateinit var mSongListAdapter: SongListAdapter
-
-
     lateinit var mPresenter: DetailContract.Presenter
     private lateinit var mUnBinder: Unbinder
-    private var mLoadType: Int = TYPE_COLLECT
-    private lateinit var rankingCollcet: Collect
-
-
-    override fun setPresenter(presenter: DetailContract.Presenter) {
-        mPresenter = presenter
-    }
-
+    private lateinit var mLoadType: DetailContract.LoadType
+    private lateinit var rankingCollect: Collect
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,11 +58,12 @@ class DetailFragment : Fragment(), DetailContract.View {
         val contentView = inflater !!.inflate(R.layout.fragment_detail, container, false)
         mUnBinder = ButterKnife.bind(this, contentView)
 
-        mLoadType = arguments.getInt("type")
-        if (mLoadType == TYPE_RANKING) {
-            rankingCollcet = arguments.getParcelable(ARGS_RANKING)
+        mLoadType = arguments.getSerializable(DetailContract.ARGS_LOAD_TYPE) as DetailContract.LoadType
+
+        if (mLoadType == DetailContract.LoadType.RANKING) {
+            rankingCollect = arguments.getParcelable(DetailContract.ARGS_COLLECT)
         } else {
-            val id = arguments.getLong("id")
+            val id = arguments.getLong(DetailContract.ARGS_ID)
             mPresenter.loadSongsDetails(id, mLoadType)
         }
         initView()
@@ -90,15 +73,15 @@ class DetailFragment : Fragment(), DetailContract.View {
 
     override fun initView() {
         mActionBarTitle.text = when (mLoadType) {
-            TYPE_COLLECT -> getString(R.string.collect_detail)
-            TYPE_ALBUM -> getString(R.string.album_detail)
-            else -> rankingCollcet.title
+            DetailContract.LoadType.COLLECT -> getString(R.string.collect_detail)
+            DetailContract.LoadType.ALBUM -> getString(R.string.album_detail)
+            DetailContract.LoadType.RANKING -> rankingCollect.title
         }
         mSongListAdapter = SongListAdapter(context, ArrayList())
         mSongList.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         mSongList.adapter = mSongListAdapter
-        if (mLoadType == TYPE_RANKING) {
-            setRankingDetail(rankingCollcet)
+        if (mLoadType == DetailContract.LoadType.RANKING) {
+            setRankingDetail(rankingCollect)
         }
     }
 
@@ -117,12 +100,23 @@ class DetailFragment : Fragment(), DetailContract.View {
             }
             R.id.detail_add_to_play -> {
 
+                ToastUtil.showToast(activity, "add to play list")
             }
             R.id.detail_liked -> {
+
+                ToastUtil.showToast(activity, " liked")
+            }
+            R.id.detail_download_all -> {
+                ToastUtil.showToast(activity, "download all")
 
             }
         }
     }
+
+    override fun setPresenter(presenter: DetailContract.Presenter) {
+        mPresenter = presenter
+    }
+
 
     override fun onSongDetailLoaded(song: Song) {
         activity.runOnUiThread {
@@ -176,13 +170,13 @@ class DetailFragment : Fragment(), DetailContract.View {
 
     }
 
+    override fun onFailure(msg: String) {
+        ToastUtil.showToast(context, msg)
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         mUnBinder.unbind()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
     }
 
     inner class SongListAdapter(val context: Context, private var songList: List<Song>) : RecyclerView.Adapter<SongListAdapter.ViewHolder>() {

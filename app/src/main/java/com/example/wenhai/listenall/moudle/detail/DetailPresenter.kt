@@ -7,7 +7,6 @@ import com.example.wenhai.listenall.data.MusicRepository
 import com.example.wenhai.listenall.data.bean.Album
 import com.example.wenhai.listenall.data.bean.Collect
 import com.example.wenhai.listenall.data.bean.Song
-import com.example.wenhai.listenall.utils.LogUtil
 
 internal class DetailPresenter(val view: DetailContract.View) : DetailContract.Presenter {
 
@@ -22,14 +21,14 @@ internal class DetailPresenter(val view: DetailContract.View) : DetailContract.P
         view.setPresenter(this)
     }
 
-    override fun loadSongsDetails(id: Long, type: Int) {
-        if (type == DetailFragment.TYPE_COLLECT) {
+    override fun loadSongsDetails(id: Long, type: DetailContract.LoadType) {
+        if (type == DetailContract.LoadType.COLLECT) {
             musicRepository.loadCollectDetail(id, object : LoadCollectDetailCallback {
                 override fun onStart() {
                 }
 
                 override fun onFailure(msg: String) {
-                    LogUtil.e(TAG, "collect detail load failed")
+                    view.onFailure(msg)
                 }
 
                 override fun onSuccess(collect: Collect) {
@@ -43,7 +42,7 @@ internal class DetailPresenter(val view: DetailContract.View) : DetailContract.P
                 }
 
                 override fun onFailure(msg: String) {
-                    LogUtil.e(TAG, "album detail load failed")
+                    view.onFailure(msg)
                 }
 
                 override fun onSuccess(album: Album) {
@@ -60,11 +59,10 @@ internal class DetailPresenter(val view: DetailContract.View) : DetailContract.P
             }
 
             override fun onFailure(msg: String) {
-                view.onLoadFailed("当前歌曲不能播放，请切换其他平台搜索")
+                view.onFailure(msg)
             }
 
             override fun onSuccess(loadedSong: Song) {
-                LogUtil.d(TAG, "song detail:$song")
                 view.onSongDetailLoaded(loadedSong)
             }
 

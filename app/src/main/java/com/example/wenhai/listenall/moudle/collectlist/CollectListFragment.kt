@@ -17,6 +17,7 @@ import butterknife.OnClick
 import butterknife.Unbinder
 import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.data.bean.Collect
+import com.example.wenhai.listenall.moudle.detail.DetailContract
 import com.example.wenhai.listenall.moudle.detail.DetailFragment
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
@@ -112,9 +113,9 @@ internal class CollectListFragment : Fragment(), CollectListContract.View {
                         .into(holder.collectCover)
                 holder.item.setOnClickListener {
                     val data = Bundle()
-                    data.putLong(DetailFragment.ARGS_ID, collect.id)
-                    data.putInt(DetailFragment.ARGS_TYPE, DetailFragment.TYPE_COLLECT)
                     val detailFragment = DetailFragment()
+                    data.putLong(DetailContract.ARGS_ID, collect.id)
+                    data.putSerializable(DetailContract.ARGS_LOAD_TYPE, DetailContract.LoadType.COLLECT)
                     detailFragment.arguments = data
                     FragmentUtil.addFragmentToMainView(fragmentManager, detailFragment)
                 }

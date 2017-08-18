@@ -17,6 +17,7 @@ import butterknife.OnClick
 import butterknife.Unbinder
 import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.data.bean.Album
+import com.example.wenhai.listenall.moudle.detail.DetailContract
 import com.example.wenhai.listenall.moudle.detail.DetailFragment
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
@@ -55,8 +56,8 @@ class AlbumListFragment : Fragment(), AlbumListContract.View {
         mGridNewAlbums.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
             val album = mAlbumList[position]
             val data = Bundle()
-            data.putLong(DetailFragment.ARGS_ID, album.id)
-            data.putInt(DetailFragment.ARGS_TYPE, DetailFragment.TYPE_ALBUM)
+            data.putLong(DetailContract.ARGS_ID, album.id)
+            data.putSerializable(DetailContract.ARGS_LOAD_TYPE, DetailContract.LoadType.ALBUM)
             val detailFragment = DetailFragment()
             detailFragment.arguments = data
             FragmentUtil.addFragmentToMainView(fragmentManager, detailFragment)
