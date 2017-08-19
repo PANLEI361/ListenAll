@@ -79,8 +79,8 @@ class SearchFragment : Fragment(), SearchContract.View {
                 mContentList.adapter = ResultSongsAdapter(resultSongs)
                 mContentList.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
 
-                mLoading.visibility = View.VISIBLE
-                mContentList.visibility = View.GONE
+                mLoading.visibility = View.GONE
+                mContentList.visibility = View.VISIBLE
             }
         }
     }
@@ -133,7 +133,7 @@ class SearchFragment : Fragment(), SearchContract.View {
             (mContentList.adapter as SearchHistoryAdapter).setData(searchHistory)
         } else {
             mContentList.adapter = SearchHistoryAdapter(searchHistory)
-            mContentList.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+            mContentList.layoutManager = LinearLayoutManager(context)
         }
     }
 
@@ -142,8 +142,8 @@ class SearchFragment : Fragment(), SearchContract.View {
         mSearchView.visibility = View.VISIBLE
         val display = "搜索\"$keyword\""
         mTvBeginSearch.text = display
-        mPresenter.loadSearchRecommend(searchKeyword)
         currentContent = CONTENT_RECOMMEND_KEYWORD
+        mPresenter.loadSearchRecommend(searchKeyword)
     }
 
     override fun onSearchRecommendLoaded(recommends: List<String>) {
@@ -152,7 +152,7 @@ class SearchFragment : Fragment(), SearchContract.View {
                 if (mContentList.adapter is SearchRecommendAdapter) {
                     (mContentList.adapter as SearchRecommendAdapter).setData(recommends)
                 } else {
-                    mContentList.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+                    mContentList.layoutManager = LinearLayoutManager(context)
                     mContentList.adapter = SearchRecommendAdapter(recommends)
                 }
             }
@@ -172,7 +172,7 @@ class SearchFragment : Fragment(), SearchContract.View {
 
     override fun onSongDetailLoad(song: Song) {
         activity.runOnUiThread {
-            (activity as MainActivity).playService.playNewSong(song)
+            (activity as MainActivity).playNewSong(song)
         }
     }
 
