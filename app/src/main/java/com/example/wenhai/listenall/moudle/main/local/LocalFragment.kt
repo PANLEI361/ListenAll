@@ -44,7 +44,7 @@ class LocalFragment : android.support.v4.app.Fragment() {
     @BindView(R.id.main_local_btn_recent_play)
     lateinit var mBtnRecentPlay: ImageButton
 
-    lateinit var mUnBinder: Unbinder
+    private lateinit var mUnBinder: Unbinder
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -114,7 +114,7 @@ class LocalFragment : android.support.v4.app.Fragment() {
 
 
     class SongListAdapter(val context: Context) : RecyclerView.Adapter<SongListAdapter.ViewHolder>() {
-        lateinit var songList: List<TestSongList>
+        private lateinit var songList: List<TestSongList>
 
         constructor(songList: List<TestSongList>, context: Context) : this(context) {
             this.songList = songList

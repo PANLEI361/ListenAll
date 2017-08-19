@@ -8,4 +8,12 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="tabLayoutText" parent="Base.TextAppearance.AppCompat.Button">
+        <item name="android:textSize">17sp</item>
+    </style>
+
+    <style name="mainTabLayoutText" parent="Base.TextAppearance.AppCompat.Button">
+        <item name="android:textSize">17sp</item>
+    </style>
+
 </resources>

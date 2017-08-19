@@ -14,7 +14,8 @@ object OkHttpUtil {
     const val TAG = "OkHttpUtil"
 
     @JvmStatic
-    var client: OkHttpClient? = null
+    private var client: OkHttpClient? = null
+
 
     @JvmStatic
     fun getHttpClient(): OkHttpClient {
@@ -47,6 +48,7 @@ object OkHttpUtil {
         val newCall = getHttpClient().newCall(request)
 
         newCall.enqueue(object : Callback {
+
             override fun onFailure(call: Call?, e: IOException?) {
                 if (e != null) {
                     callback.onFailure(e.localizedMessage)
@@ -59,15 +61,14 @@ object OkHttpUtil {
                 } else {
                     val body = response.body() !!.string()
                     LogUtil.d("response:", body)
-                    if (body.startsWith("jsonp")) {
-                        val realJsonStr = body.substring(body.indexOf("(") + 1, body.lastIndexOf(")"))
-                        callback.onJsonObjectResponse(JSONObject(realJsonStr).getJSONObject("data"))
-                    } else if (body.startsWith("{")) {
-                        callback.onJsonObjectResponse(JSONObject(body))
-                    } else if (body.contains("</")) {
-                        callback.onStringResponse(body)
-                    } else {
-                        callback.onFailure("response body:$body")
+                    when {
+                        body.startsWith("jsonp") -> {
+                            val realJsonStr = body.substring(body.indexOf("(") + 1, body.lastIndexOf(")"))
+                            callback.onJsonObjectResponse(JSONObject(realJsonStr).getJSONObject("data"))
+                        }
+                        body.startsWith("{") -> callback.onJsonObjectResponse(JSONObject(body))
+                        body.contains("</") -> callback.onHtmlResponse(body)
+                        else -> callback.onFailure("response body:$body")
                     }
                 }
 
@@ -93,7 +94,7 @@ open class BaseResponseCallback : ResponseCallBack {
 
     }
 
-    override fun onStringResponse(string: String) {
+    override fun onHtmlResponse(html: String) {
     }
 
     override fun onFailure(msg: String) {
@@ -107,6 +108,6 @@ interface ResponseCallBack {
     fun onResponse(response: Response)
     fun onJsonObjectResponse(jsonObject: JSONObject)
     fun onJsonArrayResponse(jsonArray: JSONArray)
-    fun onStringResponse(string: String)
+    fun onHtmlResponse(html: String)
     fun onFailure(msg: String)
 }

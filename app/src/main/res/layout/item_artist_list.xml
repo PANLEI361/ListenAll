@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/item"
+    android:layout_width="match_parent"
+    android:layout_height="70dp"
+    android:background="@drawable/selector_white"
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
+
+    <ImageView
+        android:id="@+id/item_artist_img"
+        android:layout_width="55dp"
+        android:layout_height="55dp"
+        android:layout_marginStart="7dp"
+        android:src="@drawable/ic_main_singer"
+        tools:ignore="ContentDescription" />
+
+    <TextView
+        android:id="@+id/item_artist_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:text="John Mayer"
+        android:textColor="@color/colorBlack"
+        android:textSize="17sp" />
+
+</LinearLayout>

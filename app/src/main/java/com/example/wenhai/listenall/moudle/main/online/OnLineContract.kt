@@ -8,10 +8,9 @@ import com.example.wenhai.listenall.data.bean.Collect
 
 interface OnLineContract {
     interface View : BaseView<Presenter> {
-        fun setBanner(imgUrlList: List<String>)
-        fun setHotCollects(hotCollects: List<Collect>)
-        fun setNewAlbums(newAlbums: List<Album>)
-
+        fun onBannerLoad(imgUrlList: List<String>)
+        fun onHotCollectsLoad(hotCollects: List<Collect>)
+        fun onNewAlbumsLoad(newAlbums: List<Album>)
     }
 
     interface Presenter : BasePresenter {

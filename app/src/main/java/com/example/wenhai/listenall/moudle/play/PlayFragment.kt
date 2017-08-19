@@ -18,21 +18,19 @@ import butterknife.ButterKnife
 import butterknife.OnClick
 import butterknife.Unbinder
 import com.example.wenhai.listenall.R
+import com.example.wenhai.listenall.data.MusicProvider
 import com.example.wenhai.listenall.data.bean.Song
 import com.example.wenhai.listenall.moudle.main.MainActivity
 import com.example.wenhai.listenall.moudle.play.service.PlayService
 import com.example.wenhai.listenall.moudle.play.service.PlayStatusObserver
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
+import com.example.wenhai.listenall.widget.PlayListDialog
 
 class PlayFragment : Fragment(), PlayStatusObserver {
 
     @BindView(R.id.play_song_name)
     lateinit var mSongName: TextView
-
-    //    @BindView(R.id.play_artist_name)
-    lateinit var mTvArtistName: TextView
-    lateinit var mIvCover: ImageView
 
     @BindView(R.id.play_pager)
     lateinit var mPager: ViewPager
@@ -64,19 +62,23 @@ class PlayFragment : Fragment(), PlayStatusObserver {
     lateinit var mBtnSongList: ImageButton
 
     lateinit var coverView: RelativeLayout
+    private lateinit var mTvArtistName: TextView
+    private lateinit var mTvProvider: TextView
+    private lateinit var mIvCover: ImageView
+
     lateinit var lyricView: LinearLayout
 
 
-    lateinit var mUnBinder: Unbinder
-    var mCurrentSong: Song? = null
+    private lateinit var mUnBinder: Unbinder
+    private var mCurrentSong: Song? = null
+    private lateinit var mCurrentPlayList: ArrayList<Song>
     lateinit var playService: PlayService
-    var playMode: PlayService.PlayMode = PlayService.PlayMode.REPEAT_LIST
-    var isPlaying: Boolean = false
+    private var playMode: PlayService.PlayMode = PlayService.PlayMode.REPEAT_LIST
+    private var isPlaying: Boolean = false
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        mCurrentSong = arguments.getParcelable("currentSong")
         playService = (activity as MainActivity).playService
     }
 
@@ -86,6 +88,7 @@ class PlayFragment : Fragment(), PlayStatusObserver {
         coverView = inflater.inflate(R.layout.fragment_play_cover, container, false) as RelativeLayout
         mIvCover = coverView.findViewById(R.id.play_cover)
         mTvArtistName = coverView.findViewById(R.id.play_artist_name)
+        mTvProvider = coverView.findViewById(R.id.play_provider)
 
         //init lyricView
         lyricView = inflater.inflate(R.layout.fragment_play_lyric, container, false) as LinearLayout
@@ -137,7 +140,8 @@ class PlayFragment : Fragment(), PlayStatusObserver {
 
     }
 
-    @OnClick(R.id.action_bar_back, R.id.play_btn_start_pause, R.id.play_btn_previous, R.id.play_btn_next, R.id.play_btn_mode, R.id.play_btn_song_list)
+    @OnClick(R.id.action_bar_back, R.id.play_btn_start_pause, R.id.play_btn_previous,
+            R.id.play_btn_next, R.id.play_btn_mode, R.id.play_btn_song_list)
     fun onClick(view: View) {
         when (view.id) {
             R.id.action_bar_back -> {
@@ -153,16 +157,24 @@ class PlayFragment : Fragment(), PlayStatusObserver {
 
             }
             R.id.play_btn_previous -> {
-
+                playService.previous()
             }
             R.id.play_btn_next -> {
-
+                playService.next()
             }
             R.id.play_btn_mode -> {
-
+                playService.changePlayMode()
             }
             R.id.play_btn_song_list -> {
+                val dialog = PlayListDialog(context, mCurrentPlayList)
+                dialog.setOnItemClickListener(object : PlayListDialog.OnItemClickListener {
+                    override fun onItemClick(song: Song) {
+                        playService.playNewSong(song)
+                        dialog.dismiss()
+                    }
 
+                })
+                dialog.show()
             }
         }
     }
@@ -196,10 +208,10 @@ class PlayFragment : Fragment(), PlayStatusObserver {
         val hour = length / 3600
         val minute = (length - hour * 3600) / 60
         val second = length % 60
-        if (hour == 0) {
-            return "${formatStringNumber(minute)}:${formatStringNumber(second)}"
+        return if (hour == 0) {
+            "${formatStringNumber(minute)}:${formatStringNumber(second)}"
         } else {
-            return "${formatStringNumber(hour)}:${formatStringNumber(minute)}:${formatStringNumber(second)}"
+            "${formatStringNumber(hour)}:${formatStringNumber(minute)}:${formatStringNumber(second)}"
         }
     }
 
@@ -237,11 +249,11 @@ class PlayFragment : Fragment(), PlayStatusObserver {
         if (mCurrentSong != null) {
             mSongName.text = mCurrentSong !!.name
             mTvArtistName.text = mCurrentSong !!.artistName
+            setProvider()
             setCover(mCurrentSong !!.albumCoverUrl)
             mTvTotalTime.text = getMinuteLength(mCurrentSong !!.length)
         }
-        // TODO: 2017/8/12 song list
-//        playStatus.currentList
+        mCurrentPlayList = playStatus.currentList
         mSeekBar.progress = playStatus.playProgress.toInt()
         setCurTime(playStatus.playProgress)
     }
@@ -288,24 +300,41 @@ class PlayFragment : Fragment(), PlayStatusObserver {
         mSongName.text = mCurrentSong !!.name
         setCover(mCurrentSong !!.albumCoverUrl)
         mTvArtistName.text = mCurrentSong !!.artistName
+        setProvider()
         setTotalTime(mCurrentSong !!.length)
         setCurTime(0f)
+    }
+
+    @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
+    private fun setProvider() {
+        val provider = mCurrentSong !!.supplier
+        val providerStr = when (provider) {
+            MusicProvider.XIAMI -> {
+                "虾米音乐"
+            }
+            MusicProvider.QQMUSIC -> {
+                "QQ音乐"
+            }
+            MusicProvider.NETEASE -> {
+                "网易云音乐"
+            }
+        }
+        mTvProvider.text = providerStr
     }
 
     override fun onSongCompleted() {
         //adjust
         onPlayProgressUpdate(100f)
-        onPlayPause()
     }
 
     inner class PlayPagerAdapter : PagerAdapter() {
         override fun instantiateItem(container: ViewGroup?, position: Int): Any {
-            if (position == 0) {
+            return if (position == 0) {
                 container !!.addView(coverView, 0)
-                return coverView
+                coverView
             } else {
                 container !!.addView(lyricView, 1)
-                return lyricView
+                lyricView
             }
         }
 
@@ -316,42 +345,7 @@ class PlayFragment : Fragment(), PlayStatusObserver {
         override fun destroyItem(container: ViewGroup?, position: Int, `object`: Any?) {
             container !!.removeViewAt(position)
             super.destroyItem(container, position, `object`)
-
         }
 
     }
-
-
-//    inner class PlayPagerAdapter(fragmentManager: FragmentManager) : FragmentPagerAdapter(fragmentManager) {
-//        override fun instantiateItem(container: ViewGroup?, position: Int): Any {
-//            return super.instantiateItem(container, position)
-//        }
-//
-//        override fun getItem(position: Int): Fragment {
-//            LogUtil.d("test", "get item $position")
-//            if (position == 0) {
-//                mCoverFragment = PlayCoverFragment()
-//                if (mCurrentSong != null) {
-//                    val data = Bundle()
-//                    LogUtil.d("test", mCurrentSong !!.albumCoverUrl)
-//                    LogUtil.d("test", mCurrentSong !!.artistName)
-//                    data.putString("coverUrl", mCurrentSong !!.albumCoverUrl)
-//                    data.putString("artistName", mCurrentSong !!.artistName)
-//                    mCoverFragment.arguments = data
-//                }
-//                return mCoverFragment
-//            } else {
-//                mLyricFragment = PlayLyricFragment()
-//                return mLyricFragment
-//            }
-//        }
-//
-//        override fun getCount(): Int = 2
-//
-//
-//        override fun getItemPosition(`object`: Any?): Int {
-//            return PagerAdapter.POSITION_NONE
-//        }
-//
-//    }
 }

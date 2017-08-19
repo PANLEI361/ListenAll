@@ -11,28 +11,14 @@ public class Album {
     private String artist;
     private long artistId;
     private String coverUrl;//封面 url
+    private String miniCoverUrl;//封面 url
     private int songNumber;//包含歌曲数量
     private int songDownloadNumber;//已下载歌曲数量
     private MusicProvider source;//来源
     private long publishDate;//发行时间
+    private String publishDateStr;
     private MusicProvider supplier;
     private List<Song> songs;
-
-    public long getArtistId() {
-        return artistId;
-    }
-
-    public void setArtistId(long artistId) {
-        this.artistId = artistId;
-    }
-
-    public List<Song> getSongs() {
-        return songs;
-    }
-
-    public void setSongs(List<Song> songs) {
-        this.songs = songs;
-    }
 
     public String getTitle() {
         return title;
@@ -66,12 +52,28 @@ public class Album {
         this.artist = artist;
     }
 
+    public long getArtistId() {
+        return artistId;
+    }
+
+    public void setArtistId(long artistId) {
+        this.artistId = artistId;
+    }
+
     public String getCoverUrl() {
         return coverUrl;
     }
 
     public void setCoverUrl(String coverUrl) {
         this.coverUrl = coverUrl;
+    }
+
+    public String getMiniCoverUrl() {
+        return miniCoverUrl;
+    }
+
+    public void setMiniCoverUrl(String miniCoverUrl) {
+        this.miniCoverUrl = miniCoverUrl;
     }
 
     public int getSongNumber() {
@@ -90,6 +92,22 @@ public class Album {
         this.songDownloadNumber = songDownloadNumber;
     }
 
+    public String getPublishDateStr() {
+        return publishDateStr;
+    }
+
+    public void setPublishDateStr(String publishDateStr) {
+        this.publishDateStr = publishDateStr;
+    }
+
+    public MusicProvider getSource() {
+        return source;
+    }
+
+    public void setSource(MusicProvider source) {
+        this.source = source;
+    }
+
     public long getPublishDate() {
         return publishDate;
     }
@@ -106,11 +124,11 @@ public class Album {
         this.supplier = supplier;
     }
 
-    public MusicProvider getSource() {
-        return source;
+    public List<Song> getSongs() {
+        return songs;
     }
 
-    public void setSource(MusicProvider source) {
-        this.source = source;
+    public void setSongs(List<Song> songs) {
+        this.songs = songs;
     }
 }

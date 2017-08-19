@@ -2,21 +2,22 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal">
 
     <!--artist name-->
     <LinearLayout
+        android:id="@+id/play_ll_artist_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="5dp"
         android:gravity="center"
         android:orientation="horizontal">
 
         <View
             android:layout_width="30dp"
-            android:layout_height="2px"
+            android:layout_height="1dp"
             android:background="@color/colorDivider" />
 
         <TextView
@@ -31,44 +32,81 @@
 
         <View
             android:layout_width="30dp"
-            android:layout_height="2px"
+            android:layout_height="1dp"
             android:background="@color/colorDivider" />
 
     </LinearLayout>
 
     <!--cover-->
-    <ImageView
-        android:id="@+id/play_cover"
-        android:layout_width="280dp"
-        android:layout_height="280dp"
-        android:layout_centerInParent="true"
-        android:layout_marginTop="15dp"
-        android:background="@drawable/bg_cover"
-        android:padding="1dp"
-        tools:ignore="ContentDescription" />
+    <LinearLayout
+        android:id="@+id/play_ll_cover"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/play_ll_provider"
+        android:layout_below="@+id/play_ll_artist_name"
+        android:layout_centerHorizontal="true"
+        android:gravity="center">
+
+        <ImageView
+            android:id="@+id/play_cover"
+            android:layout_width="265dp"
+            android:layout_height="265dp"
+            android:background="@drawable/bg_cover"
+            android:padding="1dp"
+            tools:ignore="ContentDescription" />
+    </LinearLayout>
+
+    <!--provider-->
+    <LinearLayout
+        android:id="@+id/play_ll_provider"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/play_ll_operation"
+        android:layout_marginBottom="10dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="provided by"
+            android:textColor="@color/colorGray"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/play_provider"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="3dp"
+            android:gravity="center_horizontal"
+            android:text="虾米音乐"
+            android:textColor="@color/colorBlack" />
+    </LinearLayout>
 
     <!--operation-->
     <LinearLayout
+        android:id="@+id/play_ll_operation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginTop="10dp"
+        android:layout_marginBottom="5dp"
         android:gravity="center"
         android:orientation="horizontal">
 
         <ImageButton
             android:id="@+id/play_btn_like"
             style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
             android:src="@drawable/ic_like_border"
             tools:ignore="ContentDescription" />
 
         <ImageButton
             android:id="@+id/play_btn_download"
             style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
             android:layout_marginEnd="65dp"
             android:layout_marginStart="65dp"
             android:src="@drawable/ic_main_download"
@@ -77,8 +115,8 @@
         <ImageButton
             android:id="@+id/play_btn_more_operation"
             style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
             android:src="@drawable/ic_more_vertical"
             tools:ignore="ContentDescription" />
 

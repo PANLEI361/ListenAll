@@ -3,7 +3,7 @@ package com.example.wenhai.listenall.utils
 import android.util.Log
 
 object LogUtil {
-    const val isDebug = true
+    private const val isDebug = true
     @JvmStatic
     fun d(tag: String, msg: String) {
         if (isDebug) {

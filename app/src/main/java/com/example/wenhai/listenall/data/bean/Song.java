@@ -28,6 +28,8 @@ public final class Song implements Parcelable, Serializable {
     private String miniAlbumCoverUrl;
     private MusicProvider supplier;
 
+    private boolean isPlaying = false;
+
     @Override
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         dest.writeLong(songId);
@@ -56,6 +58,7 @@ public final class Song implements Parcelable, Serializable {
                 dest.writeInt(2);
                 break;
         }
+        dest.writeInt(isPlaying ? 1 : 0);
 
     }
 
@@ -90,6 +93,7 @@ public final class Song implements Parcelable, Serializable {
                 supplier = MusicProvider.NETEASE;
                 break;
         }
+        isPlaying = in.readInt() == 1;
 
     }
 
@@ -237,6 +241,14 @@ public final class Song implements Parcelable, Serializable {
 
     public void setMiniAlbumCoverUrl(String miniAlbumCoverUrl) {
         this.miniAlbumCoverUrl = miniAlbumCoverUrl;
+    }
+
+    public boolean isPlaying() {
+        return isPlaying;
+    }
+
+    public void setPlaying(boolean playing) {
+        isPlaying = playing;
     }
 
     @Override

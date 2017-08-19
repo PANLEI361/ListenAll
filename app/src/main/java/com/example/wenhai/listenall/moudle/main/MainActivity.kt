@@ -9,6 +9,7 @@ import android.os.IBinder
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.AppCompatActivity
 import android.view.Gravity
+import android.view.KeyEvent
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
@@ -28,6 +29,7 @@ import com.example.wenhai.listenall.utils.AppUtil
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
 import com.example.wenhai.listenall.utils.LogUtil
+import com.example.wenhai.listenall.widget.PlayListDialog
 import com.example.wenhai.listenall.widget.ProgressImageButton
 
 
@@ -41,6 +43,10 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
     lateinit var mDrawer: DrawerLayout
     @BindView(R.id.slide_menu_app_version)
     lateinit var smTvAppVersion: TextView
+    @BindView(R.id.slide_menu_cover)
+    lateinit var smCover: ImageView
+    @BindView(R.id.slide_menu_title)
+    lateinit var smTitle: TextView
     @BindView(R.id.slide_only_wifi_switcher)
     lateinit var smSwitchOnlyWifi: Switch
     @BindView(R.id.slide_set_time_close_switcher)
@@ -71,10 +77,13 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
     lateinit var mBtnControl: ProgressImageButton
 
 
-    var connection: ServiceConnection? = null
+    private var connection: ServiceConnection? = null
     lateinit var playService: PlayService
-    var isPlaying = false
-    var currentSong: Song? = null
+    private var isPlaying = false
+    private var currentSong: Song? = null
+
+    private lateinit var currentPlayList: ArrayList<Song>
+    private var backKeyEventListeners: ArrayList<OnBackKeyEventListener>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -101,7 +110,7 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
         }
     }
 
-    @OnClick(R.id.play_bar_control, R.id.main_ll_song_info)
+    @OnClick(R.id.play_bar_control, R.id.main_ll_song_info, R.id.play_bar_song_list)
     fun onPlayBarClick(view: View) {
         when (view.id) {
             R.id.play_bar_control -> {
@@ -113,11 +122,18 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
             }
             R.id.main_ll_song_info -> {
                 val playDetailFragment = PlayFragment()
-                //// TODO: 2017/8/11 设置当前播放信息
-//                val data = Bundle()
-//                data.putParcelable("currentSong", currentSong)
-//                playDetailFragment.arguments = data
                 FragmentUtil.addFragmentToView(supportFragmentManager, playDetailFragment, R.id.main_activity)
+            }
+            R.id.play_bar_song_list -> {
+                val dialog = PlayListDialog(this, currentPlayList)
+                dialog.setOnItemClickListener(object : PlayListDialog.OnItemClickListener {
+                    override fun onItemClick(song: Song) {
+                        playService.playNewSong(song)
+                        dialog.dismiss()
+                    }
+
+                })
+                dialog.show()
             }
         }
     }
@@ -152,7 +168,33 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
     }
 
     fun playNewSong(song: Song) {
-        playService.playNewSong(song)
+        runOnUiThread {
+            playService.playNewSong(song)
+        }
+    }
+
+    fun addBackKeyEventListener(listener: OnBackKeyEventListener) {
+        if (backKeyEventListeners == null) {
+            backKeyEventListeners = ArrayList()
+        }
+        backKeyEventListeners?.add(listener)
+
+    }
+
+    fun removeBackKeyEventListener(listener: OnBackKeyEventListener) {
+        backKeyEventListeners?.remove(listener)
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if (backKeyEventListeners != null && backKeyEventListeners !!.size > 0) {
+                for (i in 0 until backKeyEventListeners !!.size) {
+                    backKeyEventListeners !![i].onBackKeyPressed()
+                }
+                return true
+            }
+        }
+        return super.onKeyDown(keyCode, event)
     }
 
     override fun onDestroy() {
@@ -175,8 +217,7 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
         setPlayIcon(isPlaying)
 
         mBtnControl.progress = playStatus.playProgress
-        // TODO: 2017/8/12  播放列表信息
-
+        currentPlayList = playStatus.currentList
     }
 
     private fun setCover(coverUrl: String) {
@@ -199,11 +240,17 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
     override fun onPlayStart() {
         isPlaying = true
         setPlayIcon(isPlaying)
+        GlideApp.with(this).load(currentSong?.albumCoverUrl).into(smCover)
+        smTitle.text = currentSong?.name
+        smTvAppVersion.text = currentSong?.artistName
     }
 
     override fun onPlayPause() {
         isPlaying = false
         setPlayIcon(isPlaying)
+        smCover.setImageResource(R.drawable.ic_main_android)
+        smTitle.text = getString(R.string.app_name)
+        smTvAppVersion.text = AppUtil.getAppVersionName(this)
     }
 
     override fun onPlayStop() {
@@ -215,7 +262,7 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
     }
 
     override fun onSongCompleted() {
-        onPlayPause()
+
     }
 
     override fun onBufferProgressUpdate(percent: Int) {
@@ -244,4 +291,7 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
         setCover(song.miniAlbumCoverUrl)
     }
 
+    interface OnBackKeyEventListener {
+        fun onBackKeyPressed()
+    }
 }

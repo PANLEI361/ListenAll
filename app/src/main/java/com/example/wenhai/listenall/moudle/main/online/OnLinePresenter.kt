@@ -7,37 +7,42 @@ import com.example.wenhai.listenall.data.MusicProvider
 import com.example.wenhai.listenall.data.MusicRepository
 import com.example.wenhai.listenall.data.bean.Album
 import com.example.wenhai.listenall.data.bean.Collect
-import com.example.wenhai.listenall.utils.LogUtil
 
 internal class OnLinePresenter(var view: OnLineContract.View) : OnLineContract.Presenter {
 
-    var musicRepository: MusicRepository
+    private var musicRepository: MusicRepository = MusicRepository.INSTANCE
 
     init {
         view.setPresenter(this)
-        musicRepository = MusicRepository()
     }
 
     override fun loadBanner(provider: MusicProvider) {
         musicRepository.loadBanner(object : LoadBannerCallback {
-            override fun onSuccess(imgUrlList: List<String>) {
-                view.setBanner(imgUrlList)
+            override fun onStart() {
             }
 
-            override fun onFailure() {
-                LogUtil.e(TAG, "banner load failed")
+            override fun onSuccess(imgUrlList: List<String>) {
+                view.onBannerLoad(imgUrlList)
+            }
+
+            override fun onFailure(msg: String) {
+                view.onFailure(msg)
             }
         })
     }
 
     override fun loadHotCollects() {
         musicRepository.loadHotCollect(6, object : LoadCollectCallback {
-            override fun onFailure() {
-                LogUtil.e(TAG, "hot collect load failed")
+            override fun onStart() {
+                view.onLoading()
+            }
+
+            override fun onFailure(msg: String) {
+                view.onFailure(msg)
             }
 
             override fun onSuccess(collectList: List<Collect>) {
-                view.setHotCollects(collectList)
+                view.onHotCollectsLoad(collectList)
             }
 
         })
@@ -45,12 +50,16 @@ internal class OnLinePresenter(var view: OnLineContract.View) : OnLineContract.P
 
     override fun loadNewAlbums() {
         musicRepository.loadNewAlbum(6, object : LoadAlbumCallback {
-            override fun onFailure() {
-                LogUtil.e(TAG, "new albums load failed")
+            override fun onStart() {
+                view.onLoading()
+            }
+
+            override fun onFailure(msg: String) {
+                view.onFailure(msg)
             }
 
             override fun onSuccess(albumList: List<Album>) {
-                view.setNewAlbums(albumList)
+                view.onNewAlbumsLoad(albumList)
             }
 
         })

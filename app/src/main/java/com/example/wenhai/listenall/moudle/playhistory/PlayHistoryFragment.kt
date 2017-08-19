@@ -15,6 +15,7 @@ import butterknife.ButterKnife
 import butterknife.OnClick
 import butterknife.Unbinder
 import com.example.wenhai.listenall.R
+import com.example.wenhai.listenall.data.MusicProvider
 import com.example.wenhai.listenall.data.bean.PlayHistory
 import com.example.wenhai.listenall.data.bean.Song
 import com.example.wenhai.listenall.moudle.main.MainActivity
@@ -29,8 +30,8 @@ class PlayHistoryFragment : Fragment(), PlayHistoryContract.View {
     @BindView(R.id.play_history_list)
     lateinit var mHistoryList: RecyclerView
 
-    lateinit var mUnbinder: Unbinder
-    lateinit var mPresenter: PlayHistoryContract.Presenter
+    private lateinit var mUnbinder: Unbinder
+    private lateinit var mPresenter: PlayHistoryContract.Presenter
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         PlayHistoryPresenter(this)
@@ -68,11 +69,14 @@ class PlayHistoryFragment : Fragment(), PlayHistoryContract.View {
 
     override fun onNoPlayHistory() = ToastUtil.showToast(context, getString(R.string.no_play_history))
 
+    override fun onLoading() {
+
+    }
     override fun onFailure(msg: String) {
         ToastUtil.showToast(context, msg)
     }
 
-    inner class PlayHistoryAdapter(var playHistoryList: List<PlayHistory>) : RecyclerView.Adapter<PlayHistoryAdapter.ViewHolder>() {
+    inner class PlayHistoryAdapter(private var playHistoryList: List<PlayHistory>) : RecyclerView.Adapter<PlayHistoryAdapter.ViewHolder>() {
         override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
             val itemView = LayoutInflater.from(context).inflate(R.layout.item_play_history, parent, false)
             return ViewHolder(itemView)
@@ -100,6 +104,14 @@ class PlayHistoryFragment : Fragment(), PlayHistoryContract.View {
                 song.albumCoverUrl = playHistory.coverUrl
                 song.miniAlbumCoverUrl = playHistory.miniAlbumCoverUrl
                 song.listenFileUrl = playHistory.listenFileUrl
+                song.supplier = when (playHistory.providerName) {
+                    MusicProvider.XIAMI.name -> MusicProvider.XIAMI
+                    MusicProvider.QQMUSIC.name -> MusicProvider.QQMUSIC
+                    MusicProvider.NETEASE.name -> MusicProvider.NETEASE
+                    else -> {
+                        MusicProvider.XIAMI
+                    }
+                }
                 (activity as MainActivity).playService.playNewSong(song)
             }
         }

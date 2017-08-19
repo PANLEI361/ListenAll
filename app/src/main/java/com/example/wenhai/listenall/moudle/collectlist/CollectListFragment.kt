@@ -17,13 +17,14 @@ import butterknife.OnClick
 import butterknife.Unbinder
 import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.data.bean.Collect
+import com.example.wenhai.listenall.moudle.detail.DetailContract
 import com.example.wenhai.listenall.moudle.detail.DetailFragment
-import com.example.wenhai.listenall.moudle.detail.DetailPresenter
-import com.example.wenhai.listenall.moudle.detail.Type
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
+import com.example.wenhai.listenall.utils.ToastUtil
 
 internal class CollectListFragment : Fragment(), CollectListContract.View {
+
     companion object {
         const val TAG = "CollectListFragment"
     }
@@ -32,10 +33,12 @@ internal class CollectListFragment : Fragment(), CollectListContract.View {
     lateinit var mRvCollectList: RecyclerView
     @BindView(R.id.action_bar_title)
     lateinit var mTitle: TextView
+    @BindView(R.id.loading)
+    lateinit var mLoading: LinearLayout
 
-    lateinit var mUnBinder: Unbinder
-    lateinit var mPresenter: CollectListContract.Presenter
-    lateinit var mCollectListAdapter: CollectListAdapter
+    private lateinit var mUnBinder: Unbinder
+    private lateinit var mPresenter: CollectListContract.Presenter
+    private lateinit var mCollectListAdapter: CollectListAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,15 +61,30 @@ internal class CollectListFragment : Fragment(), CollectListContract.View {
         mTitle.text = context.getString(R.string.main_hot_collect)
         mRvCollectList.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
 
-        mCollectListAdapter = CollectListAdapter(context, ArrayList<Collect>())
+        mCollectListAdapter = CollectListAdapter(context, ArrayList())
         mRvCollectList.adapter = mCollectListAdapter
         mPresenter.loadCollects(10)
     }
 
     override fun setCollects(collects: List<Collect>) {
-        mCollectListAdapter.setData(collects)
-
+        activity.runOnUiThread {
+            mCollectListAdapter.setData(collects)
+            mLoading.visibility = View.GONE
+            mRvCollectList.visibility = View.VISIBLE
+        }
     }
+
+    override fun onLoading() {
+        mLoading.visibility = View.VISIBLE
+        mRvCollectList.visibility = View.GONE
+    }
+
+    override fun onFailure(msg: String) {
+        activity.runOnUiThread {
+            ToastUtil.showToast(context, msg)
+        }
+    }
+
 
     override fun setPresenter(presenter: CollectListContract.Presenter) {
         mPresenter = presenter
@@ -77,7 +95,7 @@ internal class CollectListFragment : Fragment(), CollectListContract.View {
         mUnBinder.unbind()
     }
 
-    inner class CollectListAdapter(val context: Context, var collects: List<Collect>) : RecyclerView.Adapter<CollectListAdapter.ViewHolder>() {
+    inner class CollectListAdapter(val context: Context, private var collects: List<Collect>) : RecyclerView.Adapter<CollectListAdapter.ViewHolder>() {
 
         override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
             val itemView = LayoutInflater.from(context).inflate(R.layout.item_collect_list, parent, false)
@@ -89,10 +107,10 @@ internal class CollectListFragment : Fragment(), CollectListContract.View {
             notifyDataSetChanged()
         }
 
-        fun addData(addCollects: List<Collect>) {
-            (collects as ArrayList<Collect>).addAll(addCollects)
-            notifyDataSetChanged()
-        }
+//        fun addData(addCollects: List<Collect>) {
+//            (collects as ArrayList<Collect>).addAll(addCollects)
+//            notifyDataSetChanged()
+//        }
 
         override fun getItemCount(): Int = collects.size
 
@@ -107,13 +125,10 @@ internal class CollectListFragment : Fragment(), CollectListContract.View {
                         .placeholder(R.drawable.ic_main_collect)
                         .into(holder.collectCover)
                 holder.item.setOnClickListener {
-                    val id = collect.id
-                    val type = Type.COLLECT.ordinal
                     val data = Bundle()
-                    data.putLong("id", id)
-                    data.putInt("type", type)
                     val detailFragment = DetailFragment()
-                    DetailPresenter(detailFragment)
+                    data.putLong(DetailContract.ARGS_ID, collect.id)
+                    data.putSerializable(DetailContract.ARGS_LOAD_TYPE, DetailContract.LoadType.COLLECT)
                     detailFragment.arguments = data
                     FragmentUtil.addFragmentToMainView(fragmentManager, detailFragment)
                 }

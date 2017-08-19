@@ -1,12 +1,16 @@
 package com.example.wenhai.listenall.moudle.albumlist
 
+import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
+import android.widget.BaseAdapter
 import android.widget.GridView
+import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import butterknife.BindView
 import butterknife.ButterKnife
@@ -14,21 +18,24 @@ import butterknife.OnClick
 import butterknife.Unbinder
 import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.data.bean.Album
+import com.example.wenhai.listenall.moudle.detail.DetailContract
 import com.example.wenhai.listenall.moudle.detail.DetailFragment
-import com.example.wenhai.listenall.moudle.detail.DetailPresenter
-import com.example.wenhai.listenall.moudle.detail.Type
 import com.example.wenhai.listenall.utils.FragmentUtil
+import com.example.wenhai.listenall.utils.GlideApp
+import com.example.wenhai.listenall.utils.ToastUtil
 
 class AlbumListFragment : Fragment(), AlbumListContract.View {
     @BindView(R.id.action_bar_title)
     lateinit var mTitle: TextView
     @BindView(R.id.new_albums)
     lateinit var mGridNewAlbums: GridView
+    @BindView(R.id.loading)
+    lateinit var mLoading: LinearLayout
 
-    lateinit var mAlbumList: List<Album>
+    private lateinit var mAlbumList: List<Album>
 
     lateinit var mPresenter: AlbumListContract.Presenter
-    lateinit var mUnBinder: Unbinder
+    private lateinit var mUnBinder: Unbinder
 
 
     override fun setPresenter(presenter: AlbumListContract.Presenter) {
@@ -49,16 +56,12 @@ class AlbumListFragment : Fragment(), AlbumListContract.View {
 
     override fun initView() {
         mTitle.text = context.getString(R.string.main_new_songs)
-        mGridNewAlbums.onItemClickListener = AdapterView.OnItemClickListener {
-            _, _, position, _ ->
+        mGridNewAlbums.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
             val album = mAlbumList[position]
-            val id = album.id
-            val type = Type.ALBUM.ordinal
             val data = Bundle()
-            data.putLong("id", id)
-            data.putInt("type", type)
+            data.putLong(DetailContract.ARGS_ID, album.id)
+            data.putSerializable(DetailContract.ARGS_LOAD_TYPE, DetailContract.LoadType.ALBUM)
             val detailFragment = DetailFragment()
-            DetailPresenter(detailFragment)
             detailFragment.arguments = data
             FragmentUtil.addFragmentToMainView(fragmentManager, detailFragment)
         }
@@ -67,8 +70,24 @@ class AlbumListFragment : Fragment(), AlbumListContract.View {
     }
 
     override fun setNewAlbums(albumList: List<Album>) {
-        mAlbumList = albumList
-        mGridNewAlbums.adapter = NewAlbumAdapter(context, mAlbumList)
+        activity.runOnUiThread {
+            mAlbumList = albumList
+            mGridNewAlbums.adapter = AlbumListAdapter(context, mAlbumList)
+
+            mLoading.visibility = View.GONE
+            mGridNewAlbums.visibility = View.VISIBLE
+        }
+    }
+
+    override fun onLoading() {
+        mLoading.visibility = View.VISIBLE
+        mGridNewAlbums.visibility = View.GONE
+    }
+
+    override fun onFailure(msg: String) {
+        activity.runOnUiThread {
+            ToastUtil.showToast(context, msg)
+        }
     }
 
     @OnClick(R.id.action_bar_back)
@@ -83,6 +102,41 @@ class AlbumListFragment : Fragment(), AlbumListContract.View {
     override fun onDestroyView() {
         super.onDestroyView()
         mUnBinder.unbind()
+    }
+
+    internal class AlbumListAdapter(private val context: Context, private val albumList: List<Album>) : BaseAdapter() {
+
+        override fun getCount(): Int = albumList.size
+
+        override fun getItem(i: Int): Any = albumList[i]
+
+        override fun getItemId(i: Int): Long = i.toLong()
+
+        override fun getView(position: Int, convertView: View?, viewGroup: ViewGroup): View {
+            var itemView = convertView
+            var viewHolder: ViewHolder
+            if (itemView == null) {
+                itemView = LayoutInflater.from(context).inflate(R.layout.item_album_list, viewGroup, false)
+                viewHolder = ViewHolder(itemView)
+                itemView.tag = viewHolder
+            }
+            viewHolder = itemView !!.tag as ViewHolder
+            val album = albumList[position]
+            viewHolder.title.text = album.title
+            viewHolder.artist.text = album.artist
+            GlideApp.with(context)
+                    .load(album.coverUrl)
+                    .placeholder(R.drawable.ic_main_all_music)
+                    .into(viewHolder.cover)
+
+            return itemView
+        }
+
+        inner class ViewHolder(itemView: View) {
+            var cover: ImageView = itemView.findViewById(R.id.album_cover)
+            var title: TextView = itemView.findViewById(R.id.album_title)
+            var artist: TextView = itemView.findViewById(R.id.album_artist)
+        }
     }
 
 }

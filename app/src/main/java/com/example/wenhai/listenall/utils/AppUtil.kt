@@ -10,8 +10,8 @@ import android.content.Context
 object AppUtil {
     @JvmStatic
     fun getAppVersionName(context: Context): String {
-        val packageName = context.packageName
-        val versionName = context.packageManager.getPackageInfo(packageName, 0).versionName
-        return versionName
+        return context.packageManager
+                .getPackageInfo(context.packageName, 0)
+                .versionName
     }
 }

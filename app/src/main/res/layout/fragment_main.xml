@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorWhite"
     android:focusable="true"
     android:focusableInTouchMode="true"
     android:orientation="vertical"
-    android:background="@color/colorWhite"
     tools:context=".moudle.main.MainActivity">
 
 
@@ -24,43 +25,22 @@
             android:layout_width="@dimen/action_bar_btn_width"
             android:layout_height="@dimen/action_bar_btn_width"
             android:layout_marginStart="5dp"
+            android:scaleType="centerCrop"
             android:src="@drawable/ic_main_menu"
             tools:ignore="ContentDescription" />
 
         <!--tab-->
-        <LinearLayout
+        <android.support.design.widget.TabLayout
             android:id="@+id/main_tab"
             android:layout_width="0dp"
             android:layout_height="50dp"
             android:layout_weight="1"
-            android:orientation="horizontal"
-            android:visibility="visible">
+            android:fitsSystemWindows="true"
+            app:tabSelectedTextColor="@color/colorBlack"
+            app:tabTextAppearance="@style/mainTabLayoutText"
+            app:tabTextColor="@color/colorGray">
 
-            <Button
-                android:id="@+id/main_btn_local_songs"
-                style="?android:attr/buttonBarButtonStyle"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_marginStart="5dp"
-                android:layout_weight="1"
-                android:text="@string/main_mine"
-                android:textColor="@color/colorBlack"
-                android:textSize="@dimen/main_tab_btn_text_size"
-                tools:ignore="NestedWeights" />
-
-            <Button
-                android:id="@+id/main_btn_online_songs"
-                style="?android:attr/buttonBarButtonStyle"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_marginEnd="5dp"
-                android:layout_weight="1"
-                android:text="@string/main_song_on_net"
-                android:textColor="@color/colorBlack"
-                android:textSize="@dimen/main_tab_btn_text_size" />
-
-        </LinearLayout>
-
+        </android.support.design.widget.TabLayout>
 
         <Space
             android:id="@+id/main_top_space"
@@ -76,12 +56,14 @@
             android:layout_width="0dp"
             android:layout_height="32dp"
             android:layout_weight="1"
+            android:inputType="text"
             android:background="@drawable/bg_round_rect"
             android:drawableStart="@drawable/ic_search_gray"
             android:gravity="center_vertical"
             android:hint="@string/main_search_hint"
-            android:maxLines="1"
+            android:imeOptions="actionSearch"
             android:padding="5dp"
+            android:maxLines="1"
             android:textColor="@color/colorGray"
             android:textSize="16sp"
             android:visibility="gone" />
@@ -93,6 +75,7 @@
             android:layout_width="@dimen/action_bar_btn_width"
             android:layout_height="@dimen/action_bar_btn_width"
             android:layout_marginEnd="5dp"
+            android:scaleType="centerCrop"
             android:src="@drawable/ic_search"
             tools:ignore="ContentDescription" />
 

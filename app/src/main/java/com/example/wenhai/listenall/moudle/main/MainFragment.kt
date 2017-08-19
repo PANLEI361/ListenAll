@@ -2,20 +2,23 @@ package com.example.wenhai.listenall.moudle.main
 
 import android.content.Context
 import android.os.Bundle
+import android.support.design.widget.TabLayout
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
 import android.support.v4.view.ViewPager
 import android.text.Editable
+import android.text.TextUtils
 import android.text.TextWatcher
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
-import android.widget.LinearLayout
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
@@ -27,45 +30,33 @@ import com.example.wenhai.listenall.moudle.search.SearchFragment
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.LogUtil
 
-/**
- * main Fragment
- *
- * Created by Wenhai on 2017/8/4.
- */
-
-
 class MainFragment : Fragment() {
-
 
     companion object {
         const val TAG = "MainFragment"
 
-        const val PAGE_POSITION_MY_SONGS = 0
+        @JvmStatic
+        val PAGE_POSITION_MY_SONGS = 0
         const val PAGE_POSITION_ONLINE_SONGS = 1
         const val PAGE_COUNT = 2
-
     }
 
     @BindView(R.id.main_pager)
     lateinit var mPager: ViewPager
-    @BindView(R.id.main_btn_local_songs)
-    lateinit var mBtnMySongs: Button
-    @BindView(R.id.main_btn_online_songs)
-    lateinit var mBtnOnlineSongs: Button
     @BindView(R.id.main_btn_search)
     lateinit var mBtnSearch: ImageButton
     @BindView(R.id.main_et_search)
     lateinit var mEtSearch: EditText
     @BindView(R.id.main_tab)
-    lateinit var mTab: LinearLayout
+    lateinit var mTab: TabLayout
     @BindView(R.id.main_btn_cancel)
     lateinit var mCancelSearch: Button
 
 
-    lateinit var mUnBinder: Unbinder
-    lateinit var mPagerAdapter: MainPagerAdapter
-    var searchFragment: SearchFragment? = null
-    var textWatch: TextWatcher? = null
+    private lateinit var mUnBinder: Unbinder
+    private lateinit var mPagerAdapter: MainPagerAdapter
+    lateinit var searchFragment: SearchFragment
+    private var textWatch: TextWatcher? = null
     var isTextChangedByUser = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,6 +69,7 @@ class MainFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
+        LogUtil.d(TAG, "onPause")
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -90,49 +82,17 @@ class MainFragment : Fragment() {
     fun initView() {
         mPagerAdapter = MainPagerAdapter(fragmentManager)
         mPager.adapter = mPagerAdapter
-        onButtonClick(mBtnMySongs)
-        mPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
-            override fun onPageScrollStateChanged(state: Int) {
-            }
 
-            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
-            }
-
-            @Suppress("DEPRECATION")
-            override fun onPageSelected(position: Int) {
-                when (position) {
-                    PAGE_POSITION_MY_SONGS -> {
-                        mBtnMySongs.setTextColor(resources.getColor(R.color.colorBlack))
-                        mBtnOnlineSongs.setTextColor(resources.getColor(R.color.colorNotSelected))
-                    }
-                    PAGE_POSITION_ONLINE_SONGS -> {
-                        mBtnOnlineSongs.setTextColor(resources.getColor(R.color.colorBlack))
-                        mBtnMySongs.setTextColor(resources.getColor(R.color.colorNotSelected))
-                    }
-                }
-            }
-
-        })
+        mTab.setupWithViewPager(mPager)
+        mTab.tabGravity = Gravity.NO_GRAVITY
 
     }
 
     @Suppress("DEPRECATION")
-    @OnClick(R.id.main_btn_local_songs, R.id.main_btn_online_songs, R.id.main_btn_slide_menu,
-            R.id.main_btn_search, R.id.main_btn_cancel)
+    @OnClick(R.id.main_btn_slide_menu, R.id.main_btn_search, R.id.main_btn_cancel)
     fun onButtonClick(v: View) {
         mEtSearch.clearFocus()
         when (v.id) {
-            R.id.main_btn_local_songs -> {
-                mEtSearch.animation
-                mPager.currentItem = PAGE_POSITION_MY_SONGS
-                mBtnMySongs.setTextColor(resources.getColor(R.color.colorBlack))
-                mBtnOnlineSongs.setTextColor(resources.getColor(R.color.colorNotSelected))
-            }
-            R.id.main_btn_online_songs -> {
-                mPager.currentItem = PAGE_POSITION_ONLINE_SONGS
-                mBtnOnlineSongs.setTextColor(resources.getColor(R.color.colorBlack))
-                mBtnMySongs.setTextColor(resources.getColor(R.color.colorNotSelected))
-            }
             R.id.main_btn_slide_menu -> (activity as MainActivity).openDrawer()
             R.id.main_btn_search -> {
                 showSearchBar()
@@ -150,10 +110,7 @@ class MainFragment : Fragment() {
         mEtSearch.removeTextChangedListener(textWatch)
         textWatch = null
         mCancelSearch.visibility = View.GONE
-        if (searchFragment != null) {
-            FragmentUtil.removeFragment(fragmentManager, searchFragment !!)
-            searchFragment = null
-        }
+        FragmentUtil.removeFragment(fragmentManager, searchFragment)
         hideSoftInput()
     }
 
@@ -165,10 +122,8 @@ class MainFragment : Fragment() {
 
     @Suppress("DEPRECATION")
     private fun showSearchBar() {
-        if (searchFragment == null) {
-            searchFragment = SearchFragment()
-        }
-        FragmentUtil.addFragmentToView(fragmentManager, searchFragment !!, R.id.main_pager_container)
+        searchFragment = SearchFragment()
+        FragmentUtil.addFragmentToView(fragmentManager, searchFragment, R.id.main_pager_container)
 
         mTab.visibility = View.GONE
         mBtnSearch.visibility = View.GONE
@@ -181,12 +136,12 @@ class MainFragment : Fragment() {
             override fun afterTextChanged(editable: Editable?) {
                 val text = editable !!.toString()
                 if (text == "") {
-                    searchFragment !!.showSearchHistory()
+                    searchFragment.showSearchHistory()
                     mEtSearch.setTextColor(context.resources.getColor(R.color.colorGray))
                 } else {
                     // if user typed keyword ,then load recommend keywords
                     if (isTextChangedByUser) {
-                        searchFragment !!.showSearchRecommend(text)
+                        searchFragment.showSearchRecommend(text)
                     } else {
                         isTextChangedByUser = true
                     }
@@ -200,10 +155,20 @@ class MainFragment : Fragment() {
 
         }
         mEtSearch.addTextChangedListener(textWatch)
+        mEtSearch.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                val keyword = mEtSearch.text.toString()
+                if (! TextUtils.isEmpty(keyword)) {
+                    searchFragment.beginSearch(keyword)
+                }
+                return@setOnEditorActionListener true
+            }
+            return@setOnEditorActionListener false
+        }
 
     }
 
-    fun showSoftInput() {
+    private fun showSoftInput() {
         mEtSearch.requestFocus()
         val inputManager: InputMethodManager = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         inputManager.showSoftInput(mEtSearch, InputMethodManager.SHOW_FORCED)
@@ -224,26 +189,24 @@ class MainFragment : Fragment() {
     }
 
 
-    class MainPagerAdapter(fragmentManager: FragmentManager)
+    inner class MainPagerAdapter(fragmentManager: FragmentManager)
         : FragmentPagerAdapter(fragmentManager) {
-        var onlineFragment: OnLineFragment? = null
-        var localFragment: LocalFragment? = null
-
         override fun getItem(position: Int): Fragment {
-            LogUtil.d("MainPagerAdapter", "getItem:$position")
-            if (position == PAGE_POSITION_ONLINE_SONGS) {
-                if (onlineFragment == null) {
-                    onlineFragment = OnLineFragment()
-                }
-                return onlineFragment as OnLineFragment
+            return if (position == PAGE_POSITION_ONLINE_SONGS) {
+                OnLineFragment()
             } else {
-                if (localFragment == null) {
-                    localFragment = LocalFragment()
-                }
-                return localFragment as LocalFragment
+                LocalFragment()
             }
         }
 
         override fun getCount(): Int = PAGE_COUNT
+
+        override fun getPageTitle(position: Int): CharSequence {
+            return if (position == PAGE_POSITION_MY_SONGS) {
+                getString(R.string.main_mine)
+            } else {
+                getString(R.string.main_discover_music)
+            }
+        }
     }
 }

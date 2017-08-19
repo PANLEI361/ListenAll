@@ -20,13 +20,16 @@ import com.example.wenhai.listenall.data.bean.Album
 import com.example.wenhai.listenall.data.bean.Collect
 import com.example.wenhai.listenall.data.bean.Song
 import com.example.wenhai.listenall.moudle.main.MainActivity
+import com.example.wenhai.listenall.moudle.ranking.RankingContract
 import com.example.wenhai.listenall.utils.DateUtil
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
 import com.example.wenhai.listenall.utils.ToastUtil
 
 class DetailFragment : Fragment(), DetailContract.View {
-
+    companion object {
+        const val TAG = "DetailFragment"
+    }
 
     @BindView(R.id.action_bar_title)
     lateinit var mActionBarTitle: TextView
@@ -40,23 +43,13 @@ class DetailFragment : Fragment(), DetailContract.View {
     lateinit var mDate: TextView
     @BindView(R.id.detail_song_list)
     lateinit var mSongList: RecyclerView
+    @BindView(R.id.loading)
+    lateinit var mLoading: LinearLayout
 
-    lateinit var mSongListAdapter: SongListAdapter
-
-
-    companion object {
-        const val TAG = "DetailFragment"
-    }
-
+    private lateinit var mSongListAdapter: SongListAdapter
     lateinit var mPresenter: DetailContract.Presenter
-    lateinit var mUnBinder: Unbinder
-    lateinit var mLoadType: Type
-
-
-    override fun setPresenter(presenter: DetailContract.Presenter) {
-        mPresenter = presenter
-    }
-
+    private lateinit var mUnBinder: Unbinder
+    private lateinit var mLoadType: DetailContract.LoadType
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,36 +59,49 @@ class DetailFragment : Fragment(), DetailContract.View {
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val contentView = inflater !!.inflate(R.layout.fragment_detail, container, false)
         mUnBinder = ButterKnife.bind(this, contentView)
+        mLoadType = arguments.getSerializable(DetailContract.ARGS_LOAD_TYPE) as DetailContract.LoadType
 
-        val id = arguments.getLong("id")
-        val type = arguments.getInt("type")
-        mLoadType = if (type == Type.COLLECT.ordinal) {
-            Type.COLLECT
-        } else {
-            Type.ALBUM
-        }
         initView()
-        mPresenter.loadSongsDetails(id, mLoadType)
+
+
         return contentView
     }
 
 
     override fun initView() {
-        mActionBarTitle.text = if (mLoadType == Type.COLLECT) {
-            getString(R.string.collect_detail)
-        } else {
-            getString(R.string.album_detail)
+        mActionBarTitle.text = when (mLoadType) {
+            DetailContract.LoadType.COLLECT -> getString(R.string.collect_detail)
+            DetailContract.LoadType.ALBUM -> getString(R.string.album_detail)
+            else -> ""
         }
-        mSongListAdapter = SongListAdapter(context, ArrayList<Song>())
-        mSongList.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+        mSongListAdapter = SongListAdapter(context, ArrayList())
+        mSongList.layoutManager = LinearLayoutManager(context)
         mSongList.adapter = mSongListAdapter
+
+        when (mLoadType) {
+            DetailContract.LoadType.GLOBAL_RANKING -> {
+                val ranking: RankingContract.GlobalRanking = arguments.getSerializable(DetailContract.ARGS_GLOBAL_RANKING) as RankingContract.GlobalRanking
+                mPresenter.loadGlobalRanking(ranking)
+            }
+            DetailContract.LoadType.OFFICIAL_RANKING -> {
+                val collect: Collect = arguments.getParcelable(DetailContract.ARGS_COLLECT)
+                setRankingDetail(collect)
+            }
+            else -> {
+                val id = arguments.getLong(DetailContract.ARGS_ID)
+                mPresenter.loadSongsDetails(id, mLoadType)
+            }
+        }
+
+
     }
 
     private fun playSong(song: Song) {
         (activity as MainActivity).playNewSong(song)
     }
 
-    @OnClick(R.id.action_bar_back, R.id.detail_play_all, R.id.detail_download_all, R.id.detail_add_to_play, R.id.detail_liked)
+    @OnClick(R.id.action_bar_back, R.id.detail_play_all, R.id.detail_download_all,
+            R.id.detail_add_to_play, R.id.detail_liked)
     fun onClick(view: View) {
         when (view.id) {
             R.id.action_bar_back -> {
@@ -106,40 +112,75 @@ class DetailFragment : Fragment(), DetailContract.View {
             }
             R.id.detail_add_to_play -> {
 
+                ToastUtil.showToast(activity, "add to play list")
             }
             R.id.detail_liked -> {
+
+                ToastUtil.showToast(activity, " liked")
+            }
+            R.id.detail_download_all -> {
+                ToastUtil.showToast(activity, "download all")
 
             }
         }
     }
 
-    override fun onSongDetailLoaded(song: Song) {
+    override fun setPresenter(presenter: DetailContract.Presenter) {
+        mPresenter = presenter
+    }
+
+
+    override fun onSongDetailLoad(song: Song) {
         activity.runOnUiThread {
             playSong(song)
         }
     }
 
-    override fun onLoadFailed(msg: String) {
-        activity.runOnUiThread {
-            ToastUtil.showToast(context, msg)
-        }
+    override fun onLoading() {
+        mLoading.visibility = View.VISIBLE
+        mSongList.visibility = View.GONE
     }
 
-    override fun setCollectDetail(collect: Collect) {
+    override fun onCollectDetailLoad(collect: Collect) {
         activity.runOnUiThread({
             mTitle.text = collect.title
             mArtist.visibility = View.GONE
             GlideApp.with(context).load(collect.coverUrl)
                     .placeholder(R.drawable.ic_main_all_music)
                     .into(mCover)
-            val displayDate = "创建时间：${DateUtil.getDate(collect.createDate)}"
+            val displayDate = "更新时间：${DateUtil.getDate(collect.updateDate)}"
             mDate.text = displayDate
             mSongListAdapter.setData(collect.songs)
+
+            mLoading.visibility = View.GONE
+            mSongList.visibility = View.VISIBLE
         })
     }
 
+    private fun setRankingDetail(collect: Collect) {
+        activity.runOnUiThread({
+            mActionBarTitle.text = collect.title
+            mTitle.text = collect.title
+            mArtist.text = collect.desc
+            GlideApp.with(context)
+                    .load(collect.coverDrawable)
+                    .into(mCover)
+            mDate.visibility = View.GONE
+            mSongListAdapter.setData(collect.songs)
 
-    override fun setAlbumDetail(album: Album) {
+            mLoading.visibility = View.GONE
+            mSongList.visibility = View.VISIBLE
+        })
+    }
+
+    override fun onGlobalRankingLoad(collect: Collect) {
+        activity.runOnUiThread {
+            setRankingDetail(collect)
+        }
+    }
+
+
+    override fun onAlbumDetailLoad(album: Album) {
         activity.runOnUiThread {
             mTitle.text = album.title
             mArtist.visibility = View.VISIBLE
@@ -150,8 +191,17 @@ class DetailFragment : Fragment(), DetailContract.View {
                     .into(mCover)
             mDate.text = displayDate
             mSongListAdapter.setData(album.songs)
+
+            mLoading.visibility = View.GONE
+            mSongList.visibility = View.VISIBLE
         }
 
+    }
+
+    override fun onFailure(msg: String) {
+        activity.runOnUiThread {
+            ToastUtil.showToast(context, msg)
+        }
     }
 
     override fun onDestroyView() {
@@ -159,11 +209,7 @@ class DetailFragment : Fragment(), DetailContract.View {
         mUnBinder.unbind()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-    }
-
-    inner class SongListAdapter(val context: Context, var songList: List<Song>) : RecyclerView.Adapter<SongListAdapter.ViewHolder>() {
+    inner class SongListAdapter(val context: Context, private var songList: List<Song>) : RecyclerView.Adapter<SongListAdapter.ViewHolder>() {
 
         override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
             val song = songList[position]
