@@ -16,6 +16,7 @@ object OkHttpUtil {
     @JvmStatic
     private var client: OkHttpClient? = null
 
+
     @JvmStatic
     fun getHttpClient(): OkHttpClient {
         if (client == null) {
@@ -47,6 +48,7 @@ object OkHttpUtil {
         val newCall = getHttpClient().newCall(request)
 
         newCall.enqueue(object : Callback {
+
             override fun onFailure(call: Call?, e: IOException?) {
                 if (e != null) {
                     callback.onFailure(e.localizedMessage)

@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.GridView
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.SimpleAdapter
 import android.widget.TextView
 import butterknife.BindView
@@ -31,6 +32,10 @@ class RankingFragment : Fragment(), RankingContract.View {
     lateinit var mOfficialRanking: RecyclerView
     @BindView(R.id.ranking_global)
     lateinit var mGlobalRanking: GridView
+    @BindView(R.id.loading)
+    lateinit var mLoading: LinearLayout
+    @BindView(R.id.content)
+    lateinit var mContent: LinearLayout
 
     lateinit var mPresenter: RankingContract.Presenter
     private lateinit var mUnbinder: Unbinder
@@ -72,7 +77,12 @@ class RankingFragment : Fragment(), RankingContract.View {
                     RankingContract.GlobalRanking.BILLBOARD
                 }
             }
-            mPresenter.loadGlobalRanking(ranking)
+            val detailFragment = DetailFragment()
+            val args = Bundle()
+            args.putSerializable(DetailContract.ARGS_GLOBAL_RANKING, ranking)
+            args.putSerializable(DetailContract.ARGS_LOAD_TYPE, DetailContract.LoadType.GLOBAL_RANKING)
+            detailFragment.arguments = args
+            FragmentUtil.addFragmentToMainView(fragmentManager, detailFragment)
         }
     }
 
@@ -95,12 +105,8 @@ class RankingFragment : Fragment(), RankingContract.View {
         activity.runOnUiThread {
             mOfficialRanking.adapter = OfficialRankingAdapter(collects)
             mOfficialRanking.layoutManager = LinearLayoutManager(context)
-        }
-    }
-
-    override fun onGlobalRankingLoad(collect: Collect) {
-        activity.runOnUiThread {
-            showRankingDetail(collect)
+            mLoading.visibility = View.GONE
+            mContent.visibility = View.VISIBLE
         }
     }
 
@@ -108,9 +114,14 @@ class RankingFragment : Fragment(), RankingContract.View {
         val detailFragment = DetailFragment()
         val args = Bundle()
         args.putParcelable(DetailContract.ARGS_COLLECT, collect)
-        args.putSerializable(DetailContract.ARGS_LOAD_TYPE, DetailContract.LoadType.RANKING)
+        args.putSerializable(DetailContract.ARGS_LOAD_TYPE, DetailContract.LoadType.OFFICIAL_RANKING)
         detailFragment.arguments = args
         FragmentUtil.addFragmentToMainView(fragmentManager, detailFragment)
+    }
+
+    override fun onLoading() {
+        mLoading.visibility = View.VISIBLE
+        mContent.visibility = View.GONE
     }
 
     override fun onFailure(msg: String) {
@@ -128,7 +139,9 @@ class RankingFragment : Fragment(), RankingContract.View {
 
         override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
             val collect = rankingCollects[position]
-            GlideApp.with(context).load(collect.coverDrawable).into(holder?.rankingCover)
+            GlideApp.with(context)
+                    .load(collect.coverDrawable)
+                    .into(holder?.rankingCover)
 
             val firstSong = collect.songs[0]
             val firstPreview = "1.${firstSong.name}-${firstSong.artistName}"

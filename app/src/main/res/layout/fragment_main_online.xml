@@ -113,93 +113,104 @@
             </LinearLayout>
 
 
-            <!--热门歌单-->
-            <RelativeLayout
+            <include
+                layout="@layout/include_loading"
+                android:visibility="gone" />
+            <!--content-->
+            <LinearLayout
+                android:id="@+id/content"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="45dp"
-                    android:layout_alignParentTop="true"
-                    android:layout_centerHorizontal="true"
-                    android:layout_gravity="center"
-                    android:gravity="center"
-                    android:text="@string/main_hot_collect"
-                    android:textColor="@color/colorBlack"
-                    android:textSize="@dimen/slide_menu_text_size"
-                    tools:ignore="RelativeOverlap" />
-
-                <ImageButton
-                    android:id="@+id/main_btn_more_collect"
-                    style="?android:attr/buttonBarButtonStyle"
-                    android:layout_width="45dp"
-                    android:layout_height="45dp"
-                    android:layout_alignParentEnd="true"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/ic_enter"
-                    tools:ignore="ContentDescription" />
-
-                <GridView
-                    android:id="@+id/main_hot_collects"
+                android:orientation="vertical"
+                android:visibility="visible">
+                <!--热门歌单-->
+                <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="280dp"
-                    android:layout_below="@id/main_btn_more_collect"
-                    android:layout_centerHorizontal="true"
-                    android:gravity="center"
-                    android:numColumns="3"
-                    android:scrollbars="none"
-                    android:stretchMode="columnWidth"
-                    tools:ignore="NestedScrolling">
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
-                </GridView>
-            </RelativeLayout>
-            <!--最新音乐-->
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="45dp"
+                        android:layout_alignParentTop="true"
+                        android:layout_centerHorizontal="true"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:text="@string/main_hot_collect"
+                        android:textColor="@color/colorBlack"
+                        android:textSize="@dimen/slide_menu_text_size"
+                        tools:ignore="RelativeOverlap" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="45dp"
-                    android:layout_alignParentTop="true"
-                    android:layout_centerHorizontal="true"
-                    android:layout_gravity="center"
-                    android:gravity="center"
-                    android:text="@string/main_new_songs"
-                    android:textColor="@color/colorBlack"
-                    android:textSize="@dimen/slide_menu_text_size"
-                    tools:ignore="RelativeOverlap" />
+                    <ImageButton
+                        android:id="@+id/main_btn_more_collect"
+                        style="?android:attr/buttonBarButtonStyle"
+                        android:layout_width="45dp"
+                        android:layout_height="45dp"
+                        android:layout_alignParentEnd="true"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ic_enter"
+                        tools:ignore="ContentDescription" />
 
-                <ImageButton
-                    android:id="@+id/main_btn_more_albums"
-                    style="?android:attr/buttonBarButtonStyle"
-                    android:layout_width="45dp"
-                    android:layout_height="45dp"
-                    android:layout_alignParentEnd="true"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/ic_enter"
-                    tools:ignore="ContentDescription" />
+                    <GridView
+                        android:id="@+id/main_hot_collects"
+                        android:layout_width="match_parent"
+                        android:layout_height="280dp"
+                        android:layout_below="@id/main_btn_more_collect"
+                        android:layout_centerHorizontal="true"
+                        android:gravity="center"
+                        android:numColumns="3"
+                        android:scrollbars="none"
+                        android:stretchMode="columnWidth"
+                        tools:ignore="NestedScrolling">
 
-                <GridView
-                    android:id="@+id/main_new_albums"
+                    </GridView>
+                </RelativeLayout>
+                <!--最新音乐-->
+                <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="280dp"
-                    android:layout_below="@id/main_btn_more_albums"
-                    android:layout_centerHorizontal="true"
-                    android:gravity="center"
-                    android:numColumns="3"
-                    android:scrollbars="none"
-                    tools:ignore="NestedScrolling">
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
-                </GridView>
-            </RelativeLayout>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="45dp"
+                        android:layout_alignParentTop="true"
+                        android:layout_centerHorizontal="true"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:text="@string/main_new_songs"
+                        android:textColor="@color/colorBlack"
+                        android:textSize="@dimen/slide_menu_text_size"
+                        tools:ignore="RelativeOverlap" />
+
+                    <ImageButton
+                        android:id="@+id/main_btn_more_albums"
+                        style="?android:attr/buttonBarButtonStyle"
+                        android:layout_width="45dp"
+                        android:layout_height="45dp"
+                        android:layout_alignParentEnd="true"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ic_enter"
+                        tools:ignore="ContentDescription" />
+
+                    <GridView
+                        android:id="@+id/main_new_albums"
+                        android:layout_width="match_parent"
+                        android:layout_height="280dp"
+                        android:layout_below="@id/main_btn_more_albums"
+                        android:layout_centerHorizontal="true"
+                        android:gravity="center"
+                        android:numColumns="3"
+                        android:scrollbars="none"
+                        tools:ignore="NestedScrolling">
+
+                    </GridView>
+                </RelativeLayout>
+            </LinearLayout>
 
         </LinearLayout>
 

@@ -16,6 +16,7 @@ internal class SearchPresenter(val view: SearchContract.View) : SearchContract.P
     override fun searchByKeyWord(keyword: String) {
         musicRepository.searchByKeyword(keyword, object : LoadSearchResultCallback {
             override fun onStart() {
+                view.onLoading()
             }
 
             override fun onFailure(msg: String) {
@@ -51,7 +52,7 @@ internal class SearchPresenter(val view: SearchContract.View) : SearchContract.P
             }
 
             override fun onFailure(msg: String) {
-                view.onLoadFailure("当前歌曲不能播放，请切换其他平台试试")
+                view.onFailure(msg)
             }
 
             override fun onSuccess(loadedSong: Song) {

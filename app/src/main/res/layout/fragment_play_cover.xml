@@ -40,9 +40,9 @@
     <!--cover-->
     <ImageView
         android:id="@+id/play_cover"
-        android:layout_width="280dp"
-        android:layout_height="280dp"
-        android:layout_marginTop="15dp"
+        android:layout_width="265dp"
+        android:layout_height="265dp"
+        android:layout_marginTop="20dp"
         android:background="@drawable/bg_cover"
         android:padding="1dp"
         tools:ignore="ContentDescription" />
@@ -51,7 +51,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="10dp"
         android:gravity="center"
         android:orientation="horizontal">
 
@@ -78,23 +78,23 @@
         android:id="@+id/play_ll_operation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="15dp"
         android:gravity="center"
         android:orientation="horizontal">
 
         <ImageButton
             android:id="@+id/play_btn_like"
             style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
             android:src="@drawable/ic_like_border"
             tools:ignore="ContentDescription" />
 
         <ImageButton
             android:id="@+id/play_btn_download"
             style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
             android:layout_marginEnd="65dp"
             android:layout_marginStart="65dp"
             android:src="@drawable/ic_main_download"
@@ -103,8 +103,8 @@
         <ImageButton
             android:id="@+id/play_btn_more_operation"
             style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
             android:src="@drawable/ic_more_vertical"
             tools:ignore="ContentDescription" />
 

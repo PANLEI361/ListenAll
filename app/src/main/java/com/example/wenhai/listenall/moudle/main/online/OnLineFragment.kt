@@ -10,6 +10,7 @@ import android.widget.AdapterView
 import android.widget.BaseAdapter
 import android.widget.GridView
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import butterknife.BindView
@@ -49,6 +50,10 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
     lateinit var mNewAlbums: GridView
     @BindView(R.id.main_online_scroll)
     lateinit var mScrollView: ScrollView
+    @BindView(R.id.loading)
+    lateinit var mLoading: LinearLayout
+    @BindView(R.id.content)
+    lateinit var mContent: LinearLayout
     private var mScrollY = 0
 
     private lateinit var mUnBinder: Unbinder
@@ -91,6 +96,11 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
         mBanner.stopAutoPlay()
     }
 
+    override fun onLoading() {
+        mLoading.visibility = View.VISIBLE
+        mContent.visibility = View.GONE
+    }
+
     @OnClick(R.id.main_btn_more_collect, R.id.main_btn_more_albums, R.id.main_online_btn_singer,
             R.id.main_online_btn_collect, R.id.main_online_btn_ranking_list)
     fun onClick(view: View) {
@@ -114,9 +124,9 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
     }
 
     override fun initView() {
-        initBanner()
         initHotCollectGirdView()
         initNewAlbumsGridView()
+        initBanner()
     }
 
     private fun initHotCollectGirdView() {
@@ -136,10 +146,12 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
         FragmentUtil.addFragmentToMainView(fragmentManager, detailFragment)
     }
 
-    override fun setHotCollects(hotCollects: List<Collect>) {
+    override fun onHotCollectsLoad(hotCollects: List<Collect>) {
         activity.runOnUiThread {
             mHotCollectList = hotCollects
             mHotCollects.adapter = HotCollectsAdapter(context, mHotCollectList)
+            mLoading.visibility = View.GONE
+            mContent.visibility = View.VISIBLE
         }
     }
 
@@ -155,15 +167,19 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
 
     }
 
-    override fun setNewAlbums(newAlbums: List<Album>) {
+    override fun onNewAlbumsLoad(newAlbums: List<Album>) {
         activity.runOnUiThread {
             mNewAlbumList = newAlbums
             mNewAlbums.adapter = NewAlbumsAdapter(context, mNewAlbumList)
+            mLoading.visibility = View.GONE
+            mContent.visibility = View.VISIBLE
         }
     }
 
     override fun onFailure(msg: String) {
-        ToastUtil.showToast(context, msg)
+        activity.runOnUiThread {
+            ToastUtil.showToast(context, msg)
+        }
     }
 
     private fun initBanner() {
@@ -177,7 +193,7 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
         mPresenter.loadBanner(MusicProvider.XIAMI)
     }
 
-    override fun setBanner(imgUrlList: List<String>) {
+    override fun onBannerLoad(imgUrlList: List<String>) {
         activity.runOnUiThread {
             mBanner.setImages(imgUrlList)
             mBanner.start()

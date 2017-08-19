@@ -3,7 +3,6 @@ package com.example.wenhai.listenall.moudle.albumlist
 import com.example.wenhai.listenall.data.LoadAlbumCallback
 import com.example.wenhai.listenall.data.MusicRepository
 import com.example.wenhai.listenall.data.bean.Album
-import com.example.wenhai.listenall.utils.LogUtil
 
 internal class AlbumListPresenter(val view: AlbumListContract.View) : AlbumListContract.Presenter {
     companion object {
@@ -19,7 +18,7 @@ internal class AlbumListPresenter(val view: AlbumListContract.View) : AlbumListC
     override fun loadNewAlbums() {
         musicRepository.loadNewAlbum(14, object : LoadAlbumCallback {
             override fun onStart() {
-
+                view.onLoading()
             }
 
             override fun onSuccess(albumList: List<Album>) {
@@ -27,7 +26,7 @@ internal class AlbumListPresenter(val view: AlbumListContract.View) : AlbumListC
             }
 
             override fun onFailure(msg: String) {
-                LogUtil.e(TAG, msg)
+                view.onFailure(msg)
             }
         })
     }

@@ -2,11 +2,13 @@ package com.example.wenhai.listenall.moudle.detail
 
 import com.example.wenhai.listenall.data.LoadAlbumDetailCallback
 import com.example.wenhai.listenall.data.LoadCollectDetailCallback
+import com.example.wenhai.listenall.data.LoadSingleRankingCallback
 import com.example.wenhai.listenall.data.LoadSongDetailCallback
 import com.example.wenhai.listenall.data.MusicRepository
 import com.example.wenhai.listenall.data.bean.Album
 import com.example.wenhai.listenall.data.bean.Collect
 import com.example.wenhai.listenall.data.bean.Song
+import com.example.wenhai.listenall.moudle.ranking.RankingContract
 
 internal class DetailPresenter(val view: DetailContract.View) : DetailContract.Presenter {
 
@@ -25,6 +27,7 @@ internal class DetailPresenter(val view: DetailContract.View) : DetailContract.P
         if (type == DetailContract.LoadType.COLLECT) {
             musicRepository.loadCollectDetail(id, object : LoadCollectDetailCallback {
                 override fun onStart() {
+                    view.onLoading()
                 }
 
                 override fun onFailure(msg: String) {
@@ -32,13 +35,14 @@ internal class DetailPresenter(val view: DetailContract.View) : DetailContract.P
                 }
 
                 override fun onSuccess(collect: Collect) {
-                    view.setCollectDetail(collect)
+                    view.onCollectDetailLoad(collect)
                 }
 
             })
         } else {
             musicRepository.loadAlbumDetail(id, object : LoadAlbumDetailCallback {
                 override fun onStart() {
+                    view.onLoading()
                 }
 
                 override fun onFailure(msg: String) {
@@ -46,7 +50,7 @@ internal class DetailPresenter(val view: DetailContract.View) : DetailContract.P
                 }
 
                 override fun onSuccess(album: Album) {
-                    view.setAlbumDetail(album)
+                    view.onAlbumDetailLoad(album)
                 }
 
             })
@@ -56,6 +60,7 @@ internal class DetailPresenter(val view: DetailContract.View) : DetailContract.P
     override fun loadSongDetail(song: Song) {
         musicRepository.loadSongDetail(song, object : LoadSongDetailCallback {
             override fun onStart() {
+
             }
 
             override fun onFailure(msg: String) {
@@ -63,10 +68,28 @@ internal class DetailPresenter(val view: DetailContract.View) : DetailContract.P
             }
 
             override fun onSuccess(loadedSong: Song) {
-                view.onSongDetailLoaded(loadedSong)
+                view.onSongDetailLoad(loadedSong)
             }
 
         })
+    }
+
+    override fun loadGlobalRanking(ranking: RankingContract.GlobalRanking) {
+        musicRepository.loadGlobalRanking(ranking, object : LoadSingleRankingCallback {
+            override fun onStart() {
+                view.onLoading()
+
+            }
+
+            override fun onSuccess(collect: Collect) {
+                view.onGlobalRankingLoad(collect)
+            }
+
+            override fun onFailure(msg: String) {
+                view.onFailure(msg)
+            }
+        })
+
     }
 
 }

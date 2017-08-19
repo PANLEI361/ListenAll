@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import butterknife.BindView
 import butterknife.ButterKnife
@@ -28,21 +29,13 @@ class ArtistListFragment : Fragment(), ArtistListContract.View {
     lateinit var mTitle: TextView
     @BindView(R.id.artist_list)
     lateinit var mArtistList: RecyclerView
+    @BindView(R.id.loading)
+    lateinit var mLoading: LinearLayout
 
     private lateinit var mTabs: ArrayList<Button>
 
     private lateinit var mPresenter: ArtistListContract.Presenter
     private lateinit var mUnbinder: Unbinder
-    override fun onFailure(msg: String) {
-        ToastUtil.showToast(context, msg)
-    }
-
-    override fun onArtistsLoad(artists: List<Artist>) {
-        activity.runOnUiThread {
-            mArtistList.adapter = ArtistAdapter(artists)
-            mArtistList.layoutManager = LinearLayoutManager(context)
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,6 +64,26 @@ class ArtistListFragment : Fragment(), ArtistListContract.View {
         mTitle.text = getString(R.string.main_artist_list)
         mPresenter.loadArtists(ArtistRegion.ALL)
         setTab(0)
+    }
+
+    override fun onFailure(msg: String) {
+        activity.runOnUiThread {
+            ToastUtil.showToast(context, msg)
+        }
+    }
+
+    override fun onArtistsLoad(artists: List<Artist>) {
+        activity.runOnUiThread {
+            mArtistList.adapter = ArtistAdapter(artists)
+            mArtistList.layoutManager = LinearLayoutManager(context)
+            mLoading.visibility = View.GONE
+            mArtistList.visibility = View.VISIBLE
+        }
+    }
+
+    override fun onLoading() {
+        mLoading.visibility = View.VISIBLE
+        mArtistList.visibility = View.GONE
     }
 
     @OnClick(R.id.action_bar_back)

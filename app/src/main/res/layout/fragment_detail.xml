@@ -196,6 +196,10 @@
                 android:layout_marginTop="5dp"
                 android:background="@color/colorDivider" />
 
+            <include
+                layout="@layout/include_loading"
+                android:visibility="gone" />
+
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/detail_song_list"
                 android:layout_width="match_parent"

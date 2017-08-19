@@ -7,7 +7,6 @@ import com.example.wenhai.listenall.data.MusicProvider
 import com.example.wenhai.listenall.data.MusicRepository
 import com.example.wenhai.listenall.data.bean.Album
 import com.example.wenhai.listenall.data.bean.Collect
-import com.example.wenhai.listenall.utils.LogUtil
 
 internal class OnLinePresenter(var view: OnLineContract.View) : OnLineContract.Presenter {
 
@@ -23,11 +22,11 @@ internal class OnLinePresenter(var view: OnLineContract.View) : OnLineContract.P
             }
 
             override fun onSuccess(imgUrlList: List<String>) {
-                view.setBanner(imgUrlList)
+                view.onBannerLoad(imgUrlList)
             }
 
             override fun onFailure(msg: String) {
-                LogUtil.e(TAG, "banner load failed")
+                view.onFailure(msg)
             }
         })
     }
@@ -35,14 +34,15 @@ internal class OnLinePresenter(var view: OnLineContract.View) : OnLineContract.P
     override fun loadHotCollects() {
         musicRepository.loadHotCollect(6, object : LoadCollectCallback {
             override fun onStart() {
+                view.onLoading()
             }
 
             override fun onFailure(msg: String) {
-                LogUtil.e(TAG, "hot collect load failed")
+                view.onFailure(msg)
             }
 
             override fun onSuccess(collectList: List<Collect>) {
-                view.setHotCollects(collectList)
+                view.onHotCollectsLoad(collectList)
             }
 
         })
@@ -51,14 +51,15 @@ internal class OnLinePresenter(var view: OnLineContract.View) : OnLineContract.P
     override fun loadNewAlbums() {
         musicRepository.loadNewAlbum(6, object : LoadAlbumCallback {
             override fun onStart() {
+                view.onLoading()
             }
 
             override fun onFailure(msg: String) {
-                LogUtil.e(TAG, "new albums load failed")
+                view.onFailure(msg)
             }
 
             override fun onSuccess(albumList: List<Album>) {
-                view.setNewAlbums(albumList)
+                view.onNewAlbumsLoad(albumList)
             }
 
         })

@@ -36,6 +36,7 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
+import java.io.IOException
 import java.net.URLDecoder
 import java.net.URLEncoder
 
@@ -699,6 +700,7 @@ internal class Xiami : MusicSource {
         val suffix = when (ranking) {
             RankingContract.GlobalRanking.BILLBOARD -> {
                 collect.title = "Billboard周榜"
+                collect.desc = "美国公告牌每周最热100首单曲，每周五更新"
                 collect.coverDrawable = R.drawable.ranking_billboard
                 URL_RANKING_BILLBOARD
             }
@@ -706,13 +708,15 @@ internal class Xiami : MusicSource {
             RankingContract.GlobalRanking.UK
             -> {
                 collect.coverDrawable = R.drawable.ranking_uk
-                collect.title = "UK周榜"
+                collect.title = "英国UK榜"
+                collect.desc = "英国官方每周最热单曲排行榜，每周一更新"
                 URL_RANKING_UK
             }
             RankingContract.GlobalRanking.ORICON
             -> {
                 collect.coverDrawable = R.drawable.ranking_oricon
                 collect.title = "日本 Oricon 周榜"
+                collect.desc = "日本公信榜上周销量前20位单曲，每周三更新"
                 URL_RANKING_ORICON
             }
         }
@@ -763,17 +767,27 @@ internal class Xiami : MusicSource {
             val url = urls[0]
             val collect = Collect()
             collect.title = rankingTitle
-            collect.coverDrawable = when (rankingTitle) {
-                RANKING_MUSIC -> R.drawable.xiami_music
-                RANKING_NEW -> R.drawable.xiami_new
-                RANKING_ORIGIN -> R.drawable.xiami_original
-                else -> {
-                    - 1
+            when (rankingTitle) {
+                RANKING_MUSIC -> {
+                    collect.coverDrawable = R.mipmap.xiami_music
+                    collect.desc = "虾米音乐全曲库歌曲试听量排名"
+                }
+                RANKING_NEW -> {
+                    collect.coverDrawable = R.mipmap.xiami_new
+                    collect.desc = "虾米音乐30天内新歌试听量排名"
+                }
+                RANKING_ORIGIN -> {
+                    collect.coverDrawable = R.mipmap.xiami_original
+                    collect.desc = "虾米音乐人最新作品试听量排名"
                 }
             }
             collect.source = MusicProvider.XIAMI
-            val document = Jsoup.connect(url).get()
-            collect.songs = parseRankingSongs(document)
+            try {
+                val document = Jsoup.connect(url).get()
+                collect.songs = parseRankingSongs(document)
+            } catch (e: IOException) {
+                callback.onFailure("获取排行榜信息失败")
+            }
             return collect
         }
 

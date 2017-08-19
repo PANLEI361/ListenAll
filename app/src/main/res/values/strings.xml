@@ -45,6 +45,7 @@
     <string name="shuffle_all">随机播放全部</string>
     <string name="ranking_official">平台官方榜</string>
     <string name="ranking_global">全球榜</string>
+    <string name="loading">正在加载…</string>
 
     <!--filter category-->
     <array name="filter_language">

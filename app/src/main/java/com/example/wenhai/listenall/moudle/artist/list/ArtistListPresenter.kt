@@ -15,7 +15,7 @@ internal class ArtistListPresenter(val view: ArtistListContract.View) : ArtistLi
     override fun loadArtists(region: ArtistRegion) {
         musicRepository.loadArtists(region, object : LoadArtistsCallback {
             override fun onStart() {
-
+                view.onLoading()
             }
 
             override fun onFailure(msg: String) {

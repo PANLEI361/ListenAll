@@ -16,6 +16,7 @@ internal class CollectFilterPresenter(val view: CollectFilterContract.View) : Co
     override fun loadCollectByCategory(category: String) {
         musicRepository.loadCollectByCategory(category, object : LoadCollectByCategoryCallback {
             override fun onStart() {
+                view.onLoading()
             }
 
             override fun onFailure(msg: String) {

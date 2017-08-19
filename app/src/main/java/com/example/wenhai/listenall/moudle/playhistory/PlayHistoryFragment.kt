@@ -69,6 +69,9 @@ class PlayHistoryFragment : Fragment(), PlayHistoryContract.View {
 
     override fun onNoPlayHistory() = ToastUtil.showToast(context, getString(R.string.no_play_history))
 
+    override fun onLoading() {
+
+    }
     override fun onFailure(msg: String) {
         ToastUtil.showToast(context, msg)
     }

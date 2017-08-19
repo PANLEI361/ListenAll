@@ -10,6 +10,7 @@ import android.widget.AdapterView
 import android.widget.BaseAdapter
 import android.widget.GridView
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import butterknife.BindView
 import butterknife.ButterKnife
@@ -28,11 +29,13 @@ class AlbumListFragment : Fragment(), AlbumListContract.View {
     lateinit var mTitle: TextView
     @BindView(R.id.new_albums)
     lateinit var mGridNewAlbums: GridView
+    @BindView(R.id.loading)
+    lateinit var mLoading: LinearLayout
 
-    lateinit var mAlbumList: List<Album>
+    private lateinit var mAlbumList: List<Album>
 
     lateinit var mPresenter: AlbumListContract.Presenter
-    lateinit var mUnBinder: Unbinder
+    private lateinit var mUnBinder: Unbinder
 
 
     override fun setPresenter(presenter: AlbumListContract.Presenter) {
@@ -70,11 +73,21 @@ class AlbumListFragment : Fragment(), AlbumListContract.View {
         activity.runOnUiThread {
             mAlbumList = albumList
             mGridNewAlbums.adapter = AlbumListAdapter(context, mAlbumList)
+
+            mLoading.visibility = View.GONE
+            mGridNewAlbums.visibility = View.VISIBLE
         }
     }
 
+    override fun onLoading() {
+        mLoading.visibility = View.VISIBLE
+        mGridNewAlbums.visibility = View.GONE
+    }
+
     override fun onFailure(msg: String) {
-        ToastUtil.showToast(context, msg)
+        activity.runOnUiThread {
+            ToastUtil.showToast(context, msg)
+        }
     }
 
     @OnClick(R.id.action_bar_back)

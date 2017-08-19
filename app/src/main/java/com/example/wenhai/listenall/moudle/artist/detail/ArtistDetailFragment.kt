@@ -115,6 +115,9 @@ class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
         }
     }
 
+    override fun onLoading() {
+    }
+
     override fun onArtistDetail(artist: Artist) {
         activity.runOnUiThread {
             GlideApp.with(this).load(artist.imgUrl)

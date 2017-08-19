@@ -26,10 +26,6 @@ import com.example.wenhai.listenall.utils.DAOUtil
 import com.example.wenhai.listenall.utils.ToastUtil
 
 class SearchFragment : Fragment(), SearchContract.View {
-    override fun onFailure(msg: String) {
-        ToastUtil.showToast(context, msg)
-    }
-
     companion object {
         const val CONTENT_SEARCH_HISTORY = 0x00
         const val CONTENT_RECOMMEND_KEYWORD = 0x01
@@ -44,6 +40,8 @@ class SearchFragment : Fragment(), SearchContract.View {
 //    lateinit var mHotSearch: LinearLayout
     @BindView(R.id.search_content_list)
     lateinit var mContentList: RecyclerView
+    @BindView(R.id.loading)
+    lateinit var mLoading: LinearLayout
 
     private lateinit var mUnBinder: Unbinder
     lateinit var mPresenter: SearchContract.Presenter
@@ -71,13 +69,6 @@ class SearchFragment : Fragment(), SearchContract.View {
         showSearchHistory()
     }
 
-    override fun onLoadFailure(msg: String) {
-        activity.runOnUiThread {
-            ToastUtil.showToast(context, msg)
-        }
-    }
-
-
     override fun onSearchResult(songs: List<Song>) {
         if (currentContent == CONTENT_SEARCH_RESULT) {
             activity.runOnUiThread {
@@ -87,6 +78,9 @@ class SearchFragment : Fragment(), SearchContract.View {
                 resultSongs = songs
                 mContentList.adapter = ResultSongsAdapter(resultSongs)
                 mContentList.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+
+                mLoading.visibility = View.VISIBLE
+                mContentList.visibility = View.GONE
             }
         }
     }
@@ -145,11 +139,9 @@ class SearchFragment : Fragment(), SearchContract.View {
 
     fun showSearchRecommend(keyword: String) {
         searchKeyword = keyword
-//        mHotSearch.visibility = View.GONE
         mSearchView.visibility = View.VISIBLE
         val display = "搜索\"$keyword\""
         mTvBeginSearch.text = display
-//        mContentList.adapter = null
         mPresenter.loadSearchRecommend(searchKeyword)
         currentContent = CONTENT_RECOMMEND_KEYWORD
     }
@@ -164,6 +156,17 @@ class SearchFragment : Fragment(), SearchContract.View {
                     mContentList.adapter = SearchRecommendAdapter(recommends)
                 }
             }
+        }
+    }
+
+    override fun onLoading() {
+        mLoading.visibility = View.VISIBLE
+        mContentList.visibility = View.GONE
+    }
+
+    override fun onFailure(msg: String) {
+        activity.runOnUiThread {
+            ToastUtil.showToast(context, msg)
         }
     }
 

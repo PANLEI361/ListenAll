@@ -24,9 +24,6 @@ import com.example.wenhai.listenall.utils.GlideApp
 import com.example.wenhai.listenall.utils.ToastUtil
 
 internal class CollectListFragment : Fragment(), CollectListContract.View {
-    override fun onFailure(msg: String) {
-        ToastUtil.showToast(context, msg)
-    }
 
     companion object {
         const val TAG = "CollectListFragment"
@@ -36,6 +33,8 @@ internal class CollectListFragment : Fragment(), CollectListContract.View {
     lateinit var mRvCollectList: RecyclerView
     @BindView(R.id.action_bar_title)
     lateinit var mTitle: TextView
+    @BindView(R.id.loading)
+    lateinit var mLoading: LinearLayout
 
     private lateinit var mUnBinder: Unbinder
     private lateinit var mPresenter: CollectListContract.Presenter
@@ -70,8 +69,22 @@ internal class CollectListFragment : Fragment(), CollectListContract.View {
     override fun setCollects(collects: List<Collect>) {
         activity.runOnUiThread {
             mCollectListAdapter.setData(collects)
+            mLoading.visibility = View.GONE
+            mRvCollectList.visibility = View.VISIBLE
         }
     }
+
+    override fun onLoading() {
+        mLoading.visibility = View.VISIBLE
+        mRvCollectList.visibility = View.GONE
+    }
+
+    override fun onFailure(msg: String) {
+        activity.runOnUiThread {
+            ToastUtil.showToast(context, msg)
+        }
+    }
+
 
     override fun setPresenter(presenter: CollectListContract.Presenter) {
         mPresenter = presenter

@@ -10,7 +10,6 @@ class SearchContract {
         fun onSearchResult(songs: List<Song>)
         fun onSearchRecommendLoaded(recommends: List<String>)
         fun onSongDetailLoad(song: Song)
-        fun onLoadFailure(msg: String)
     }
 
     interface Presenter : BasePresenter {

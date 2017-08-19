@@ -3,7 +3,6 @@ package com.example.wenhai.listenall.moudle.collectlist
 import com.example.wenhai.listenall.data.LoadCollectCallback
 import com.example.wenhai.listenall.data.MusicRepository
 import com.example.wenhai.listenall.data.bean.Collect
-import com.example.wenhai.listenall.utils.LogUtil
 
 internal class CollectListPresenter(val view: CollectListContract.View) : CollectListContract.Presenter {
     private val musicRepository: MusicRepository = MusicRepository.INSTANCE
@@ -12,23 +11,23 @@ internal class CollectListPresenter(val view: CollectListContract.View) : Collec
         view.setPresenter(this)
     }
 
+    companion object {
+        const val TAG = "CollectListPresenter"
+    }
 
     override fun loadCollects(count: Int) {
         musicRepository.loadHotCollect(count, object : LoadCollectCallback {
             override fun onStart() {
+                view.onLoading()
             }
 
             override fun onFailure(msg: String) {
-                LogUtil.e(TAG, "load collects failed in CollectListPresenter")
+                view.onFailure(msg)
             }
 
             override fun onSuccess(collectList: List<Collect>) {
                 view.setCollects(collectList)
             }
         })
-    }
-
-    companion object {
-        const val TAG = "CollectListPresenter"
     }
 }

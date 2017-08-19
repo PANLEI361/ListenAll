@@ -33,6 +33,10 @@ class CollectFilterFragment : Fragment(), CollectFilterContract.View {
     lateinit var mFilterIcon: ImageView
     @BindView(R.id.collect_list)
     lateinit var mCollectList: RecyclerView
+    @BindView(R.id.loading)
+    lateinit var mLoading: LinearLayout
+    @BindView(R.id.loading_icon)
+    lateinit var mLoadingIcon: ImageView
 
     private lateinit var mUnbinder: Unbinder
     private lateinit var mCollectCategoryFragment: CollectCategoryFragment
@@ -115,13 +119,22 @@ class CollectFilterFragment : Fragment(), CollectFilterContract.View {
     }
 
     override fun onFailure(msg: String) {
-        ToastUtil.showToast(context, msg)
+        activity.runOnUiThread {
+            ToastUtil.showToast(context, msg)
+        }
+    }
+
+    override fun onLoading() {
+        mLoading.visibility = View.VISIBLE
+        mCollectList.visibility = View.GONE
     }
 
     override fun onCollectLoad(collects: List<Collect>) {
         activity.runOnUiThread {
             mCollectList.layoutManager = LinearLayoutManager(context)
             mCollectList.adapter = CollectListAdapter(context, collects)
+            mLoading.visibility = View.GONE
+            mCollectList.visibility = View.VISIBLE
         }
     }
 
