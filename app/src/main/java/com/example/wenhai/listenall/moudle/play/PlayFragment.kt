@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.RelativeLayout
 import android.widget.SeekBar
 import android.widget.TextView
 import butterknife.BindView
@@ -60,7 +61,7 @@ class PlayFragment : Fragment(), PlayStatusObserver {
     @BindView(R.id.play_btn_song_list)
     lateinit var mBtnSongList: ImageButton
 
-    lateinit var coverView: LinearLayout
+    lateinit var coverView: RelativeLayout
     private lateinit var mTvArtistName: TextView
     private lateinit var mTvProvider: TextView
     private lateinit var mIvCover: ImageView
@@ -84,7 +85,7 @@ class PlayFragment : Fragment(), PlayStatusObserver {
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val contentView = inflater !!.inflate(R.layout.fragment_play, container, false)
         //init coverView
-        coverView = inflater.inflate(R.layout.fragment_play_cover, container, false) as LinearLayout
+        coverView = inflater.inflate(R.layout.fragment_play_cover, container, false) as RelativeLayout
         mIvCover = coverView.findViewById(R.id.play_cover)
         mTvArtistName = coverView.findViewById(R.id.play_artist_name)
         mTvProvider = coverView.findViewById(R.id.play_provider)

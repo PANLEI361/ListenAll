@@ -8,11 +8,13 @@ import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
 import android.support.v4.view.ViewPager
 import android.text.Editable
+import android.text.TextUtils
 import android.text.TextWatcher
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
@@ -153,6 +155,16 @@ class MainFragment : Fragment() {
 
         }
         mEtSearch.addTextChangedListener(textWatch)
+        mEtSearch.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                val keyword = mEtSearch.text.toString()
+                if (! TextUtils.isEmpty(keyword)) {
+                    searchFragment.beginSearch(keyword)
+                }
+                return@setOnEditorActionListener true
+            }
+            return@setOnEditorActionListener false
+        }
 
     }
 

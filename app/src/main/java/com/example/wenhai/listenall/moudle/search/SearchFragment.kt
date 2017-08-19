@@ -73,8 +73,6 @@ class SearchFragment : Fragment(), SearchContract.View {
         if (currentContent == CONTENT_SEARCH_RESULT) {
             activity.runOnUiThread {
                 mSearchView.visibility = View.GONE
-                val mainFragment: MainFragment = fragmentManager.findFragmentById(R.id.main_container) as MainFragment
-                mainFragment.hideSoftInput()
                 resultSongs = songs
                 mContentList.adapter = ResultSongsAdapter(resultSongs)
                 mContentList.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
@@ -98,7 +96,9 @@ class SearchFragment : Fragment(), SearchContract.View {
         }
     }
 
-    private fun beginSearch(keyword: String) {
+    fun beginSearch(keyword: String) {
+        val mainFragment: MainFragment = fragmentManager.findFragmentById(R.id.main_container) as MainFragment
+        mainFragment.hideSoftInput()
         mPresenter.searchByKeyWord(keyword)
         saveSearchHistory(keyword)
         currentContent = CONTENT_SEARCH_RESULT

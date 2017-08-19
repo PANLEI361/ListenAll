@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="center_horizontal"
-    android:orientation="vertical">
+    android:gravity="center_horizontal">
 
     <!--artist name-->
     <LinearLayout
         android:id="@+id/play_ll_artist_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
         android:layout_marginTop="5dp"
         android:gravity="center"
         android:orientation="horizontal">
@@ -38,20 +38,31 @@
     </LinearLayout>
 
     <!--cover-->
-    <ImageView
-        android:id="@+id/play_cover"
-        android:layout_width="265dp"
-        android:layout_height="265dp"
-        android:layout_marginTop="20dp"
-        android:background="@drawable/bg_cover"
-        android:padding="1dp"
-        tools:ignore="ContentDescription" />
+    <LinearLayout
+        android:id="@+id/play_ll_cover"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/play_ll_provider"
+        android:layout_below="@+id/play_ll_artist_name"
+        android:layout_centerHorizontal="true"
+        android:gravity="center">
+
+        <ImageView
+            android:id="@+id/play_cover"
+            android:layout_width="265dp"
+            android:layout_height="265dp"
+            android:background="@drawable/bg_cover"
+            android:padding="1dp"
+            tools:ignore="ContentDescription" />
+    </LinearLayout>
 
     <!--provider-->
     <LinearLayout
+        android:id="@+id/play_ll_provider"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
+        android:layout_above="@id/play_ll_operation"
+        android:layout_marginBottom="10dp"
         android:gravity="center"
         android:orientation="horizontal">
 
@@ -78,7 +89,8 @@
         android:id="@+id/play_ll_operation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="5dp"
         android:gravity="center"
         android:orientation="horizontal">
 
@@ -110,4 +122,4 @@
 
     </LinearLayout>
 
-</LinearLayout>
+</RelativeLayout>
