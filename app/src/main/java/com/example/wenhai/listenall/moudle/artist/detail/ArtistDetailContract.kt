@@ -11,8 +11,8 @@ interface ArtistDetailContract {
         //获取信息和图片
         fun loadArtistDetail(artist: Artist)
 
-        fun loadArtistHotSongs(artist: Artist)
-        fun loadArtistAlbums(artist: Artist)
+        fun loadArtistHotSongs(artist: Artist, page: Int)
+        fun loadArtistAlbums(artist: Artist, page: Int)
         fun loadSongDetail(song: Song)
     }
 

@@ -22,6 +22,7 @@ import com.example.wenhai.listenall.moudle.detail.DetailFragment
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
 import com.example.wenhai.listenall.utils.ToastUtil
+import com.scwang.smartrefresh.layout.SmartRefreshLayout
 
 internal class CollectListFragment : Fragment(), CollectListContract.View {
 
@@ -35,10 +36,13 @@ internal class CollectListFragment : Fragment(), CollectListContract.View {
     lateinit var mTitle: TextView
     @BindView(R.id.loading)
     lateinit var mLoading: LinearLayout
+    @BindView(R.id.refresh)
+    lateinit var mRefreshLayout: SmartRefreshLayout
 
     private lateinit var mUnBinder: Unbinder
     private lateinit var mPresenter: CollectListContract.Presenter
     private lateinit var mCollectListAdapter: CollectListAdapter
+    private var curLoadPage = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,28 +63,43 @@ internal class CollectListFragment : Fragment(), CollectListContract.View {
 
     override fun initView() {
         mTitle.text = context.getString(R.string.main_hot_collect)
-        mRvCollectList.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
-
+        mRvCollectList.layoutManager = LinearLayoutManager(context)
         mCollectListAdapter = CollectListAdapter(context, ArrayList())
         mRvCollectList.adapter = mCollectListAdapter
-        mPresenter.loadCollects(10)
+        mPresenter.loadCollects(curLoadPage)
+
+        mRefreshLayout.isEnableRefresh = false
+        mRefreshLayout.isEnableAutoLoadmore = false
+        mRefreshLayout.setOnLoadmoreListener {
+            mPresenter.loadCollects(curLoadPage)
+        }
     }
 
     override fun setCollects(collects: List<Collect>) {
         activity.runOnUiThread {
-            mCollectListAdapter.setData(collects)
+            //page++ when current page load success
+            curLoadPage ++
+            if (mRefreshLayout.isLoading) {
+                mRefreshLayout.finishLoadmore(200, true)
+            }
+            mCollectListAdapter.addData(collects)
             mLoading.visibility = View.GONE
             mRvCollectList.visibility = View.VISIBLE
         }
     }
 
     override fun onLoading() {
-        mLoading.visibility = View.VISIBLE
-        mRvCollectList.visibility = View.GONE
+        if (curLoadPage == 1) {
+            mLoading.visibility = View.VISIBLE
+            mRvCollectList.visibility = View.GONE
+        }
     }
 
     override fun onFailure(msg: String) {
         activity.runOnUiThread {
+            if (mRefreshLayout.isLoading) {
+                mRefreshLayout.finishLoadmore(200, false)
+            }
             ToastUtil.showToast(context, msg)
         }
     }
@@ -102,15 +121,10 @@ internal class CollectListFragment : Fragment(), CollectListContract.View {
             return ViewHolder(itemView)
         }
 
-        fun setData(newCollects: List<Collect>) {
-            collects = newCollects
+        fun addData(addCollects: List<Collect>) {
+            (collects as ArrayList<Collect>).addAll(addCollects)
             notifyDataSetChanged()
         }
-
-//        fun addData(addCollects: List<Collect>) {
-//            (collects as ArrayList<Collect>).addAll(addCollects)
-//            notifyDataSetChanged()
-//        }
 
         override fun getItemCount(): Int = collects.size
 

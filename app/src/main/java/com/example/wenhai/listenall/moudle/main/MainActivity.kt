@@ -110,7 +110,7 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
         }
     }
 
-    @OnClick(R.id.play_bar_control, R.id.main_ll_song_info, R.id.play_bar_song_list)
+    @OnClick(R.id.play_bar_control, R.id.main_iv_cover, R.id.main_ll_song_info, R.id.play_bar_song_list)
     fun onPlayBarClick(view: View) {
         when (view.id) {
             R.id.play_bar_control -> {
@@ -120,7 +120,7 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
                     playService.pause()
                 }
             }
-            R.id.main_ll_song_info -> {
+            R.id.main_ll_song_info, R.id.main_iv_cover -> {
                 val playDetailFragment = PlayFragment()
                 FragmentUtil.addFragmentToView(supportFragmentManager, playDetailFragment, R.id.main_activity)
             }

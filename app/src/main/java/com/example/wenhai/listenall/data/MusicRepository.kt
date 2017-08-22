@@ -78,32 +78,32 @@ internal class MusicRepository() : MusicSource {
         musicSource.loadBanner(callback)
     }
 
-    override fun loadHotCollect(count: Int, callback: LoadCollectCallback) {
-        musicSource.loadHotCollect(count, callback)
+    override fun loadHotCollect(page: Int, callback: LoadCollectCallback) {
+        musicSource.loadHotCollect(page, callback)
     }
 
-    override fun loadNewAlbum(count: Int, callback: LoadAlbumCallback) {
-        musicSource.loadNewAlbum(count, callback)
+    override fun loadNewAlbum(page: Int, callback: LoadAlbumCallback) {
+        musicSource.loadNewAlbum(page, callback)
     }
 
-    override fun loadArtists(region: ArtistRegion, callback: LoadArtistsCallback) {
-        musicSource.loadArtists(region, callback)
+    override fun loadArtists(region: ArtistRegion, page: Int, callback: LoadArtistsCallback) {
+        musicSource.loadArtists(region, page, callback)
     }
 
     override fun loadArtistDetail(artist: Artist, callback: LoadArtistDetailCallback) {
         musicSource.loadArtistDetail(artist, callback)
     }
 
-    override fun loadArtistHotSongs(artist: Artist, callback: LoadArtistHotSongsCallback) {
-        musicSource.loadArtistHotSongs(artist, callback)
+    override fun loadArtistHotSongs(artist: Artist, page: Int, callback: LoadArtistHotSongsCallback) {
+        musicSource.loadArtistHotSongs(artist, page, callback)
     }
 
-    override fun loadArtistAlbums(artist: Artist, callback: LoadArtistAlbumsCallback) {
-        musicSource.loadArtistAlbums(artist, callback)
+    override fun loadArtistAlbums(artist: Artist, page: Int, callback: LoadArtistAlbumsCallback) {
+        musicSource.loadArtistAlbums(artist, page, callback)
     }
 
-    override fun loadCollectByCategory(category: String, callback: LoadCollectByCategoryCallback) {
-        musicSource.loadCollectByCategory(category, callback)
+    override fun loadCollectByCategory(category: String, page: Int, callback: LoadCollectByCategoryCallback) {
+        musicSource.loadCollectByCategory(category, page, callback)
     }
 
     override fun loadOfficialRanking(provider: MusicProvider, callback: LoadRankingCallback) {

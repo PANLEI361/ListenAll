@@ -6,7 +6,7 @@ import com.example.wenhai.listenall.data.bean.Album
 
 interface AlbumListContract {
     interface Presenter : BasePresenter {
-        fun loadNewAlbums()
+        fun loadNewAlbums(page: Int)
     }
 
     interface View : BaseView<Presenter> {

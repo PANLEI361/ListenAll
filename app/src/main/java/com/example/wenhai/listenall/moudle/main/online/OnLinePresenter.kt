@@ -32,7 +32,7 @@ internal class OnLinePresenter(var view: OnLineContract.View) : OnLineContract.P
     }
 
     override fun loadHotCollects() {
-        musicRepository.loadHotCollect(6, object : LoadCollectCallback {
+        musicRepository.loadHotCollect(1, object : LoadCollectCallback {
             override fun onStart() {
                 view.onLoading()
             }
@@ -49,7 +49,7 @@ internal class OnLinePresenter(var view: OnLineContract.View) : OnLineContract.P
     }
 
     override fun loadNewAlbums() {
-        musicRepository.loadNewAlbum(6, object : LoadAlbumCallback {
+        musicRepository.loadNewAlbum(1, object : LoadAlbumCallback {
             override fun onStart() {
                 view.onLoading()
             }

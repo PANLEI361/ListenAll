@@ -22,6 +22,7 @@ import com.example.wenhai.listenall.moudle.detail.DetailFragment
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
 import com.example.wenhai.listenall.utils.ToastUtil
+import com.scwang.smartrefresh.layout.SmartRefreshLayout
 
 class CollectFilterFragment : Fragment(), CollectFilterContract.View {
 
@@ -37,12 +38,16 @@ class CollectFilterFragment : Fragment(), CollectFilterContract.View {
     lateinit var mLoading: LinearLayout
     @BindView(R.id.loading_icon)
     lateinit var mLoadingIcon: ImageView
+    @BindView(R.id.refresh)
+    lateinit var mRefreshLayout: SmartRefreshLayout
 
     private lateinit var mUnbinder: Unbinder
     private lateinit var mCollectCategoryFragment: CollectCategoryFragment
     private var isFilterShown = false
     private var curCategory: String = ""
     private lateinit var mPresenter: CollectFilterContract.Presenter
+    private var curPage = 1
+    private lateinit var mCollectAdapter: CollectListAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,16 +63,24 @@ class CollectFilterFragment : Fragment(), CollectFilterContract.View {
 
     override fun initView() {
         curCategory = mFilterTitle.text.toString()
-        mPresenter.loadCollectByCategory(curCategory)
+        mPresenter.loadCollectByCategory(curCategory, curPage)
+        mCollectList.layoutManager = LinearLayoutManager(context)
+        mCollectAdapter = CollectListAdapter(context, ArrayList())
+        mCollectList.adapter = mCollectAdapter
+        mRefreshLayout.setOnLoadmoreListener {
+            mPresenter.loadCollectByCategory(curCategory, curPage)
+        }
     }
 
     fun setFilterTitle(category: String) {
         //所选分类与当前不同，加载新数据
         if (category != curCategory) {
             curCategory = category
+            mCollectAdapter.clearData()
+            curPage = 1
             mFilterTitle.text = curCategory
             //刷新数据
-            mPresenter.loadCollectByCategory(curCategory)
+            mPresenter.loadCollectByCategory(curCategory, curPage)
         }
         setFilterTitleIcon(false)
     }
@@ -120,21 +133,31 @@ class CollectFilterFragment : Fragment(), CollectFilterContract.View {
 
     override fun onFailure(msg: String) {
         activity.runOnUiThread {
+            if (mRefreshLayout.isLoading) {
+                mRefreshLayout.finishLoadmore(200, false)
+            }
             ToastUtil.showToast(context, msg)
         }
     }
 
     override fun onLoading() {
-        mLoading.visibility = View.VISIBLE
-        mCollectList.visibility = View.GONE
+        if (curPage == 1) {
+            mLoading.visibility = View.VISIBLE
+            mCollectList.visibility = View.GONE
+        }
     }
 
     override fun onCollectLoad(collects: List<Collect>) {
         activity.runOnUiThread {
-            mCollectList.layoutManager = LinearLayoutManager(context)
-            mCollectList.adapter = CollectListAdapter(context, collects)
-            mLoading.visibility = View.GONE
-            mCollectList.visibility = View.VISIBLE
+            if (mRefreshLayout.isLoading) {
+                mRefreshLayout.finishLoadmore(200, true)
+            }
+            curPage ++
+            mCollectAdapter.addData(collects)
+            if (mLoading.visibility == View.VISIBLE) {
+                mLoading.visibility = View.GONE
+                mCollectList.visibility = View.VISIBLE
+            }
         }
     }
 
@@ -144,22 +167,22 @@ class CollectFilterFragment : Fragment(), CollectFilterContract.View {
         mUnbinder.unbind()
     }
 
-    inner class CollectListAdapter(val context: Context, private var collects: List<Collect>) : RecyclerView.Adapter<CollectListAdapter.ViewHolder>() {
+    inner class CollectListAdapter(val context: Context, var collects: List<Collect>) : RecyclerView.Adapter<CollectListAdapter.ViewHolder>() {
 
         override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
             val itemView = LayoutInflater.from(context).inflate(R.layout.item_collect_list, parent, false)
             return ViewHolder(itemView)
         }
 
-//        fun setData(newCollects: List<Collect>) {
-//            collects = newCollects
-//            notifyDataSetChanged()
-//        }
-//
-//        fun addData(addCollects: List<Collect>) {
-//            (collects as ArrayList<Collect>).addAll(addCollects)
-//            notifyDataSetChanged()
-//        }
+        fun addData(addCollects: List<Collect>) {
+            (collects as ArrayList<Collect>).addAll(addCollects)
+            notifyDataSetChanged()
+        }
+
+        fun clearData() {
+            (collects as ArrayList).clear()
+            notifyDataSetChanged()
+        }
 
         override fun getItemCount(): Int = collects.size
 

@@ -22,6 +22,7 @@ import com.example.wenhai.listenall.moudle.artist.detail.ArtistDetailFragment
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
 import com.example.wenhai.listenall.utils.ToastUtil
+import com.scwang.smartrefresh.layout.SmartRefreshLayout
 
 class ArtistListFragment : Fragment(), ArtistListContract.View {
 
@@ -31,11 +32,16 @@ class ArtistListFragment : Fragment(), ArtistListContract.View {
     lateinit var mArtistList: RecyclerView
     @BindView(R.id.loading)
     lateinit var mLoading: LinearLayout
+    @BindView(R.id.refresh)
+    lateinit var mRefreshLayout: SmartRefreshLayout
 
     private lateinit var mTabs: ArrayList<Button>
 
     private lateinit var mPresenter: ArtistListContract.Presenter
     private lateinit var mUnbinder: Unbinder
+    private lateinit var mArtistAdapter: ArtistAdapter
+    private var curPage = 1
+    private var curRegion: ArtistRegion = ArtistRegion.ALL
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,28 +68,44 @@ class ArtistListFragment : Fragment(), ArtistListContract.View {
 
     override fun initView() {
         mTitle.text = getString(R.string.main_artist_list)
-        mPresenter.loadArtists(ArtistRegion.ALL)
-        setTab(0)
+        mPresenter.loadArtists(curRegion, curPage)
+        setTab(curRegion.ordinal)
+        mArtistAdapter = ArtistAdapter(ArrayList())
+        mArtistList.adapter = mArtistAdapter
+        mArtistList.layoutManager = LinearLayoutManager(context)
+        mRefreshLayout.setOnLoadmoreListener {
+            mPresenter.loadArtists(curRegion, curPage)
+        }
     }
 
     override fun onFailure(msg: String) {
         activity.runOnUiThread {
+            if (mRefreshLayout.isLoading) {
+                mRefreshLayout.finishLoadmore(200, false)
+            }
             ToastUtil.showToast(context, msg)
         }
     }
 
     override fun onArtistsLoad(artists: List<Artist>) {
         activity.runOnUiThread {
-            mArtistList.adapter = ArtistAdapter(artists)
-            mArtistList.layoutManager = LinearLayoutManager(context)
-            mLoading.visibility = View.GONE
-            mArtistList.visibility = View.VISIBLE
+            curPage ++
+            if (mRefreshLayout.isLoading) {
+                mRefreshLayout.finishLoadmore(200, true)
+            }
+            mArtistAdapter.addData(artists)
+            if (mLoading.visibility == View.VISIBLE) {
+                mLoading.visibility = View.GONE
+                mArtistList.visibility = View.VISIBLE
+            }
         }
     }
 
     override fun onLoading() {
-        mLoading.visibility = View.VISIBLE
-        mArtistList.visibility = View.GONE
+        if (curPage == 1) {
+            mLoading.visibility = View.VISIBLE
+            mArtistList.visibility = View.GONE
+        }
     }
 
     @OnClick(R.id.action_bar_back)
@@ -97,32 +119,33 @@ class ArtistListFragment : Fragment(), ArtistListContract.View {
 
     @OnClick(R.id.singer_all, R.id.singer_china, R.id.singer_en, R.id.singer_japan, R.id.singer_korea)
     fun onTabClick(view: View) {
-        val curTabIndex = when (view.id) {
+        val newRegion = when (view.id) {
             R.id.singer_all -> {
-                mPresenter.loadArtists(ArtistRegion.ALL)
-                0
+                ArtistRegion.ALL
             }
             R.id.singer_china -> {
-                mPresenter.loadArtists(ArtistRegion.CN)
-                1
+                ArtistRegion.CN
             }
             R.id.singer_en -> {
-                mPresenter.loadArtists(ArtistRegion.EA)
-                2
+                ArtistRegion.EA
             }
             R.id.singer_japan -> {
-                mPresenter.loadArtists(ArtistRegion.JP)
-                3
+                ArtistRegion.JP
             }
             R.id.singer_korea -> {
-                mPresenter.loadArtists(ArtistRegion.KO)
-                4
+                ArtistRegion.KO
             }
             else -> {
-                0
+                ArtistRegion.ALL
             }
         }
-        setTab(curTabIndex)
+        if (curRegion != newRegion) {
+            curRegion = newRegion
+            curPage = 1
+            mArtistAdapter.clear()
+            mPresenter.loadArtists(curRegion, curPage)
+            setTab(curRegion.ordinal)
+        }
     }
 
     @Suppress("DEPRECATION")
@@ -154,6 +177,16 @@ class ArtistListFragment : Fragment(), ArtistListContract.View {
                 artistDetailFragment.arguments = data
                 FragmentUtil.addFragmentToMainView(fragmentManager, artistDetailFragment)
             }
+        }
+
+        fun addData(data: List<Artist>) {
+            (artists as ArrayList).addAll(data)
+            notifyDataSetChanged()
+        }
+
+        fun clear() {
+            (artists as ArrayList).clear()
+            notifyDataSetChanged()
         }
 
         override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {

@@ -18,36 +18,40 @@ internal class ArtistDetailPresenter(val view: ArtistDetailContract.View) : Arti
         view.setPresenter(this)
     }
 
-    override fun loadArtistHotSongs(artist: Artist) {
-        musicRepository.loadArtistHotSongs(artist, object : LoadArtistHotSongsCallback {
+    override fun loadArtistHotSongs(artist: Artist, page: Int) {
+        musicRepository.loadArtistHotSongs(artist, page, object : LoadArtistHotSongsCallback {
             override fun onStart() {
             }
 
             override fun onFailure(msg: String) {
-                view.onFailure("获取艺人信息失败")
+                view.onFailure(msg)
             }
 
 
             override fun onSuccess(hotSongs: List<Song>) {
-                view.onHotSongsLoad(hotSongs)
+                if (hotSongs.isNotEmpty()) {
+                    view.onHotSongsLoad(hotSongs)
+                }
             }
 
         })
 
     }
 
-    override fun loadArtistAlbums(artist: Artist) {
-        musicRepository.loadArtistAlbums(artist, object : LoadArtistAlbumsCallback {
+    override fun loadArtistAlbums(artist: Artist, page: Int) {
+        musicRepository.loadArtistAlbums(artist, page, object : LoadArtistAlbumsCallback {
 
             override fun onStart() {
             }
 
             override fun onFailure(msg: String) {
-                view.onFailure("获取艺人专辑失败")
+                view.onFailure(msg)
             }
 
             override fun onSuccess(albums: List<Album>) {
-                view.onAlbumsLoad(albums)
+                if (albums.isNotEmpty()) {
+                    view.onAlbumsLoad(albums)
+                }
             }
 
         })

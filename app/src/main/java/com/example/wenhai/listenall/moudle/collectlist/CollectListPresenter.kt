@@ -15,8 +15,8 @@ internal class CollectListPresenter(val view: CollectListContract.View) : Collec
         const val TAG = "CollectListPresenter"
     }
 
-    override fun loadCollects(count: Int) {
-        musicRepository.loadHotCollect(count, object : LoadCollectCallback {
+    override fun loadCollects(page: Int) {
+        musicRepository.loadHotCollect(page, object : LoadCollectCallback {
             override fun onStart() {
                 view.onLoading()
             }

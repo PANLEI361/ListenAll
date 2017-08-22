@@ -31,6 +31,8 @@ import com.example.wenhai.listenall.moudle.ranking.RankingFragment
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
 import com.example.wenhai.listenall.utils.ToastUtil
+import com.scwang.smartrefresh.layout.SmartRefreshLayout
+import com.scwang.smartrefresh.layout.header.ClassicsHeader
 import com.youth.banner.Banner
 import com.youth.banner.BannerConfig
 import com.youth.banner.Transformer
@@ -50,18 +52,23 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
     lateinit var mNewAlbums: GridView
     @BindView(R.id.main_online_scroll)
     lateinit var mScrollView: ScrollView
+    @BindView(R.id.refresh)
+    lateinit var mRefreshLayout: SmartRefreshLayout
+    @BindView(R.id.refresh_header)
+    lateinit var mRefreshHeader: ClassicsHeader
     @BindView(R.id.loading)
     lateinit var mLoading: LinearLayout
     @BindView(R.id.content)
     lateinit var mContent: LinearLayout
+
     private var mScrollY = 0
 
     private lateinit var mUnBinder: Unbinder
     private lateinit var mPresenter: OnLineContract.Presenter
     private var isFirstStart = true
 
-    private lateinit var mHotCollectList: List<Collect>
-    private lateinit var mNewAlbumList: List<Album>
+    private lateinit var mHotCollectAdapter: HotCollectsAdapter
+    private lateinit var mNewAlbumAdapter: NewAlbumsAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -127,17 +134,28 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
         initHotCollectGirdView()
         initNewAlbumsGridView()
         initBanner()
+        initRefreshLayout()
     }
+
 
     private fun initHotCollectGirdView() {
         mPresenter.loadHotCollects()
         mHotCollects.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
-            val collect = mHotCollectList[position]
+            val collect = mHotCollectAdapter.hotCollects[position]
             val data = Bundle()
             data.putLong(DetailContract.ARGS_ID, collect.id)
             data.putSerializable(DetailContract.ARGS_LOAD_TYPE, DetailContract.LoadType.COLLECT)
             startDetailFragment(data)
         }
+    }
+
+    private fun initRefreshLayout() {
+        mRefreshLayout.setOnRefreshListener {
+            mPresenter.loadBanner(MusicProvider.XIAMI)
+            mPresenter.loadHotCollects()
+            mPresenter.loadHotCollects()
+        }
+        mRefreshLayout.isEnableLoadmore = false
     }
 
     private fun startDetailFragment(data: Bundle) {
@@ -148,36 +166,48 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
 
     override fun onHotCollectsLoad(hotCollects: List<Collect>) {
         activity.runOnUiThread {
-            mHotCollectList = hotCollects
-            mHotCollects.adapter = HotCollectsAdapter(context, mHotCollectList)
-            mLoading.visibility = View.GONE
-            mContent.visibility = View.VISIBLE
+            if (mRefreshLayout.isRefreshing) {
+                mRefreshLayout.finishRefresh(200, true)
+            }
+            mHotCollectAdapter = HotCollectsAdapter(context, hotCollects.subList(0, 6))
+            mHotCollects.adapter = mHotCollectAdapter
+            if (mLoading.visibility == View.VISIBLE) {
+                mLoading.visibility = View.GONE
+                mContent.visibility = View.VISIBLE
+            }
         }
     }
 
     private fun initNewAlbumsGridView() {
         mPresenter.loadNewAlbums()
         mNewAlbums.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
-            val album = mNewAlbumList[position]
+            val album = mNewAlbumAdapter.newAlbums[position]
             val data = Bundle()
             data.putLong(DetailContract.ARGS_ID, album.id)
             data.putSerializable(DetailContract.ARGS_LOAD_TYPE, DetailContract.LoadType.ALBUM)
             startDetailFragment(data)
         }
-
     }
 
     override fun onNewAlbumsLoad(newAlbums: List<Album>) {
         activity.runOnUiThread {
-            mNewAlbumList = newAlbums
-            mNewAlbums.adapter = NewAlbumsAdapter(context, mNewAlbumList)
-            mLoading.visibility = View.GONE
-            mContent.visibility = View.VISIBLE
+            if (mRefreshLayout.isRefreshing) {
+                mRefreshLayout.finishRefresh(200, true)
+            }
+            mNewAlbumAdapter = NewAlbumsAdapter(context, newAlbums.subList(0, 6))
+            mNewAlbums.adapter = mNewAlbumAdapter
+            if (mLoading.visibility == View.VISIBLE) {
+                mLoading.visibility = View.GONE
+                mContent.visibility = View.VISIBLE
+            }
         }
     }
 
     override fun onFailure(msg: String) {
         activity.runOnUiThread {
+            if (mRefreshLayout.isRefreshing) {
+                mRefreshLayout.finishRefresh(200, false)
+            }
             ToastUtil.showToast(context, msg)
         }
     }
@@ -195,17 +225,12 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
 
     override fun onBannerLoad(imgUrlList: List<String>) {
         activity.runOnUiThread {
+            if (mRefreshLayout.isRefreshing) {
+                mRefreshLayout.finishRefresh(200, true)
+            }
             mBanner.setImages(imgUrlList)
             mBanner.start()
         }
-    }
-
-    override fun onStart() {
-        super.onStart()
-    }
-
-    override fun onStop() {
-        super.onStop()
     }
 
     override fun onDestroyView() {
@@ -220,7 +245,7 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
         }
     }
 
-    class HotCollectsAdapter(val context: Context, private var hotCollects: List<Collect>) : BaseAdapter() {
+    class HotCollectsAdapter(val context: Context, var hotCollects: List<Collect>) : BaseAdapter() {
         @SuppressLint("ViewHolder")
         override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
             val itemView = LayoutInflater.from(context).inflate(R.layout.item_main_hot_collect, parent, false)
@@ -241,7 +266,7 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
 
     }
 
-    class NewAlbumsAdapter(val context: Context, private var newAlbums: List<Album>) : BaseAdapter() {
+    class NewAlbumsAdapter(val context: Context, var newAlbums: List<Album>) : BaseAdapter() {
         @SuppressLint("ViewHolder")
         override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
             val itemView = LayoutInflater.from(context).inflate(R.layout.item_main_new_album, parent, false)

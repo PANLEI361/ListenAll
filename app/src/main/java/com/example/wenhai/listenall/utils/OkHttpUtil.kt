@@ -1,5 +1,6 @@
 package com.example.wenhai.listenall.utils
 
+import android.util.Log
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient
@@ -51,8 +52,10 @@ object OkHttpUtil {
 
             override fun onFailure(call: Call?, e: IOException?) {
                 if (e != null) {
-                    callback.onFailure(e.localizedMessage)
+                    callback.onFailure("请求失败")
+                    getHttpClient().dispatcher().cancelAll()
                 }
+
             }
 
             override fun onResponse(call: Call?, response: Response?) {
@@ -60,7 +63,6 @@ object OkHttpUtil {
                     callback.onFailure("response == null")
                 } else {
                     val body = response.body() !!.string()
-                    LogUtil.d("response:", body)
                     when {
                         body.startsWith("jsonp") -> {
                             val realJsonStr = body.substring(body.indexOf("(") + 1, body.lastIndexOf(")"))
@@ -68,7 +70,10 @@ object OkHttpUtil {
                         }
                         body.startsWith("{") -> callback.onJsonObjectResponse(JSONObject(body))
                         body.contains("</") -> callback.onHtmlResponse(body)
-                        else -> callback.onFailure("response body:$body")
+                        else -> {
+                            Log.d(TAG, "$body ")
+                            callback.onFailure("response body:$body")
+                        }
                     }
                 }
 

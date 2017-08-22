@@ -28,6 +28,7 @@ import com.example.wenhai.listenall.moudle.main.MainActivity
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
 import com.example.wenhai.listenall.utils.ToastUtil
+import com.scwang.smartrefresh.layout.SmartRefreshLayout
 
 class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
 
@@ -44,10 +45,17 @@ class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
     //歌手热门歌曲
     lateinit var mHotSongsView: LinearLayout
     private lateinit var mHotSongList: RecyclerView
+    private lateinit var mHotSongRefresh: SmartRefreshLayout
+    private lateinit var mHotSongAdapter: HotSongsAdapter
+    private var curHotSongPage = 1
+
 
     //歌手专辑
     lateinit var mAlbumsView: LinearLayout
     private lateinit var mAlbumList: RecyclerView
+    private lateinit var mAlbumRefresh: SmartRefreshLayout
+    private lateinit var mAlbumAdapter: AlbumAdapter
+    private var curAlbumPage = 1
 
     //歌手详情
     lateinit var mArtistInfoView: LinearLayout
@@ -56,6 +64,7 @@ class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
     private lateinit var mUnbinder: Unbinder
     lateinit var mPresenter: ArtistDetailContract.Presenter
     lateinit var artist: Artist
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,9 +77,11 @@ class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
 
         mHotSongsView = inflater.inflate(R.layout.fragment_artist_detail_hot_songs, container, false) as LinearLayout
         mHotSongList = mHotSongsView.findViewById(R.id.detail_song_list)
+        mHotSongRefresh = mHotSongsView.findViewById(R.id.hotSongRefresh)
 
         mAlbumsView = inflater.inflate(R.layout.fragment_artist_detail_albums, container, false) as LinearLayout
         mAlbumList = mAlbumsView.findViewById(R.id.detail_album_list)
+        mAlbumRefresh = mAlbumsView.findViewById(R.id.album_refresh)
 
         mArtistInfoView = inflater.inflate(R.layout.fragment_artist_detail_info, container, false) as LinearLayout
         mArtistDesc = mArtistInfoView.findViewById(R.id.detail_artist_desc)
@@ -86,8 +97,30 @@ class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
         mArtistName.text = artist.name
         mArtistPhoto.setOnClickListener { }
 
-        mPresenter.loadArtistHotSongs(artist)
-        mPresenter.loadArtistAlbums(artist)
+        mPresenter.loadArtistHotSongs(artist, curHotSongPage)
+        mPresenter.loadArtistAlbums(artist, curAlbumPage)
+
+        initHotSongView()
+        initAlbumView()
+
+    }
+
+    private fun initHotSongView() {
+        mHotSongAdapter = HotSongsAdapter(context, ArrayList())
+        mHotSongList.layoutManager = LinearLayoutManager(context)
+        mHotSongList.adapter = mHotSongAdapter
+        mHotSongRefresh.setOnLoadmoreListener {
+            mPresenter.loadArtistHotSongs(artist, curHotSongPage)
+        }
+    }
+
+    private fun initAlbumView() {
+        mAlbumAdapter = AlbumAdapter(context, ArrayList())
+        mAlbumList.adapter = mAlbumAdapter
+        mAlbumList.layoutManager = LinearLayoutManager(context)
+        mAlbumRefresh.setOnLoadmoreListener {
+            mPresenter.loadArtistAlbums(artist, curAlbumPage)
+        }
     }
 
     @OnClick(R.id.action_bar_back)
@@ -111,6 +144,12 @@ class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
 
     override fun onFailure(msg: String) {
         activity.runOnUiThread {
+            if (mAlbumRefresh.isLoading) {
+                mAlbumRefresh.finishLoadmore(200, false)
+            }
+            if (mHotSongRefresh.isLoading) {
+                mHotSongRefresh.finishLoadmore(200, false)
+            }
             ToastUtil.showToast(context, msg)
         }
     }
@@ -129,15 +168,21 @@ class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
 
     override fun onHotSongsLoad(hotSongs: List<Song>) {
         activity.runOnUiThread {
-            mHotSongList.layoutManager = LinearLayoutManager(context)
-            mHotSongList.adapter = HotSongsAdapter(context, hotSongs)
+            if (mHotSongRefresh.isLoading) {
+                mHotSongRefresh.finishLoadmore(200, true)
+            }
+            curHotSongPage ++
+            mHotSongAdapter.addData(hotSongs)
         }
     }
 
     override fun onAlbumsLoad(albums: List<Album>) {
         activity.runOnUiThread {
-            mAlbumList.adapter = AlbumAdapter(context, albums)
-            mAlbumList.layoutManager = LinearLayoutManager(context)
+            if (mAlbumRefresh.isLoading) {
+                mAlbumRefresh.finishLoadmore(200, true)
+            }
+            curAlbumPage ++
+            mAlbumAdapter.addData(albums)
         }
     }
 
@@ -230,6 +275,11 @@ class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
             val title: TextView = itemView.findViewById(R.id.detail_song_title)
             var album: TextView = itemView.findViewById(R.id.detail_album)
         }
+
+        fun addData(data: List<Song>) {
+            (hotSongs as ArrayList).addAll(data)
+            notifyDataSetChanged()
+        }
     }
 
     inner class AlbumAdapter(val context: Context, private var albums: List<Album>) : RecyclerView.Adapter<AlbumAdapter.ViewHolder>() {
@@ -255,6 +305,11 @@ class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
                 FragmentUtil.addFragmentToMainView(fragmentManager, detailFragment)
 
             }
+        }
+
+        fun addData(data: List<Album>) {
+            (albums as ArrayList).addAll(data)
+            notifyDataSetChanged()
         }
 
         override fun getItemCount(): Int = albums.size
