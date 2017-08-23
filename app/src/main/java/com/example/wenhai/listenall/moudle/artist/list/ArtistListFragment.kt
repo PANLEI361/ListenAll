@@ -32,6 +32,8 @@ class ArtistListFragment : Fragment(), ArtistListContract.View {
     lateinit var mArtistList: RecyclerView
     @BindView(R.id.loading)
     lateinit var mLoading: LinearLayout
+    @BindView(R.id.loading_failed)
+    lateinit var mLoadFailed: LinearLayout
     @BindView(R.id.refresh)
     lateinit var mRefreshLayout: SmartRefreshLayout
 
@@ -83,6 +85,10 @@ class ArtistListFragment : Fragment(), ArtistListContract.View {
             if (mRefreshLayout.isLoading) {
                 mRefreshLayout.finishLoadmore(200, false)
             }
+            if (mLoading.visibility == View.VISIBLE) {
+                mLoading.visibility = View.GONE
+                mLoadFailed.visibility = View.VISIBLE
+            }
             ToastUtil.showToast(context, msg)
         }
     }
@@ -102,17 +108,21 @@ class ArtistListFragment : Fragment(), ArtistListContract.View {
     }
 
     override fun onLoading() {
-        if (curPage == 1) {
+        if (curPage == 1 || mLoadFailed.visibility == View.VISIBLE) {
             mLoading.visibility = View.VISIBLE
             mArtistList.visibility = View.GONE
+            mLoadFailed.visibility = View.GONE
         }
     }
 
-    @OnClick(R.id.action_bar_back)
+    @OnClick(R.id.action_bar_back, R.id.loading_failed)
     fun onClick(view: View) {
         when (view.id) {
             R.id.action_bar_back -> {
                 FragmentUtil.removeFragment(fragmentManager, this)
+            }
+            R.id.loading_failed -> {
+                mPresenter.loadArtists(curRegion, curPage)
             }
         }
     }

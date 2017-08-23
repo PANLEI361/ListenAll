@@ -36,6 +36,8 @@ internal class CollectListFragment : Fragment(), CollectListContract.View {
     lateinit var mTitle: TextView
     @BindView(R.id.loading)
     lateinit var mLoading: LinearLayout
+    @BindView(R.id.loading_failed)
+    lateinit var mLoadFailed: LinearLayout
     @BindView(R.id.refresh)
     lateinit var mRefreshLayout: SmartRefreshLayout
 
@@ -56,9 +58,16 @@ internal class CollectListFragment : Fragment(), CollectListContract.View {
         return contentView
     }
 
-    @OnClick(R.id.action_bar_back)
-    fun onActionClick() {
-        FragmentUtil.removeFragment(fragmentManager, this)
+    @OnClick(R.id.action_bar_back, R.id.loading_failed)
+    fun onActionClick(view: View) {
+        when (view.id) {
+            R.id.loading_failed -> {
+                mPresenter.loadCollects(curLoadPage)
+            }
+            R.id.action_bar_back -> {
+                FragmentUtil.removeFragment(fragmentManager, this)
+            }
+        }
     }
 
     override fun initView() {
@@ -68,8 +77,6 @@ internal class CollectListFragment : Fragment(), CollectListContract.View {
         mRvCollectList.adapter = mCollectListAdapter
         mPresenter.loadCollects(curLoadPage)
 
-        mRefreshLayout.isEnableRefresh = false
-        mRefreshLayout.isEnableAutoLoadmore = false
         mRefreshLayout.setOnLoadmoreListener {
             mPresenter.loadCollects(curLoadPage)
         }
@@ -89,9 +96,10 @@ internal class CollectListFragment : Fragment(), CollectListContract.View {
     }
 
     override fun onLoading() {
-        if (curLoadPage == 1) {
+        if (curLoadPage == 1 || mLoadFailed.visibility == View.VISIBLE) {
             mLoading.visibility = View.VISIBLE
             mRvCollectList.visibility = View.GONE
+            mLoadFailed.visibility = View.GONE
         }
     }
 
@@ -99,6 +107,10 @@ internal class CollectListFragment : Fragment(), CollectListContract.View {
         activity.runOnUiThread {
             if (mRefreshLayout.isLoading) {
                 mRefreshLayout.finishLoadmore(200, false)
+            }
+            if (mLoading.visibility == View.VISIBLE) {
+                mLoading.visibility = View.GONE
+                mLoadFailed.visibility = View.VISIBLE
             }
             ToastUtil.showToast(context, msg)
         }

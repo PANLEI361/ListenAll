@@ -23,7 +23,6 @@ import com.example.wenhai.listenall.moudle.detail.DetailContract
 import com.example.wenhai.listenall.moudle.detail.DetailFragment
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
-import com.example.wenhai.listenall.utils.ToastUtil
 
 class RankingFragment : Fragment(), RankingContract.View {
     @BindView(R.id.action_bar_title)
@@ -34,6 +33,8 @@ class RankingFragment : Fragment(), RankingContract.View {
     lateinit var mGlobalRanking: GridView
     @BindView(R.id.loading)
     lateinit var mLoading: LinearLayout
+    @BindView(R.id.loading_failed)
+    lateinit var mLoadFailed: LinearLayout
     @BindView(R.id.content)
     lateinit var mContent: LinearLayout
 
@@ -86,11 +87,14 @@ class RankingFragment : Fragment(), RankingContract.View {
         }
     }
 
-    @OnClick(R.id.action_bar_back)
+    @OnClick(R.id.action_bar_back, R.id.loading_failed)
     fun onClick(view: View) {
         when (view.id) {
             R.id.action_bar_back -> {
                 FragmentUtil.removeFragment(fragmentManager, this)
+            }
+            R.id.loading_failed -> {
+                mPresenter.loadOfficialRanking(MusicProvider.XIAMI)
             }
         }
     }
@@ -122,11 +126,15 @@ class RankingFragment : Fragment(), RankingContract.View {
     override fun onLoading() {
         mLoading.visibility = View.VISIBLE
         mContent.visibility = View.GONE
+        mLoadFailed.visibility = View.GONE
     }
 
     override fun onFailure(msg: String) {
         activity.runOnUiThread {
-            ToastUtil.showToast(context, msg)
+            mLoading.visibility = View.GONE
+            mContent.visibility = View.GONE
+            mLoadFailed.visibility = View.VISIBLE
+//            ToastUtil.showToast(context, msg)
         }
     }
 

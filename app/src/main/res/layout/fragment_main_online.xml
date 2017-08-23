@@ -129,6 +129,10 @@
                 <include
                     layout="@layout/include_loading"
                     android:visibility="gone" />
+
+                <include
+                    layout="@layout/include_load_failed"
+                    android:visibility="gone" />
                 <!--content-->
                 <LinearLayout
                     android:id="@+id/content"

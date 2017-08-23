@@ -45,6 +45,8 @@ class DetailFragment : Fragment(), DetailContract.View {
     lateinit var mSongList: RecyclerView
     @BindView(R.id.loading)
     lateinit var mLoading: LinearLayout
+    @BindView(R.id.loading_failed)
+    lateinit var mLoadFailed: LinearLayout
 
     private lateinit var mSongListAdapter: SongListAdapter
     lateinit var mPresenter: DetailContract.Presenter
@@ -60,10 +62,7 @@ class DetailFragment : Fragment(), DetailContract.View {
         val contentView = inflater !!.inflate(R.layout.fragment_detail, container, false)
         mUnBinder = ButterKnife.bind(this, contentView)
         mLoadType = arguments.getSerializable(DetailContract.ARGS_LOAD_TYPE) as DetailContract.LoadType
-
         initView()
-
-
         return contentView
     }
 
@@ -77,7 +76,10 @@ class DetailFragment : Fragment(), DetailContract.View {
         mSongListAdapter = SongListAdapter(context, ArrayList())
         mSongList.layoutManager = LinearLayoutManager(context)
         mSongList.adapter = mSongListAdapter
+        loadDetail()
+    }
 
+    private fun loadDetail() {
         when (mLoadType) {
             DetailContract.LoadType.GLOBAL_RANKING -> {
                 val ranking: RankingContract.GlobalRanking = arguments.getSerializable(DetailContract.ARGS_GLOBAL_RANKING) as RankingContract.GlobalRanking
@@ -92,8 +94,6 @@ class DetailFragment : Fragment(), DetailContract.View {
                 mPresenter.loadSongsDetails(id, mLoadType)
             }
         }
-
-
     }
 
     private fun playSong(song: Song) {
@@ -101,7 +101,7 @@ class DetailFragment : Fragment(), DetailContract.View {
     }
 
     @OnClick(R.id.action_bar_back, R.id.detail_play_all, R.id.detail_download_all,
-            R.id.detail_add_to_play, R.id.detail_liked)
+            R.id.detail_add_to_play, R.id.detail_liked, R.id.loading_failed)
     fun onClick(view: View) {
         when (view.id) {
             R.id.action_bar_back -> {
@@ -122,6 +122,9 @@ class DetailFragment : Fragment(), DetailContract.View {
                 ToastUtil.showToast(activity, "download all")
 
             }
+            R.id.loading_failed -> {
+                loadDetail()
+            }
         }
     }
 
@@ -138,6 +141,7 @@ class DetailFragment : Fragment(), DetailContract.View {
 
     override fun onLoading() {
         mLoading.visibility = View.VISIBLE
+        mLoadFailed.visibility = View.GONE
         mSongList.visibility = View.GONE
     }
 
@@ -154,6 +158,7 @@ class DetailFragment : Fragment(), DetailContract.View {
 
             mLoading.visibility = View.GONE
             mSongList.visibility = View.VISIBLE
+
         })
     }
 
@@ -200,6 +205,8 @@ class DetailFragment : Fragment(), DetailContract.View {
 
     override fun onFailure(msg: String) {
         activity.runOnUiThread {
+            mLoading.visibility = View.GONE
+            mLoadFailed.visibility = View.VISIBLE
             ToastUtil.showToast(context, msg)
         }
     }

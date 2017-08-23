@@ -200,6 +200,10 @@
                 layout="@layout/include_loading"
                 android:visibility="gone" />
 
+            <include
+                layout="@layout/include_load_failed"
+                android:visibility="gone" />
+
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/detail_song_list"
                 android:layout_width="match_parent"

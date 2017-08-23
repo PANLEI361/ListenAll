@@ -10,6 +10,6 @@ interface AlbumListContract {
     }
 
     interface View : BaseView<Presenter> {
-        fun setNewAlbums(albumList: List<Album>)
+        fun onNewAlbumsLoad(albumList: List<Album>)
     }
 }

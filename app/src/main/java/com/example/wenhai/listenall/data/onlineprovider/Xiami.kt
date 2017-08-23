@@ -790,39 +790,43 @@ internal class Xiami : MusicSource {
     inner class LoadRankingListTask(val collects: ArrayList<Collect>, private val rankingTitle: String, private val callback: LoadRankingCallback)
         : AsyncTask<String, Void, Collect>() {
 
-        override fun doInBackground(vararg urls: String?): Collect {
+        override fun doInBackground(vararg urls: String?): Collect? {
             val url = urls[0]
-            val collect = Collect()
-            collect.title = rankingTitle
-            when (rankingTitle) {
-                RANKING_MUSIC -> {
-                    collect.coverDrawable = R.mipmap.xiami_music
-                    collect.desc = "虾米音乐全曲库歌曲试听量排名"
-                }
-                RANKING_NEW -> {
-                    collect.coverDrawable = R.mipmap.xiami_new
-                    collect.desc = "虾米音乐30天内新歌试听量排名"
-                }
-                RANKING_ORIGIN -> {
-                    collect.coverDrawable = R.mipmap.xiami_original
-                    collect.desc = "虾米音乐人最新作品试听量排名"
-                }
-            }
-            collect.source = MusicProvider.XIAMI
+
             try {
                 val document = Jsoup.connect(url).get()
+                val collect = Collect()
+                collect.title = rankingTitle
+                when (rankingTitle) {
+                    RANKING_MUSIC -> {
+                        collect.coverDrawable = R.mipmap.xiami_music
+                        collect.desc = "虾米音乐全曲库歌曲试听量排名"
+                    }
+                    RANKING_NEW -> {
+                        collect.coverDrawable = R.mipmap.xiami_new
+                        collect.desc = "虾米音乐30天内新歌试听量排名"
+                    }
+                    RANKING_ORIGIN -> {
+                        collect.coverDrawable = R.mipmap.xiami_original
+                        collect.desc = "虾米音乐人最新作品试听量排名"
+                    }
+                }
+                collect.source = MusicProvider.XIAMI
                 collect.songs = parseRankingSongs(document)
+                return collect
             } catch (e: IOException) {
                 callback.onFailure("获取排行榜信息失败")
             }
-            return collect
+            return null
         }
 
-        override fun onPostExecute(result: Collect) {
+        override fun onPostExecute(result: Collect?) {
             super.onPostExecute(result)
-            collects.add(result)
-            if (collects.size == 3) {
-                callback.onSuccess(collects)
+            if (result != null) {
+                collects.add(result)
+                if (collects.size == 3) {
+                    callback.onSuccess(collects)
+                }
             }
         }
 

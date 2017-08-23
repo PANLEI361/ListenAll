@@ -36,8 +36,8 @@ class CollectFilterFragment : Fragment(), CollectFilterContract.View {
     lateinit var mCollectList: RecyclerView
     @BindView(R.id.loading)
     lateinit var mLoading: LinearLayout
-    @BindView(R.id.loading_icon)
-    lateinit var mLoadingIcon: ImageView
+    @BindView(R.id.loading_failed)
+    lateinit var mLoadFailed: LinearLayout
     @BindView(R.id.refresh)
     lateinit var mRefreshLayout: SmartRefreshLayout
 
@@ -95,7 +95,8 @@ class CollectFilterFragment : Fragment(), CollectFilterContract.View {
         mFilterIcon.setImageResource(iconId)
     }
 
-    @OnClick(R.id.action_bar_back, R.id.collect_filter, R.id.collect_filter_action_bar)
+    @OnClick(R.id.action_bar_back, R.id.collect_filter, R.id.collect_filter_action_bar,
+            R.id.loading_failed)
     fun onClick(view: View) {
         when (view.id) {
             R.id.action_bar_back -> {
@@ -124,6 +125,9 @@ class CollectFilterFragment : Fragment(), CollectFilterContract.View {
                     mCollectCategoryFragment.onFilterChosen(curCategory)
                 }
             }
+            R.id.loading_failed -> {
+                mPresenter.loadCollectByCategory(curCategory, curPage)
+            }
         }
     }
 
@@ -136,14 +140,19 @@ class CollectFilterFragment : Fragment(), CollectFilterContract.View {
             if (mRefreshLayout.isLoading) {
                 mRefreshLayout.finishLoadmore(200, false)
             }
+            if (mLoading.visibility == View.VISIBLE) {
+                mLoading.visibility = View.GONE
+                mLoadFailed.visibility = View.VISIBLE
+            }
             ToastUtil.showToast(context, msg)
         }
     }
 
     override fun onLoading() {
-        if (curPage == 1) {
+        if (curPage == 1 || mLoadFailed.visibility == View.VISIBLE) {
             mLoading.visibility = View.VISIBLE
             mCollectList.visibility = View.GONE
+            mLoadFailed.visibility = View.GONE
         }
     }
 
@@ -212,7 +221,6 @@ class CollectFilterFragment : Fragment(), CollectFilterContract.View {
             var collectTitle: TextView = itemView.findViewById(R.id.collect_list_title)
             var collectDesc: TextView = itemView.findViewById(R.id.collect_list_desc)
             var collectCover: ImageView = itemView.findViewById(R.id.collect_list_cover)
-
         }
     }
 

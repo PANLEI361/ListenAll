@@ -33,17 +33,14 @@ class AlbumListFragment : Fragment(), AlbumListContract.View {
     lateinit var mLoading: LinearLayout
     @BindView(R.id.refresh)
     lateinit var mRefreshLayout: SmartRefreshLayout
-
+    @BindView(R.id.loading_failed)
+    lateinit var mLoadFailed: LinearLayout
 
     lateinit var mPresenter: AlbumListContract.Presenter
     private lateinit var albumAdapter: AlbumListAdapter
     private lateinit var mUnBinder: Unbinder
     private var curPage = 1
 
-
-    override fun setPresenter(presenter: AlbumListContract.Presenter) {
-        mPresenter = presenter
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,7 +67,7 @@ class AlbumListFragment : Fragment(), AlbumListContract.View {
 
     }
 
-    override fun setNewAlbums(albumList: List<Album>) {
+    override fun onNewAlbumsLoad(albumList: List<Album>) {
         activity.runOnUiThread {
             curPage ++
             if (mRefreshLayout.isLoading) {
@@ -84,10 +81,16 @@ class AlbumListFragment : Fragment(), AlbumListContract.View {
         }
     }
 
+
+    override fun setPresenter(presenter: AlbumListContract.Presenter) {
+        mPresenter = presenter
+    }
+
     override fun onLoading() {
-        if (curPage == 1) {
+        if (curPage == 1 || mLoadFailed.visibility == View.VISIBLE) {
             mLoading.visibility = View.VISIBLE
             mNewAlbumList.visibility = View.GONE
+            mLoadFailed.visibility = View.GONE
         }
     }
 
@@ -96,11 +99,15 @@ class AlbumListFragment : Fragment(), AlbumListContract.View {
             if (mRefreshLayout.isLoading) {
                 mRefreshLayout.finishLoadmore(200, false)
             }
+            if (mLoading.visibility == View.VISIBLE) {
+                mLoading.visibility = View.GONE
+                mLoadFailed.visibility = View.VISIBLE
+            }
             ToastUtil.showToast(context, msg)
         }
     }
 
-    fun showAlbumDetail(album: Album) {
+    private fun showAlbumDetail(album: Album) {
         val data = Bundle()
         data.putLong(DetailContract.ARGS_ID, album.id)
         data.putSerializable(DetailContract.ARGS_LOAD_TYPE, DetailContract.LoadType.ALBUM)
@@ -109,11 +116,14 @@ class AlbumListFragment : Fragment(), AlbumListContract.View {
         FragmentUtil.addFragmentToMainView(fragmentManager, detailFragment)
     }
 
-    @OnClick(R.id.action_bar_back)
+    @OnClick(R.id.action_bar_back, R.id.loading_failed)
     fun onClick(view: View) {
         when (view.id) {
             R.id.action_bar_back -> {
                 FragmentUtil.removeFragment(fragmentManager, this)
+            }
+            R.id.loading_failed -> {
+                mPresenter.loadNewAlbums(curPage)
             }
         }
     }
@@ -123,7 +133,7 @@ class AlbumListFragment : Fragment(), AlbumListContract.View {
         mUnBinder.unbind()
     }
 
-    inner class AlbumListAdapter(private val context: Context, val albumList: List<Album>)
+    inner class AlbumListAdapter(private val context: Context, private val albumList: List<Album>)
         : RecyclerView.Adapter<AlbumListAdapter.ViewHolder>() {
         override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
             val album = albumList[position]

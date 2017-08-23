@@ -39,11 +39,6 @@ import com.youth.banner.Transformer
 import com.youth.banner.loader.ImageLoader
 
 class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
-
-    companion object {
-        const val TAG = "OnLineFragment"
-    }
-
     @BindView(R.id.main_banner)
     lateinit var mBanner: Banner
     @BindView(R.id.main_hot_collects)
@@ -58,11 +53,12 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
     lateinit var mRefreshHeader: ClassicsHeader
     @BindView(R.id.loading)
     lateinit var mLoading: LinearLayout
+    @BindView(R.id.loading_failed)
+    lateinit var mFailed: LinearLayout
     @BindView(R.id.content)
     lateinit var mContent: LinearLayout
 
     private var mScrollY = 0
-
     private lateinit var mUnBinder: Unbinder
     private lateinit var mPresenter: OnLineContract.Presenter
     private var isFirstStart = true
@@ -82,9 +78,155 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
         return rootView
     }
 
+    override fun initView() {
+        initHotCollectGirdView()
+        initNewAlbumsGridView()
+        initBanner()
+        initRefreshLayout()
+        loadData()
+    }
+
+    private fun initHotCollectGirdView() {
+        mHotCollects.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
+            val collect = mHotCollectAdapter.hotCollects[position]
+            val data = Bundle()
+            data.putLong(DetailContract.ARGS_ID, collect.id)
+            data.putSerializable(DetailContract.ARGS_LOAD_TYPE, DetailContract.LoadType.COLLECT)
+            showDetail(data)
+        }
+    }
+
+    private fun showDetail(data: Bundle) {
+        val detailFragment = DetailFragment()
+        detailFragment.arguments = data
+        FragmentUtil.addFragmentToMainView(fragmentManager, detailFragment)
+    }
+
+    private fun initNewAlbumsGridView() {
+        mNewAlbums.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
+            val album = mNewAlbumAdapter.newAlbums[position]
+            val data = Bundle()
+            data.putLong(DetailContract.ARGS_ID, album.id)
+            data.putSerializable(DetailContract.ARGS_LOAD_TYPE, DetailContract.LoadType.ALBUM)
+            showDetail(data)
+        }
+    }
+
+    private fun initBanner() {
+        //设置指示器类型：圆形
+        mBanner.setBannerStyle(BannerConfig.CIRCLE_INDICATOR)
+        //设置指示器位置：水平居中
+        mBanner.setIndicatorGravity(BannerConfig.CENTER)
+        //设置图片加载器
+        mBanner.setImageLoader(GlideLoaderForBanner())
+        mBanner.setBannerAnimation(Transformer.Accordion)
+    }
+
+
+    private fun initRefreshLayout() {
+        mRefreshLayout.setOnRefreshListener {
+            mPresenter.loadBanner(MusicProvider.XIAMI)
+            mPresenter.loadHotCollects()
+            mPresenter.loadHotCollects()
+        }
+        mRefreshLayout.isEnableLoadmore = false
+    }
+
+    private fun loadData() {
+        mPresenter.loadBanner(MusicProvider.XIAMI)
+        mPresenter.loadHotCollects()
+        mPresenter.loadNewAlbums()
+    }
+
     override fun setPresenter(presenter: OnLineContract.Presenter) {
         mPresenter = presenter
     }
+
+
+    @OnClick(R.id.main_btn_more_collect, R.id.main_btn_more_albums, R.id.main_online_btn_singer,
+            R.id.main_online_btn_collect, R.id.main_online_btn_ranking_list, R.id.loading_failed)
+    fun onClick(view: View) {
+        when (view.id) {
+            R.id.main_btn_more_collect -> {
+                FragmentUtil.addFragmentToMainView(fragmentManager, CollectListFragment())
+            }
+            R.id.main_btn_more_albums -> {
+                FragmentUtil.addFragmentToMainView(fragmentManager, AlbumListFragment())
+            }
+            R.id.main_online_btn_singer -> {
+                FragmentUtil.addFragmentToMainView(fragmentManager, ArtistListFragment())
+            }
+            R.id.main_online_btn_collect -> {
+                FragmentUtil.addFragmentToMainView(fragmentManager, CollectFilterFragment())
+            }
+            R.id.main_online_btn_ranking_list -> {
+                FragmentUtil.addFragmentToMainView(fragmentManager, RankingFragment())
+            }
+            R.id.loading_failed -> {
+                loadData()
+            }
+        }
+    }
+
+    override fun onLoading() {
+        mLoading.visibility = View.VISIBLE
+        mFailed.visibility = View.GONE
+        mContent.visibility = View.GONE
+    }
+
+    override fun onFailure(msg: String) {
+        activity.runOnUiThread {
+            if (mRefreshLayout.isRefreshing) {
+                mRefreshLayout.finishRefresh(200, false)
+            }
+            if (mLoading.visibility == View.VISIBLE) {
+                mLoading.visibility = View.GONE
+                mFailed.visibility = View.VISIBLE
+            }
+            ToastUtil.showToast(context, msg)
+        }
+    }
+
+    override fun onHotCollectsLoad(hotCollects: List<Collect>) {
+        activity.runOnUiThread {
+            if (mRefreshLayout.isRefreshing) {
+                mRefreshLayout.finishRefresh(200, true)
+            }
+            mHotCollectAdapter = HotCollectsAdapter(context, hotCollects.subList(0, 6))
+            mHotCollects.adapter = mHotCollectAdapter
+            if (mLoading.visibility == View.VISIBLE) {
+                mLoading.visibility = View.GONE
+                mContent.visibility = View.VISIBLE
+            }
+        }
+    }
+
+
+    override fun onNewAlbumsLoad(newAlbums: List<Album>) {
+        activity.runOnUiThread {
+            if (mRefreshLayout.isRefreshing) {
+                mRefreshLayout.finishRefresh(200, true)
+            }
+            mNewAlbumAdapter = NewAlbumsAdapter(context, newAlbums.subList(0, 6))
+            mNewAlbums.adapter = mNewAlbumAdapter
+            if (mLoading.visibility == View.VISIBLE) {
+                mLoading.visibility = View.GONE
+                mContent.visibility = View.VISIBLE
+            }
+        }
+    }
+
+
+    override fun onBannerLoad(imgUrlList: List<String>) {
+        activity.runOnUiThread {
+            if (mRefreshLayout.isRefreshing) {
+                mRefreshLayout.finishRefresh(200, true)
+            }
+            mBanner.setImages(imgUrlList)
+            mBanner.start()
+        }
+    }
+
 
     override fun onResume() {
         super.onResume()
@@ -103,141 +245,15 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
         mBanner.stopAutoPlay()
     }
 
-    override fun onLoading() {
-        mLoading.visibility = View.VISIBLE
-        mContent.visibility = View.GONE
-    }
-
-    @OnClick(R.id.main_btn_more_collect, R.id.main_btn_more_albums, R.id.main_online_btn_singer,
-            R.id.main_online_btn_collect, R.id.main_online_btn_ranking_list)
-    fun onClick(view: View) {
-        when (view.id) {
-            R.id.main_btn_more_collect -> {
-                FragmentUtil.addFragmentToMainView(fragmentManager, CollectListFragment())
-            }
-            R.id.main_btn_more_albums -> {
-                FragmentUtil.addFragmentToMainView(fragmentManager, AlbumListFragment())
-            }
-            R.id.main_online_btn_singer -> {
-                FragmentUtil.addFragmentToMainView(fragmentManager, ArtistListFragment())
-            }
-            R.id.main_online_btn_collect -> {
-                FragmentUtil.addFragmentToMainView(fragmentManager, CollectFilterFragment())
-            }
-            R.id.main_online_btn_ranking_list -> {
-                FragmentUtil.addFragmentToMainView(fragmentManager, RankingFragment())
-            }
-        }
-    }
-
-    override fun initView() {
-        initHotCollectGirdView()
-        initNewAlbumsGridView()
-        initBanner()
-        initRefreshLayout()
-    }
-
-
-    private fun initHotCollectGirdView() {
-        mPresenter.loadHotCollects()
-        mHotCollects.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
-            val collect = mHotCollectAdapter.hotCollects[position]
-            val data = Bundle()
-            data.putLong(DetailContract.ARGS_ID, collect.id)
-            data.putSerializable(DetailContract.ARGS_LOAD_TYPE, DetailContract.LoadType.COLLECT)
-            startDetailFragment(data)
-        }
-    }
-
-    private fun initRefreshLayout() {
-        mRefreshLayout.setOnRefreshListener {
-            mPresenter.loadBanner(MusicProvider.XIAMI)
-            mPresenter.loadHotCollects()
-            mPresenter.loadHotCollects()
-        }
-        mRefreshLayout.isEnableLoadmore = false
-    }
-
-    private fun startDetailFragment(data: Bundle) {
-        val detailFragment = DetailFragment()
-        detailFragment.arguments = data
-        FragmentUtil.addFragmentToMainView(fragmentManager, detailFragment)
-    }
-
-    override fun onHotCollectsLoad(hotCollects: List<Collect>) {
-        activity.runOnUiThread {
-            if (mRefreshLayout.isRefreshing) {
-                mRefreshLayout.finishRefresh(200, true)
-            }
-            mHotCollectAdapter = HotCollectsAdapter(context, hotCollects.subList(0, 6))
-            mHotCollects.adapter = mHotCollectAdapter
-            if (mLoading.visibility == View.VISIBLE) {
-                mLoading.visibility = View.GONE
-                mContent.visibility = View.VISIBLE
-            }
-        }
-    }
-
-    private fun initNewAlbumsGridView() {
-        mPresenter.loadNewAlbums()
-        mNewAlbums.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
-            val album = mNewAlbumAdapter.newAlbums[position]
-            val data = Bundle()
-            data.putLong(DetailContract.ARGS_ID, album.id)
-            data.putSerializable(DetailContract.ARGS_LOAD_TYPE, DetailContract.LoadType.ALBUM)
-            startDetailFragment(data)
-        }
-    }
-
-    override fun onNewAlbumsLoad(newAlbums: List<Album>) {
-        activity.runOnUiThread {
-            if (mRefreshLayout.isRefreshing) {
-                mRefreshLayout.finishRefresh(200, true)
-            }
-            mNewAlbumAdapter = NewAlbumsAdapter(context, newAlbums.subList(0, 6))
-            mNewAlbums.adapter = mNewAlbumAdapter
-            if (mLoading.visibility == View.VISIBLE) {
-                mLoading.visibility = View.GONE
-                mContent.visibility = View.VISIBLE
-            }
-        }
-    }
-
-    override fun onFailure(msg: String) {
-        activity.runOnUiThread {
-            if (mRefreshLayout.isRefreshing) {
-                mRefreshLayout.finishRefresh(200, false)
-            }
-            ToastUtil.showToast(context, msg)
-        }
-    }
-
-    private fun initBanner() {
-        //设置指示器类型：圆形
-        mBanner.setBannerStyle(BannerConfig.CIRCLE_INDICATOR)
-        //设置指示器位置：水平居中
-        mBanner.setIndicatorGravity(BannerConfig.CENTER)
-        //设置图片加载器
-        mBanner.setImageLoader(GlideLoaderForBanner())
-        mBanner.setBannerAnimation(Transformer.Accordion)
-        mPresenter.loadBanner(MusicProvider.XIAMI)
-    }
-
-    override fun onBannerLoad(imgUrlList: List<String>) {
-        activity.runOnUiThread {
-            if (mRefreshLayout.isRefreshing) {
-                mRefreshLayout.finishRefresh(200, true)
-            }
-            mBanner.setImages(imgUrlList)
-            mBanner.start()
-        }
-    }
 
     override fun onDestroyView() {
         super.onDestroyView()
         mUnBinder.unbind()
     }
 
+    companion object {
+        const val TAG = "OnLineFragment"
+    }
 
     class GlideLoaderForBanner : ImageLoader() {
         override fun displayImage(context: Context?, path: Any?, imageView: ImageView?) {

@@ -22,7 +22,7 @@ internal class AlbumListPresenter(val view: AlbumListContract.View) : AlbumListC
             }
 
             override fun onSuccess(albumList: List<Album>) {
-                view.setNewAlbums(albumList)
+                view.onNewAlbumsLoad(albumList)
             }
 
             override fun onFailure(msg: String) {
