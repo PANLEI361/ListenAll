@@ -31,7 +31,6 @@ class PlayFragment : Fragment(), PlayStatusObserver {
 
     @BindView(R.id.play_song_name)
     lateinit var mSongName: TextView
-
     @BindView(R.id.play_pager)
     lateinit var mPager: ViewPager
 
@@ -296,13 +295,15 @@ class PlayFragment : Fragment(), PlayStatusObserver {
     }
 
     override fun onNewSong(song: Song) {
-        mCurrentSong = song
-        mSongName.text = mCurrentSong !!.name
-        setCover(mCurrentSong !!.albumCoverUrl)
-        mTvArtistName.text = mCurrentSong !!.artistName
-        setProvider()
-        setTotalTime(mCurrentSong !!.length)
-        setCurTime(0f)
+        activity.runOnUiThread {
+            mCurrentSong = song
+            mSongName.text = mCurrentSong !!.name
+            setCover(mCurrentSong !!.albumCoverUrl)
+            mTvArtistName.text = mCurrentSong !!.artistName
+            setProvider()
+            setTotalTime(mCurrentSong !!.length)
+            setCurTime(0f)
+        }
     }
 
     @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
@@ -310,13 +311,13 @@ class PlayFragment : Fragment(), PlayStatusObserver {
         val provider = mCurrentSong !!.supplier
         val providerStr = when (provider) {
             MusicProvider.XIAMI -> {
-                "虾米音乐"
+                getString(R.string.provider_xiami)
             }
             MusicProvider.QQMUSIC -> {
-                "QQ音乐"
+                getString(R.string.provider_qq)
             }
             MusicProvider.NETEASE -> {
-                "网易云音乐"
+                getString(R.string.provider_netease)
             }
         }
         mTvProvider.text = providerStr

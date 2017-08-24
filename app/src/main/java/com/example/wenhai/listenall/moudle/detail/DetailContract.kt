@@ -4,7 +4,6 @@ import com.example.wenhai.listenall.base.BasePresenter
 import com.example.wenhai.listenall.base.BaseView
 import com.example.wenhai.listenall.data.bean.Album
 import com.example.wenhai.listenall.data.bean.Collect
-import com.example.wenhai.listenall.data.bean.Song
 import com.example.wenhai.listenall.moudle.ranking.RankingContract
 import java.io.Serializable
 
@@ -13,13 +12,11 @@ interface DetailContract {
     interface View : BaseView<Presenter> {
         fun onCollectDetailLoad(collect: Collect)
         fun onAlbumDetailLoad(album: Album)
-        fun onSongDetailLoad(song: Song)
         fun onGlobalRankingLoad(collect: Collect)
     }
 
     interface Presenter : BasePresenter {
         fun loadSongsDetails(id: Long, type: LoadType)
-        fun loadSongDetail(song: Song)
         fun loadGlobalRanking(ranking: RankingContract.GlobalRanking)
     }
 

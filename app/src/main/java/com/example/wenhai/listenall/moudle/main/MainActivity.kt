@@ -147,8 +147,8 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
             }
 
             override fun onServiceConnected(p0: ComponentName?, binder: IBinder?) {
-                val controlBinder: PlayService.ControlBinder = binder as PlayService.ControlBinder
-                playService = controlBinder.getPlayService()
+                val serviceBinder: PlayService.ServiceBinder = binder as PlayService.ServiceBinder
+                playService = serviceBinder.getPlayService()
                 playService.registerStatusObserver(this@MainActivity)
             }
 
@@ -284,11 +284,13 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
     }
 
     override fun onNewSong(song: Song) {
-        currentSong = song
-        mSongName.text = song.name
-        mSingerOrLyric.text = song.artistName
-        mBtnControl.animateProgress(0.toFloat())
-        setCover(song.miniAlbumCoverUrl)
+        runOnUiThread {
+            currentSong = song
+            mSongName.text = song.name
+            mSingerOrLyric.text = song.artistName
+            mBtnControl.animateProgress(0.toFloat())
+            setCover(song.miniAlbumCoverUrl)
+        }
     }
 
     interface OnBackKeyEventListener {

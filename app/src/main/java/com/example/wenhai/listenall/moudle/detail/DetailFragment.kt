@@ -132,13 +132,6 @@ class DetailFragment : Fragment(), DetailContract.View {
         mPresenter = presenter
     }
 
-
-    override fun onSongDetailLoad(song: Song) {
-        activity.runOnUiThread {
-            playSong(song)
-        }
-    }
-
     override fun onLoading() {
         mLoading.visibility = View.VISIBLE
         mLoadFailed.visibility = View.GONE
@@ -226,7 +219,7 @@ class DetailFragment : Fragment(), DetailContract.View {
             val artistName = song.artistName
             holder.artistAlbum.text = artistName
             holder.item.setOnClickListener({
-                mPresenter.loadSongDetail(song)
+                playSong(song)
             })
         }
 
