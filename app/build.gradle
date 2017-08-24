@@ -29,26 +29,26 @@ greendao {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'com.android.support:appcompat-v7:26.0.0'
+    implementation "com.android.support:appcompat-v7:$support_version"
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
-    compile 'com.android.support:design:26.0.0'
+    compile "com.android.support:design:$support_version"
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.0'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.0'
     //RecyclerView
-    compile 'com.android.support:recyclerview-v7:26.0.0'
+    compile "com.android.support:recyclerview-v7:$support_version"
     //banner
     compile 'com.youth.banner:banner:1.4.9'
     //JSoup
     compile 'org.jsoup:jsoup:1.10.3'
     //Glide
-    compile 'com.github.bumptech.glide:glide:4.0.0'
-    kapt 'com.github.bumptech.glide:compiler:4.0.0'
+    compile "com.github.bumptech.glide:glide:$glide_version"
+    kapt "com.github.bumptech.glide:compiler:$glide_version"
     //OkHttp
     compile 'com.squareup.okhttp3:okhttp:3.8.1'
     //ButterKnife
-    compile 'com.jakewharton:butterknife:8.7.0'
-    kapt "com.jakewharton:butterknife-compiler:8.7.0"
+    compile "com.jakewharton:butterknife:$butterknife_version"
+    kapt "com.jakewharton:butterknife-compiler:$butterknife_version"
     //Kotlin
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
     //greenDAO
