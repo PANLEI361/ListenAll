@@ -1,6 +1,11 @@
 package com.example.wenhai.listenall.moudle.play
 
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
 import android.os.Bundle
+import android.os.IBinder
 import android.support.v4.app.Fragment
 import android.support.v4.view.PagerAdapter
 import android.support.v4.view.ViewPager
@@ -20,15 +25,12 @@ import butterknife.Unbinder
 import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.data.MusicProvider
 import com.example.wenhai.listenall.data.bean.Song
-import com.example.wenhai.listenall.moudle.main.MainActivity
 import com.example.wenhai.listenall.moudle.play.service.PlayService
 import com.example.wenhai.listenall.moudle.play.service.PlayStatusObserver
-import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
 import com.example.wenhai.listenall.widget.PlayListDialog
 
 class PlayFragment : Fragment(), PlayStatusObserver {
-
     @BindView(R.id.play_song_name)
     lateinit var mSongName: TextView
     @BindView(R.id.play_pager)
@@ -67,19 +69,13 @@ class PlayFragment : Fragment(), PlayStatusObserver {
 
     lateinit var lyricView: LinearLayout
 
-
+    private lateinit var connection: ServiceConnection
     private lateinit var mUnBinder: Unbinder
     private var mCurrentSong: Song? = null
     private lateinit var mCurrentPlayList: ArrayList<Song>
     lateinit var playService: PlayService
     private var playMode: PlayService.PlayMode = PlayService.PlayMode.REPEAT_LIST
     private var isPlaying: Boolean = false
-
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        playService = (activity as MainActivity).playService
-    }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val contentView = inflater !!.inflate(R.layout.fragment_play, container, false)
@@ -90,17 +86,36 @@ class PlayFragment : Fragment(), PlayStatusObserver {
         //TextView 跑马灯需要设置 selected=true
         mTvArtistName.isSelected = true
         mTvProvider = coverView.findViewById(R.id.play_provider)
-
         //init lyricView
         lyricView = inflater.inflate(R.layout.fragment_play_lyric, container, false) as LinearLayout
         //init
         mUnBinder = ButterKnife.bind(this, contentView)
         initView()
-        playService.registerStatusObserver(this)
+        initPlayService()
         return contentView
     }
 
+    //bind PlayService
+    private fun initPlayService() {
+        val intent = Intent(context, PlayService::class.java)
+        connection = object : ServiceConnection {
+            override fun onServiceDisconnected(p0: ComponentName?) {
+
+            }
+
+            override fun onServiceConnected(p0: ComponentName?, binder: IBinder?) {
+                val serviceBinder: PlayService.ServiceBinder = binder as PlayService.ServiceBinder
+                playService = serviceBinder.getPlayService()
+                playService.registerStatusObserver(this@PlayFragment)
+            }
+
+        }
+        context.bindService(intent, connection, Context.BIND_AUTO_CREATE)
+    }
+
+
     private fun initView() {
+        mSongName.isSelected = true //validate marquee
         mPager.adapter = PlayPagerAdapter()
         mPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
             override fun onPageScrollStateChanged(state: Int) {
@@ -146,8 +161,8 @@ class PlayFragment : Fragment(), PlayStatusObserver {
     fun onClick(view: View) {
         when (view.id) {
             R.id.action_bar_back -> {
-                playService.unregisterStatusObserver(this)
-                FragmentUtil.removeFragment(fragmentManager, this)
+                activity.finish()
+
             }
             R.id.play_btn_start_pause -> {
                 if (playService.isMediaPlaying()) {
@@ -234,10 +249,6 @@ class PlayFragment : Fragment(), PlayStatusObserver {
         mTvTotalTime.text = getMinuteLength(length)
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        mUnBinder.unbind()
-    }
 
     // call from PlayService
     override fun onPlayInit(playStatus: PlayService.PlayStatus) {
@@ -332,6 +343,17 @@ class PlayFragment : Fragment(), PlayStatusObserver {
     override fun onSongCompleted() {
         //adjust
         onPlayProgressUpdate(100f)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        playService.unregisterStatusObserver(this)
+        mUnBinder.unbind()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        context.unbindService(connection)
     }
 
     inner class PlayPagerAdapter : PagerAdapter() {

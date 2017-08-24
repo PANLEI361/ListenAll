@@ -8,6 +8,7 @@ import android.media.MediaPlayer
 import android.os.Binder
 import android.os.IBinder
 import android.text.TextUtils
+import com.example.wenhai.listenall.BuildConfig
 import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.data.LoadSongDetailCallback
 import com.example.wenhai.listenall.data.MusicRepository
@@ -55,11 +56,14 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
     }
 
     override fun onBind(intent: Intent): IBinder? {
-        if (intent.action == ACTION_NEW_SONG) {
-            val song = intent.getParcelableExtra<Song>("song")
-            playNewSong(song)
-        } else if (intent.action == ACTION_INIT) {
-            initService()
+        when (intent.action) {
+            ACTION_NEW_SONG -> {
+                val song = intent.getParcelableExtra<Song>("song")
+                playNewSong(song)
+            }
+            ACTION_INIT -> {
+                initService()
+            }
         }
         return binder
     }
@@ -487,8 +491,9 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
         const val TAG = "PlayService"
 
         const val STATUS_TMP_FILE_NAME = "play_status.tmp"
-        const val ACTION_NEW_SONG = "com.example.wenhai.listenall.action.newsong"
-        const val ACTION_INIT = "com.example.wenhai.listenall.action.init"
+        const val ACTION_NEW_SONG = BuildConfig.APPLICATION_ID + "newsong"
+        const val ACTION_INIT = BuildConfig.APPLICATION_ID + "init"
+//        const val ACTION_BIND = BuildConfig.APPLICATION_ID + "bind"
 
         const val STATUS_STOP = 0x00
         const val STATUS_START = 0x01

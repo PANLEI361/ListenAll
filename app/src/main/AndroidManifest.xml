@@ -24,11 +24,11 @@
         </activity>
 
         <service
-            android:name="com.example.wenhai.listenall.moudle.play.service.PlayService"
+            android:name=".moudle.play.service.PlayService"
             android:enabled="true"
-            android:exported="false">
+            android:exported="false"></service>
 
-        </service>
+        <activity android:name=".moudle.play.PLayActivity"></activity>
     </application>
 
 </manifest>
