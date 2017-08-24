@@ -29,7 +29,7 @@
     <string name="detail_download_all">下载</string>
     <string name="detail_play_all">播放全部</string>
     <string name="detail_search_in_scope">搜索歌单内歌曲</string>
-    <string name="provider_xiami">from Xiami</string>
+    <string name="provider">from Xiami</string>
     <string name="main_search_hint">搜索歌曲/专辑/歌单</string>
     <string name="cancel">取消</string>
     <string name="search_hot">热门搜索</string>
@@ -47,6 +47,13 @@
     <string name="ranking_global">全球榜</string>
     <string name="loading">正在加载…</string>
     <string name="load_failed">加载失败，点击重试</string>
+
+    <!--provider-->
+    <string name="provider_xiami">虾米音乐</string>
+    <string name="provider_qq">QQ音乐</string>
+    <string name="provider_netease">网易云音乐</string>
+    <string name="play_has_added_to_cur_list">已添加到当前播放列表</string>
+    <string name="play_has_set_to_next">已添加到下一首</string>
 
     <!--filter category-->
     <array name="filter_language">
