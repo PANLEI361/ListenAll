@@ -28,6 +28,7 @@ import com.example.wenhai.listenall.data.bean.Collect
 import com.example.wenhai.listenall.data.bean.Song
 import com.example.wenhai.listenall.moudle.ranking.RankingContract
 import com.example.wenhai.listenall.utils.BaseResponseCallback
+import com.example.wenhai.listenall.utils.LogUtil
 import com.example.wenhai.listenall.utils.OkHttpUtil
 import org.json.JSONArray
 import org.json.JSONException
@@ -318,6 +319,7 @@ internal class Xiami : MusicSource {
                         song.albumId = track.getLong("album_id")
                         song.artistName = track.getString("artist")
                         song.artistId = track.getLong("artist_id")
+                        LogUtil.d(TAG, "artistId=${song.artistId}")
                         callback.onSuccess(song)
                     } else {
                         callback.onFailure("当前歌曲不能播放，请切换平台试试")
@@ -557,7 +559,7 @@ internal class Xiami : MusicSource {
             override fun onHtmlResponse(html: String) {
                 super.onHtmlResponse(html)
                 try {
-                    val hotSongs = parseArtistHotSongs(html)
+                    val hotSongs = parseArtistHotSongs(artist, html)
                     callback.onSuccess(hotSongs)
                 } catch (e: NullPointerException) {
                     callback.onFailure("没有更多歌曲了")
@@ -572,7 +574,7 @@ internal class Xiami : MusicSource {
         })
     }
 
-    private fun parseArtistHotSongs(html: String): List<Song> {
+    private fun parseArtistHotSongs(artist: Artist, html: String): List<Song> {
         val document = Jsoup.parse(html)
         val songs = ArrayList<Song>()
         val trackList = document.getElementsByClass("track_list").first()
@@ -595,6 +597,7 @@ internal class Xiami : MusicSource {
             }
             val songId = onClick.substring(onClick.indexOf("'") + 1, onClick.indexOf(",") - 1)
             song.songId = songId.toLong()
+            song.artistName = artist.name
             song.supplier = MusicProvider.XIAMI
             songs.add(song)
         }

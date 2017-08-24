@@ -25,5 +25,7 @@ interface PlayStatusObserver {
 
     fun onNewSong(song: Song)
 
+    fun onNewSongList()
+
     fun onSongCompleted()
 }

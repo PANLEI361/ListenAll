@@ -389,7 +389,8 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
     fun replaceList(songs: List<Song>) {
         playStatus.currentList.clear()
         playStatus.currentList.addAll(songs)
-        // TODO: 2017/8/24 通知
+        notifyStatusChanged(STATUS_NEW_LIST, null)
+        playNewSong(playStatus.currentList[0])
     }
 
     /**
@@ -408,6 +409,14 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
             }
         }
         playStatus.playMode = nextMode
+        notifyStatusChanged(STATUS_PLAY_MODE_CHANGED, playStatus.playMode)
+    }
+
+    /**
+     * 设定播放模式
+     */
+    fun setPlayMode(mode: PlayMode) {
+        playStatus.playMode = mode
         notifyStatusChanged(STATUS_PLAY_MODE_CHANGED, playStatus.playMode)
     }
 
@@ -448,6 +457,7 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
                 STATUS_NEW_SONG -> observer.onNewSong(extra as Song)
                 STATUS_SONG_COMPLETED -> observer.onSongCompleted()
                 STATUS_PLAY_MODE_CHANGED -> observer.onPlayModeChanged(extra as PlayMode)
+                STATUS_NEW_LIST -> observer.onNewSongList()
             }
         }
 
@@ -490,6 +500,7 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
         const val STATUS_NEW_SONG = 0x07
         const val STATUS_SONG_COMPLETED = 0x08
         const val STATUS_PLAY_MODE_CHANGED = 0x09
+        const val STATUS_NEW_LIST = 0x0a
     }
 
     enum class PlayMode : Serializable {

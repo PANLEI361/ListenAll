@@ -25,6 +25,7 @@ import com.example.wenhai.listenall.data.bean.Song
 import com.example.wenhai.listenall.moudle.detail.DetailContract
 import com.example.wenhai.listenall.moudle.detail.DetailFragment
 import com.example.wenhai.listenall.moudle.main.MainActivity
+import com.example.wenhai.listenall.moudle.play.service.PlayService
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
 import com.example.wenhai.listenall.utils.ToastUtil
@@ -46,6 +47,7 @@ class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
     lateinit var mHotSongsView: LinearLayout
     private lateinit var mHotSongList: RecyclerView
     private lateinit var mHotSongRefresh: SmartRefreshLayout
+    lateinit var mShuffleAll: LinearLayout
     private lateinit var mHotSongAdapter: HotSongsAdapter
     private var curHotSongPage = 1
 
@@ -78,6 +80,7 @@ class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
         mHotSongsView = inflater.inflate(R.layout.fragment_artist_detail_hot_songs, container, false) as LinearLayout
         mHotSongList = mHotSongsView.findViewById(R.id.detail_song_list)
         mHotSongRefresh = mHotSongsView.findViewById(R.id.hotSongRefresh)
+        mShuffleAll = mHotSongsView.findViewById(R.id.shuffle_all)
 
         mAlbumsView = inflater.inflate(R.layout.fragment_artist_detail_albums, container, false) as LinearLayout
         mAlbumList = mAlbumsView.findViewById(R.id.detail_album_list)
@@ -112,6 +115,10 @@ class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
         mHotSongRefresh.setOnLoadmoreListener {
             mPresenter.loadArtistHotSongs(artist, curHotSongPage)
         }
+        mShuffleAll.setOnClickListener {
+            (activity as MainActivity).playService.replaceList(mHotSongAdapter.hotSongs)
+            (activity as MainActivity).playService.setPlayMode(PlayService.PlayMode.SHUFFLE)
+        }
     }
 
     private fun initAlbumView() {
@@ -129,14 +136,9 @@ class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
             R.id.action_bar_back -> {
                 FragmentUtil.removeFragment(fragmentManager, this)
             }
-
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        mUnbinder.unbind()
-    }
 
     override fun setPresenter(presenter: ArtistDetailContract.Presenter) {
         mPresenter = presenter
@@ -171,6 +173,9 @@ class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
             if (mHotSongRefresh.isLoading) {
                 mHotSongRefresh.finishLoadmore(200, true)
             }
+            if (mShuffleAll.visibility == View.GONE) {
+                mShuffleAll.visibility = View.VISIBLE
+            }
             curHotSongPage ++
             mHotSongAdapter.addData(hotSongs)
         }
@@ -188,6 +193,11 @@ class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
 
     override fun onSongDetailLoaded(song: Song) {
         (activity as MainActivity).playNewSong(song)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        mUnbinder.unbind()
     }
 
 
@@ -243,7 +253,7 @@ class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
 
     }
 
-    inner class HotSongsAdapter(val context: Context, private var hotSongs: List<Song>) : RecyclerView.Adapter<HotSongsAdapter.ViewHolder>() {
+    inner class HotSongsAdapter(val context: Context, var hotSongs: List<Song>) : RecyclerView.Adapter<HotSongsAdapter.ViewHolder>() {
 
         override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
             val song = hotSongs[position]

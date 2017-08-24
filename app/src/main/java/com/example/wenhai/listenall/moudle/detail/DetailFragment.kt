@@ -108,19 +108,16 @@ class DetailFragment : Fragment(), DetailContract.View {
                 FragmentUtil.removeFragment(fragmentManager, this)
             }
             R.id.detail_play_all -> {
-                ToastUtil.showToast(activity, "play all")
+                (activity as MainActivity).playService.replaceList(mSongListAdapter.songList)
             }
             R.id.detail_add_to_play -> {
-
-                ToastUtil.showToast(activity, "add to play list")
+                (activity as MainActivity).playService.addToPlayList(mSongListAdapter.songList)
             }
             R.id.detail_liked -> {
-
                 ToastUtil.showToast(activity, " liked")
             }
             R.id.detail_download_all -> {
                 ToastUtil.showToast(activity, "download all")
-
             }
             R.id.loading_failed -> {
                 loadDetail()
@@ -209,7 +206,7 @@ class DetailFragment : Fragment(), DetailContract.View {
         mUnBinder.unbind()
     }
 
-    inner class SongListAdapter(val context: Context, private var songList: List<Song>) : RecyclerView.Adapter<SongListAdapter.ViewHolder>() {
+    inner class SongListAdapter(val context: Context, var songList: List<Song>) : RecyclerView.Adapter<SongListAdapter.ViewHolder>() {
 
         override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
             val song = songList[position]

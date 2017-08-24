@@ -10,7 +10,7 @@ import java.io.Serializable;
 
 
 public final class Song implements Parcelable, Serializable {
-    private long serialVersionUID = 10000;
+    private long serialVersionUID = 10001;
     private long songId;
     private String name;
     private int length;//second
@@ -20,6 +20,7 @@ public final class Song implements Parcelable, Serializable {
     private boolean canFreeListen;
     private boolean canFreeDownload;
     private String artistName;
+    private String displayArtistName;
     private String artistLogo;
     private long artistId;
     private long albumId;
@@ -41,6 +42,7 @@ public final class Song implements Parcelable, Serializable {
         dest.writeInt(canFreeListen ? 1 : 0);
         dest.writeInt(canFreeDownload ? 1 : 0);
         dest.writeString(artistName);
+        dest.writeString(displayArtistName);
         dest.writeString(artistLogo);
         dest.writeLong(artistId);
         dest.writeLong(albumId);
@@ -76,6 +78,7 @@ public final class Song implements Parcelable, Serializable {
         canFreeListen = in.readInt() == 0;
         canFreeDownload = in.readInt() == 0;
         artistName = in.readString();
+        displayArtistName = in.readString();
         artistLogo = in.readString();
         artistId = in.readLong();
         albumId = in.readLong();
@@ -121,6 +124,21 @@ public final class Song implements Parcelable, Serializable {
 
     public void setArtistName(String artistName) {
         this.artistName = artistName;
+        String[] split = artistName.split(";");
+        StringBuilder sb = new StringBuilder();
+        for (String s : split) {
+            sb.append(s);
+            sb.append("/");
+        }
+        setDisplayArtistName(sb.toString().substring(0, sb.length() - 1));
+    }
+
+    public String getDisplayArtistName() {
+        return displayArtistName;
+    }
+
+    public void setDisplayArtistName(String displayArtistName) {
+        this.displayArtistName = displayArtistName;
     }
 
     public String getArtistLogo() {

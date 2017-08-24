@@ -87,6 +87,8 @@ class PlayFragment : Fragment(), PlayStatusObserver {
         coverView = inflater.inflate(R.layout.fragment_play_cover, container, false) as RelativeLayout
         mIvCover = coverView.findViewById(R.id.play_cover)
         mTvArtistName = coverView.findViewById(R.id.play_artist_name)
+        //TextView 跑马灯需要设置 selected=true
+        mTvArtistName.isSelected = true
         mTvProvider = coverView.findViewById(R.id.play_provider)
 
         //init lyricView
@@ -247,7 +249,7 @@ class PlayFragment : Fragment(), PlayStatusObserver {
         mCurrentSong = playStatus.currentSong
         if (mCurrentSong != null) {
             mSongName.text = mCurrentSong !!.name
-            mTvArtistName.text = mCurrentSong !!.artistName
+            mTvArtistName.text = mCurrentSong !!.displayArtistName
             setProvider()
             setCover(mCurrentSong !!.albumCoverUrl)
             mTvTotalTime.text = getMinuteLength(mCurrentSong !!.length)
@@ -299,11 +301,15 @@ class PlayFragment : Fragment(), PlayStatusObserver {
             mCurrentSong = song
             mSongName.text = mCurrentSong !!.name
             setCover(mCurrentSong !!.albumCoverUrl)
-            mTvArtistName.text = mCurrentSong !!.artistName
+            mTvArtistName.text = mCurrentSong !!.displayArtistName
             setProvider()
             setTotalTime(mCurrentSong !!.length)
             setCurTime(0f)
         }
+    }
+
+    override fun onNewSongList() {
+
     }
 
     @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")

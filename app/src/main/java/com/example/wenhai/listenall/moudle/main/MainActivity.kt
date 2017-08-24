@@ -161,6 +161,7 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
         val appVersion = AppUtil.getAppVersionName(this)
         val displayAppVersion = "V $appVersion"
         smTvAppVersion.text = displayAppVersion
+        smTvAppVersion.isSelected = true
     }
 
     fun openDrawer() {
@@ -210,7 +211,7 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
         currentSong = playStatus.currentSong
         if (currentSong != null) {
             mSongName.text = currentSong !!.name
-            mSingerOrLyric.text = currentSong !!.artistName
+            mSingerOrLyric.text = currentSong !!.displayArtistName
             setCover(currentSong !!.miniAlbumCoverUrl)
         }
         isPlaying = playStatus.isPlaying
@@ -242,7 +243,7 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
         setPlayIcon(isPlaying)
         GlideApp.with(this).load(currentSong?.albumCoverUrl).into(smCover)
         smTitle.text = currentSong?.name
-        smTvAppVersion.text = currentSong?.artistName
+        smTvAppVersion.text = currentSong?.displayArtistName
     }
 
     override fun onPlayPause() {
@@ -287,10 +288,17 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
         runOnUiThread {
             currentSong = song
             mSongName.text = song.name
-            mSingerOrLyric.text = song.artistName
+            mSingerOrLyric.text = song.displayArtistName
             mBtnControl.animateProgress(0.toFloat())
             setCover(song.miniAlbumCoverUrl)
         }
+    }
+
+    override fun onNewSongList() {
+        mSongName.text = ""
+        mSingerOrLyric.text = ""
+        mBtnControl.animateProgress(0.toFloat())
+        mCover.setImageResource(R.drawable.ic_main_all_music)
     }
 
     interface OnBackKeyEventListener {

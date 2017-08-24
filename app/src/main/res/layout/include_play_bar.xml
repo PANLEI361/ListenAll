@@ -46,7 +46,9 @@
             <TextView
                 android:id="@+id/main_singer_or_lyric"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1" />
 
         </LinearLayout>
 
