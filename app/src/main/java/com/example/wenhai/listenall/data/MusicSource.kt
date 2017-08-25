@@ -3,6 +3,7 @@ package com.example.wenhai.listenall.data
 import com.example.wenhai.listenall.base.BaseCallBack
 import com.example.wenhai.listenall.data.bean.Album
 import com.example.wenhai.listenall.data.bean.Artist
+import com.example.wenhai.listenall.data.bean.Banner
 import com.example.wenhai.listenall.data.bean.Collect
 import com.example.wenhai.listenall.data.bean.Song
 import com.example.wenhai.listenall.moudle.ranking.RankingContract
@@ -33,7 +34,7 @@ interface MusicSource {
 
 //callbacks
 interface LoadBannerCallback : BaseCallBack {
-    fun onSuccess(imgUrlList: List<String>)
+    fun onSuccess(banners: List<Banner>)
 }
 
 interface LoadCollectCallback : BaseCallBack {

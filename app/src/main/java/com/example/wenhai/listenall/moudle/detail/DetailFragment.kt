@@ -27,10 +27,6 @@ import com.example.wenhai.listenall.utils.GlideApp
 import com.example.wenhai.listenall.utils.ToastUtil
 
 class DetailFragment : Fragment(), DetailContract.View {
-    companion object {
-        const val TAG = "DetailFragment"
-    }
-
     @BindView(R.id.action_bar_title)
     lateinit var mActionBarTitle: TextView
     @BindView(R.id.detail_cover)
@@ -89,9 +85,17 @@ class DetailFragment : Fragment(), DetailContract.View {
                 val collect: Collect = arguments.getParcelable(DetailContract.ARGS_COLLECT)
                 setRankingDetail(collect)
             }
-            else -> {
+            DetailContract.LoadType.ALBUM -> {
                 val id = arguments.getLong(DetailContract.ARGS_ID)
-                mPresenter.loadSongsDetails(id, mLoadType)
+                mPresenter.loadAlbumDetail(id)
+            }
+            DetailContract.LoadType.COLLECT -> {
+                val id = arguments.getLong(DetailContract.ARGS_ID)
+                mPresenter.loadCollectDetail(id)
+            }
+            DetailContract.LoadType.SONG -> {
+                val id = arguments.getLong(DetailContract.ARGS_ID)
+                mPresenter.loadSongDetail(id)
             }
         }
     }
@@ -204,6 +208,10 @@ class DetailFragment : Fragment(), DetailContract.View {
     override fun onDestroyView() {
         super.onDestroyView()
         mUnBinder.unbind()
+    }
+
+    companion object {
+        const val TAG = "DetailFragment"
     }
 
     inner class SongListAdapter(val context: Context, var songList: List<Song>) : RecyclerView.Adapter<SongListAdapter.ViewHolder>() {

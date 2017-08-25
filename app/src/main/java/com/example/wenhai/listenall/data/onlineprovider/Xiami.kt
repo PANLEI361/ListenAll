@@ -24,6 +24,8 @@ import com.example.wenhai.listenall.data.MusicProvider
 import com.example.wenhai.listenall.data.MusicSource
 import com.example.wenhai.listenall.data.bean.Album
 import com.example.wenhai.listenall.data.bean.Artist
+import com.example.wenhai.listenall.data.bean.Banner
+import com.example.wenhai.listenall.data.bean.BannerType
 import com.example.wenhai.listenall.data.bean.Collect
 import com.example.wenhai.listenall.data.bean.Song
 import com.example.wenhai.listenall.moudle.ranking.RankingContract
@@ -104,14 +106,8 @@ internal class Xiami : MusicSource {
             }
 
             override fun onHtmlResponse(html: String) {
-                val document = Jsoup.parse(html)
-                val slider: Element? = document.getElementById("slider")
-                val items: Elements = slider !!.getElementsByClass("item")
-                val imgUrlList = ArrayList<String>(items.size)
-                (0 until items.size).mapTo(imgUrlList) {
-                    items[it].select("a").first().select("img").first().attr("src")
-                }
-                callback.onSuccess(imgUrlList)
+                val banners = parseBanners(html)
+                callback.onSuccess(banners)
             }
 
             override fun onFailure(msg: String) {
@@ -120,6 +116,36 @@ internal class Xiami : MusicSource {
             }
 
         })
+    }
+
+    fun parseBanners(html: String): List<Banner> {
+        val document = Jsoup.parse(html)
+        val slider: Element? = document.getElementById("slider")
+        val items: Elements = slider !!.getElementsByClass("item")
+        val banners = ArrayList<Banner>()
+        for (item in items) {
+            val banner = Banner()
+            val a = item.select("a").first()
+            banner.imgUrl = a.select("img").first().attr("src")
+            LogUtil.d(TAG, banner.imgUrl)
+            val href = a.attr("href")
+            when {
+                href.contains("album") -> {
+                    banner.type = BannerType.ALBUM
+                    banner.id = href.substring(href.lastIndexOf("/") + 1).toLong()
+                }
+                href.contains("song") -> {
+                    banner.type = BannerType.SONG
+                    banner.id = href.substring(href.lastIndexOf("/") + 1).toLong()
+                }
+                else -> {
+                    banner.type = BannerType.OTHER
+                    banner.id = 0
+                }
+            }
+            banners.add(banner)
+        }
+        return banners
     }
 
     override fun loadHotCollect(page: Int, callback: LoadCollectCallback) {

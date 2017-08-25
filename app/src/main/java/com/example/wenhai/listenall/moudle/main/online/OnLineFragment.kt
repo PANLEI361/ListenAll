@@ -20,6 +20,8 @@ import butterknife.Unbinder
 import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.data.MusicProvider
 import com.example.wenhai.listenall.data.bean.Album
+import com.example.wenhai.listenall.data.bean.Banner
+import com.example.wenhai.listenall.data.bean.BannerType
 import com.example.wenhai.listenall.data.bean.Collect
 import com.example.wenhai.listenall.moudle.albumlist.AlbumListFragment
 import com.example.wenhai.listenall.moudle.artist.list.ArtistListFragment
@@ -30,17 +32,17 @@ import com.example.wenhai.listenall.moudle.detail.DetailFragment
 import com.example.wenhai.listenall.moudle.ranking.RankingFragment
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
+import com.example.wenhai.listenall.utils.LogUtil
 import com.example.wenhai.listenall.utils.ToastUtil
 import com.scwang.smartrefresh.layout.SmartRefreshLayout
 import com.scwang.smartrefresh.layout.header.ClassicsHeader
-import com.youth.banner.Banner
 import com.youth.banner.BannerConfig
 import com.youth.banner.Transformer
 import com.youth.banner.loader.ImageLoader
 
 class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
     @BindView(R.id.main_banner)
-    lateinit var mBanner: Banner
+    lateinit var mBanner: com.youth.banner.Banner
     @BindView(R.id.main_hot_collects)
     lateinit var mHotCollects: GridView
     @BindView(R.id.main_new_albums)
@@ -69,6 +71,10 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mPresenter = OnLinePresenter(this)
+    }
+
+    override fun setPresenter(presenter: OnLineContract.Presenter) {
+        mPresenter = presenter
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -132,14 +138,11 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
         mRefreshLayout.isEnableLoadmore = false
     }
 
+    //加载 banner、热门歌单和最新专辑
     private fun loadData() {
         mPresenter.loadBanner(MusicProvider.XIAMI)
         mPresenter.loadHotCollects()
         mPresenter.loadNewAlbums()
-    }
-
-    override fun setPresenter(presenter: OnLineContract.Presenter) {
-        mPresenter = presenter
     }
 
 
@@ -217,14 +220,44 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
     }
 
 
-    override fun onBannerLoad(imgUrlList: List<String>) {
+    override fun onBannerLoad(banners: List<Banner>) {
         activity.runOnUiThread {
             if (mRefreshLayout.isRefreshing) {
                 mRefreshLayout.finishRefresh(200, true)
             }
-            mBanner.setImages(imgUrlList)
+            val imgUrls = ArrayList<String>()
+            banners.mapTo(imgUrls) { it.imgUrl }
+            mBanner.setImages(imgUrls)
             mBanner.start()
+            mBanner.setOnBannerListener { position: Int ->
+                onBannerClick(banners[position])
+            }
         }
+    }
+
+    private fun onBannerClick(clickBanner: Banner) {
+        @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
+        when (clickBanner.type) {
+            BannerType.SONG -> {
+                val data = Bundle()
+                data.putSerializable(DetailContract.ARGS_LOAD_TYPE, DetailContract.LoadType.SONG)
+                data.putLong(DetailContract.ARGS_ID, clickBanner.id)
+                showDetail(data)
+            }
+            BannerType.ALBUM -> {
+                val data = Bundle()
+                data.putSerializable(DetailContract.ARGS_LOAD_TYPE, DetailContract.LoadType.ALBUM)
+                data.putLong(DetailContract.ARGS_ID, clickBanner.id)
+                showDetail(data)
+            }
+            BannerType.COLLECT -> {
+                LogUtil.d(TAG, "click collect")
+            }
+            BannerType.OTHER -> {
+                LogUtil.d(TAG, "click other")
+            }
+        }
+
     }
 
 
@@ -296,7 +329,6 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
             artist.text = album.artist
             return itemView
         }
-
 
         override fun getItem(position: Int): Any = newAlbums[position]
 

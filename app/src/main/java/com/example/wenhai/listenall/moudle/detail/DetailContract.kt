@@ -16,12 +16,15 @@ interface DetailContract {
     }
 
     interface Presenter : BasePresenter {
-        fun loadSongsDetails(id: Long, type: LoadType)
+        fun loadAlbumDetail(id: Long)
+        fun loadCollectDetail(id: Long)
+        fun loadSongDetail(id: Long)
         fun loadGlobalRanking(ranking: RankingContract.GlobalRanking)
     }
 
     enum class LoadType : Serializable {
-        COLLECT, ALBUM, GLOBAL_RANKING, OFFICIAL_RANKING;
+        SONG, COLLECT, ALBUM,
+        GLOBAL_RANKING, OFFICIAL_RANKING;
     }
 
     companion object {

@@ -6,6 +6,7 @@ import com.example.wenhai.listenall.data.LoadCollectCallback
 import com.example.wenhai.listenall.data.MusicProvider
 import com.example.wenhai.listenall.data.MusicRepository
 import com.example.wenhai.listenall.data.bean.Album
+import com.example.wenhai.listenall.data.bean.Banner
 import com.example.wenhai.listenall.data.bean.Collect
 
 internal class OnLinePresenter(var view: OnLineContract.View) : OnLineContract.Presenter {
@@ -21,8 +22,8 @@ internal class OnLinePresenter(var view: OnLineContract.View) : OnLineContract.P
             override fun onStart() {
             }
 
-            override fun onSuccess(imgUrlList: List<String>) {
-                view.onBannerLoad(imgUrlList)
+            override fun onSuccess(banners: List<Banner>) {
+                view.onBannerLoad(banners)
             }
 
             override fun onFailure(msg: String) {
