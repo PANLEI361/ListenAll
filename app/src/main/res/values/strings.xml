@@ -14,8 +14,8 @@
     <!--main-->
     <string name="main_mine">我的</string>
     <string name="main_discover_music">发现音乐</string>
-    <string name="main_song_list">歌单</string>
-    <string name="main_album">专辑</string>
+    <string name="main_my_song_list">自建歌单</string>
+    <string name="main_liked_list">收藏歌单</string>
     <string name="main_local_songs">本地歌曲</string>
     <string name="main_recent_play">最近播放</string>
     <string name="main_singer">歌手</string>

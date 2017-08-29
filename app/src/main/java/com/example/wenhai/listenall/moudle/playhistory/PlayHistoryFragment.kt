@@ -15,7 +15,6 @@ import butterknife.ButterKnife
 import butterknife.OnClick
 import butterknife.Unbinder
 import com.example.wenhai.listenall.R
-import com.example.wenhai.listenall.data.MusicProvider
 import com.example.wenhai.listenall.data.bean.PlayHistory
 import com.example.wenhai.listenall.data.bean.Song
 import com.example.wenhai.listenall.moudle.main.MainActivity
@@ -23,8 +22,6 @@ import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.ToastUtil
 
 class PlayHistoryFragment : Fragment(), PlayHistoryContract.View {
-
-
     @BindView(R.id.action_bar_title)
     lateinit var mTvTitle: TextView
     @BindView(R.id.play_history_list)
@@ -32,6 +29,8 @@ class PlayHistoryFragment : Fragment(), PlayHistoryContract.View {
 
     private lateinit var mUnbinder: Unbinder
     private lateinit var mPresenter: PlayHistoryContract.Presenter
+    private lateinit var mPlayHistoryAdapter: PlayHistoryAdapter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         PlayHistoryPresenter(this)
@@ -46,14 +45,26 @@ class PlayHistoryFragment : Fragment(), PlayHistoryContract.View {
 
     override fun initView() {
         mTvTitle.text = getString(R.string.main_recent_play)
+        mPlayHistoryAdapter = PlayHistoryAdapter(ArrayList())
+        mHistoryList.layoutManager = LinearLayoutManager(context)
+        mHistoryList.adapter = mPlayHistoryAdapter
         mPresenter.loadPlayHistory(context)
     }
 
-    @OnClick(R.id.action_bar_back)
+    @OnClick(R.id.action_bar_back, R.id.play_history_shuffle_all)
     fun onClick(view: View) {
         when (view.id) {
             R.id.action_bar_back -> {
                 FragmentUtil.removeFragment(fragmentManager, this)
+            }
+            R.id.play_history_shuffle_all -> {
+                if (mPlayHistoryAdapter.playHistoryList.isEmpty()) {
+                    ToastUtil.showToast(context, "没有歌曲可以播放")
+                } else {
+                    val songList = ArrayList<Song>()
+                    mPlayHistoryAdapter.playHistoryList.mapTo(songList) { it.song }
+                    (activity as MainActivity).playService.shuffleAll(songList)
+                }
             }
         }
     }
@@ -63,8 +74,7 @@ class PlayHistoryFragment : Fragment(), PlayHistoryContract.View {
     }
 
     override fun onPlayHistoryLoad(playHistory: List<PlayHistory>) {
-        mHistoryList.layoutManager = LinearLayoutManager(context)
-        mHistoryList.adapter = PlayHistoryAdapter(playHistory)
+        mPlayHistoryAdapter.setData(playHistory)
     }
 
     override fun onNoPlayHistory() = ToastUtil.showToast(context, getString(R.string.no_play_history))
@@ -72,11 +82,12 @@ class PlayHistoryFragment : Fragment(), PlayHistoryContract.View {
     override fun onLoading() {
 
     }
+
     override fun onFailure(msg: String) {
         ToastUtil.showToast(context, msg)
     }
 
-    inner class PlayHistoryAdapter(private var playHistoryList: List<PlayHistory>) : RecyclerView.Adapter<PlayHistoryAdapter.ViewHolder>() {
+    inner class PlayHistoryAdapter(var playHistoryList: List<PlayHistory>) : RecyclerView.Adapter<PlayHistoryAdapter.ViewHolder>() {
         override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
             val itemView = LayoutInflater.from(context).inflate(R.layout.item_play_history, parent, false)
             return ViewHolder(itemView)
@@ -94,26 +105,13 @@ class PlayHistoryFragment : Fragment(), PlayHistoryContract.View {
 
             }
             holder.item.setOnClickListener {
-                val song = Song()
-                song.name = playHistory.songName
-                song.songId = playHistory.songId
-                song.albumId = playHistory.albumId
-                song.albumName = playHistory.albumName
-                song.artistId = playHistory.artistId
-                song.artistName = playHistory.artistName
-                song.albumCoverUrl = playHistory.coverUrl
-                song.miniAlbumCoverUrl = playHistory.miniAlbumCoverUrl
-                song.listenFileUrl = playHistory.listenFileUrl
-                song.supplier = when (playHistory.providerName) {
-                    MusicProvider.XIAMI.name -> MusicProvider.XIAMI
-                    MusicProvider.QQMUSIC.name -> MusicProvider.QQMUSIC
-                    MusicProvider.NETEASE.name -> MusicProvider.NETEASE
-                    else -> {
-                        MusicProvider.XIAMI
-                    }
-                }
-                (activity as MainActivity).playService.playNewSong(song)
+                (activity as MainActivity).playService.playNewSong(playHistory.song)
             }
+        }
+
+        fun setData(historyList: List<PlayHistory>) {
+            playHistoryList = historyList
+            notifyDataSetChanged()
         }
 
         inner class ViewHolder(item: View) : RecyclerView.ViewHolder(item) {

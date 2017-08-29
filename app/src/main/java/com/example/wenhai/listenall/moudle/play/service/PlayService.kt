@@ -378,6 +378,11 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
         notifyStatusChanged(STATUS_INFO, getString(R.string.play_has_added_to_cur_list))
     }
 
+    fun shuffleAll(songs: List<Song>) {
+        setPlayMode(PlayMode.SHUFFLE)
+        replaceList(songs)
+    }
+
     /**
      * 设置歌曲下一首播放
      */

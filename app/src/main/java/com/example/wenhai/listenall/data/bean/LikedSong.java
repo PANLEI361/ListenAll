@@ -7,11 +7,9 @@ import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 
 @Entity
-public class PlayHistory {
+public class LikedSong {
     @Id
     private Long id;
-    private long playTimeInMills;
-    private int playTimes;
     private String songName;
     private long songId;
     private long artistId;
@@ -23,14 +21,11 @@ public class PlayHistory {
     private String miniAlbumCoverUrl;
     private String providerName;
 
-    @Generated(hash = 1568489359)
-    public PlayHistory(Long id, long playTimeInMills, int playTimes,
-                       String songName, long songId, long artistId, long albumId,
-                       String coverUrl, String artistName, String albumName,
-                       String listenFileUrl, String miniAlbumCoverUrl, String providerName) {
+    @Generated(hash = 709857612)
+    public LikedSong(Long id, String songName, long songId, long artistId,
+                     long albumId, String coverUrl, String artistName, String albumName,
+                     String listenFileUrl, String miniAlbumCoverUrl, String providerName) {
         this.id = id;
-        this.playTimeInMills = playTimeInMills;
-        this.playTimes = playTimes;
         this.songName = songName;
         this.songId = songId;
         this.artistId = artistId;
@@ -43,23 +38,21 @@ public class PlayHistory {
         this.providerName = providerName;
     }
 
-    @Generated(hash = 2145518983)
-    public PlayHistory() {
+    @Generated(hash = 838669917)
+    public LikedSong() {
     }
 
-    public PlayHistory(Song song) {
-        this.playTimeInMills = System.currentTimeMillis();
-        this.playTimes = 0;
-        this.songName = song.getName();
-        this.songId = song.getSongId();
-        this.artistId = song.getArtistId();
-        this.albumId = song.getAlbumId();
-        this.coverUrl = song.getAlbumCoverUrl();
-        this.artistName = song.getArtistName();
-        this.albumName = song.getAlbumName();
-        this.listenFileUrl = song.getListenFileUrl();
-        this.miniAlbumCoverUrl = song.getMiniAlbumCoverUrl();
-        this.providerName = song.getSupplier().name();
+    public LikedSong(Song song) {
+        songName = song.getName();
+        songId = song.getSongId();
+        artistId = song.getArtistId();
+        albumId = song.getAlbumId();
+        albumName = song.getAlbumName();
+        coverUrl = song.getAlbumCoverUrl();
+        artistName = song.getArtistName();
+        listenFileUrl = song.getListenFileUrl();
+        miniAlbumCoverUrl = song.getMiniAlbumCoverUrl();
+        providerName = song.getSupplier().name();
     }
 
     public Song getSong() {
@@ -67,9 +60,9 @@ public class PlayHistory {
         song.setName(songName);
         song.setSongId(songId);
         song.setArtistId(artistId);
+        song.setArtistName(artistName);
         song.setAlbumId(albumId);
         song.setAlbumCoverUrl(coverUrl);
-        song.setArtistName(artistName);
         song.setAlbumName(albumName);
         song.setListenFileUrl(listenFileUrl);
         song.setMiniAlbumCoverUrl(miniAlbumCoverUrl);
@@ -91,22 +84,6 @@ public class PlayHistory {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public long getPlayTimeInMills() {
-        return this.playTimeInMills;
-    }
-
-    public void setPlayTimeInMills(long playTimeInMills) {
-        this.playTimeInMills = playTimeInMills;
-    }
-
-    public int getPlayTimes() {
-        return this.playTimes;
-    }
-
-    public void setPlayTimes(int playTimes) {
-        this.playTimes = playTimes;
     }
 
     public String getSongName() {
@@ -188,5 +165,4 @@ public class PlayHistory {
     public void setProviderName(String providerName) {
         this.providerName = providerName;
     }
-
 }

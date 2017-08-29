@@ -19,23 +19,19 @@ import butterknife.OnClick
 import butterknife.Unbinder
 import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.TestSongList
+import com.example.wenhai.listenall.moudle.liked.LikedFragment
 import com.example.wenhai.listenall.moudle.playhistory.PlayHistoryFragment
 import com.example.wenhai.listenall.utils.FragmentUtil
-import com.example.wenhai.listenall.utils.LogUtil
 
 
 class LocalFragment : android.support.v4.app.Fragment() {
-    companion object {
-        val TAG = "LocalFragment"
-    }
-
     @BindView(R.id.main_song_list)
     lateinit var mRvSongList: RecyclerView
     @BindView(R.id.main_local_scroll)
     lateinit var mScrollView: ScrollView
-    @BindView(R.id.main_local_btn_album)
+    @BindView(R.id.main_local_btn_liked_collect)
     lateinit var mBtnAlbum: Button
-    @BindView(R.id.main_local_btn_collect)
+    @BindView(R.id.main_local_btn_my_collect)
     lateinit var mBtnCollect: Button
     @BindView(R.id.main_local_btn_liked)
     lateinit var mBtnLiked: ImageButton
@@ -48,7 +44,6 @@ class LocalFragment : android.support.v4.app.Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        LogUtil.d(TAG, "onCreate")
     }
 
 
@@ -56,7 +51,6 @@ class LocalFragment : android.support.v4.app.Fragment() {
         val rootView = inflater !!.inflate(R.layout.fragment_main_local, container, false)
         mUnBinder = ButterKnife.bind(this, rootView)
         initView()
-        LogUtil.d(TAG, "onCreateView")
         return rootView
     }
 
@@ -68,12 +62,10 @@ class LocalFragment : android.support.v4.app.Fragment() {
         }
         val songListAdapter = SongListAdapter(songList, activity)
         mRvSongList.adapter = songListAdapter
-
-
     }
 
     @OnClick(R.id.main_local_btn_songs, R.id.main_local_btn_recent_play, R.id.main_local_btn_liked,
-            R.id.main_local_btn_collect, R.id.main_local_btn_album)
+            R.id.main_local_btn_my_collect, R.id.main_local_btn_liked_collect)
     fun onClick(v: View) {
         when (v.id) {
             R.id.main_local_btn_songs -> {
@@ -82,10 +74,11 @@ class LocalFragment : android.support.v4.app.Fragment() {
                 FragmentUtil.addFragmentToMainView(fragmentManager, PlayHistoryFragment())
             }
             R.id.main_local_btn_liked -> {
+                FragmentUtil.addFragmentToMainView(fragmentManager, LikedFragment())
             }
-            R.id.main_local_btn_collect -> {
+            R.id.main_local_btn_my_collect -> {
             }
-            R.id.main_local_btn_album -> {
+            R.id.main_local_btn_liked_collect -> {
             }
         }
 
@@ -96,22 +89,14 @@ class LocalFragment : android.support.v4.app.Fragment() {
         mScrollView.smoothScrollTo(0, 0)
     }
 
-    override fun onResume() {
-        super.onResume()
-        LogUtil.d(TAG, "onResume")
-    }
-
-    override fun onPause() {
-        super.onPause()
-        LogUtil.d(TAG, "onPause")
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
         mUnBinder.unbind()
-        LogUtil.d(TAG, "onDestroyView")
     }
 
+    companion object {
+        val TAG = "LocalFragment"
+    }
 
     class SongListAdapter(val context: Context) : RecyclerView.Adapter<SongListAdapter.ViewHolder>() {
         private lateinit var songList: List<TestSongList>

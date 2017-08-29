@@ -3,13 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorWhite"
     android:orientation="vertical">
 
-    <include layout="@layout/include_action_bar" />
-
     <LinearLayout
-        android:id="@+id/play_history_shuffle_all"
+        android:id="@+id/liked_shuffle_all"
         android:layout_width="match_parent"
         android:layout_height="45dp"
         android:gravity="center_vertical"
@@ -26,9 +23,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp"
-            android:textSize="17sp"
-            android:text="随机播放全部"
-            android:textColor="@color/colorBlack" />
+            android:text="@string/shuffle_all"
+            android:textColor="@color/colorBlack"
+            android:textSize="17sp" />
 
     </LinearLayout>
 
@@ -38,7 +35,7 @@
         android:background="@color/colorDivider" />
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/play_history_list"
+        android:id="@+id/liked_songs"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">

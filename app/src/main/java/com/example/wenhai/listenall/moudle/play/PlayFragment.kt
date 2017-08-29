@@ -24,10 +24,14 @@ import butterknife.OnClick
 import butterknife.Unbinder
 import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.data.MusicProvider
+import com.example.wenhai.listenall.data.bean.LikedSong
+import com.example.wenhai.listenall.data.bean.LikedSongDao
 import com.example.wenhai.listenall.data.bean.Song
 import com.example.wenhai.listenall.moudle.play.service.PlayService
 import com.example.wenhai.listenall.moudle.play.service.PlayStatusObserver
+import com.example.wenhai.listenall.utils.DAOUtil
 import com.example.wenhai.listenall.utils.GlideApp
+import com.example.wenhai.listenall.utils.ToastUtil
 import com.example.wenhai.listenall.widget.PlayListDialog
 
 class PlayFragment : Fragment(), PlayStatusObserver {
@@ -66,6 +70,9 @@ class PlayFragment : Fragment(), PlayStatusObserver {
     private lateinit var mTvArtistName: TextView
     private lateinit var mTvProvider: TextView
     private lateinit var mIvCover: ImageView
+    private lateinit var mBtnLiked: ImageButton
+    private lateinit var mBtnDownload: ImageButton
+    private lateinit var mBtnMore: ImageButton
 
     lateinit var lyricView: LinearLayout
 
@@ -81,11 +88,7 @@ class PlayFragment : Fragment(), PlayStatusObserver {
         val contentView = inflater !!.inflate(R.layout.fragment_play, container, false)
         //init coverView
         coverView = inflater.inflate(R.layout.fragment_play_cover, container, false) as RelativeLayout
-        mIvCover = coverView.findViewById(R.id.play_cover)
-        mTvArtistName = coverView.findViewById(R.id.play_artist_name)
-        //TextView 跑马灯需要设置 selected=true
-        mTvArtistName.isSelected = true
-        mTvProvider = coverView.findViewById(R.id.play_provider)
+
         //init lyricView
         lyricView = inflater.inflate(R.layout.fragment_play_lyric, container, false) as LinearLayout
         //init
@@ -154,6 +157,23 @@ class PlayFragment : Fragment(), PlayStatusObserver {
 
         })
 
+        initCoverView()
+
+    }
+
+    private fun initCoverView() {
+        mIvCover = coverView.findViewById(R.id.play_cover)
+        mTvArtistName = coverView.findViewById(R.id.play_artist_name)
+        //TextView 跑马灯需要设置 selected=true
+        mTvArtistName.isSelected = true
+        mTvProvider = coverView.findViewById(R.id.play_provider)
+        mBtnLiked = coverView.findViewById(R.id.play_btn_like)
+        mBtnDownload = coverView.findViewById(R.id.play_btn_download)
+        mBtnMore = coverView.findViewById(R.id.play_btn_more_operation)
+        mBtnLiked.setOnClickListener {
+            likeCurrentSong()
+        }
+
     }
 
     @OnClick(R.id.action_bar_back, R.id.play_btn_start_pause, R.id.play_btn_previous,
@@ -162,7 +182,6 @@ class PlayFragment : Fragment(), PlayStatusObserver {
         when (view.id) {
             R.id.action_bar_back -> {
                 activity.finish()
-
             }
             R.id.play_btn_start_pause -> {
                 if (playService.isMediaPlaying()) {
@@ -192,6 +211,29 @@ class PlayFragment : Fragment(), PlayStatusObserver {
                 })
                 dialog.show()
             }
+        }
+    }
+
+    private fun likeCurrentSong() {
+        val likedSongDao = DAOUtil.getSession(context).likedSongDao
+        val queryList = likedSongDao.queryBuilder()
+                .where(LikedSongDao.Properties.SongId.eq(mCurrentSong !!.songId))
+                .list()
+        if (queryList.isEmpty()) {
+            //添加当前歌曲到喜欢列表
+            val likedSong = LikedSong(mCurrentSong)
+            if (likedSongDao.insert(likedSong) > 0) {
+                ToastUtil.showToast(context, "添加成功")
+                mBtnLiked.setImageResource(R.drawable.ic_liked)
+            } else {
+                ToastUtil.showToast(context, "添加失败，请重试")
+            }
+        } else {
+            //将当前歌曲从喜欢列表中移除
+            val likedSong = queryList[0]
+            likedSongDao.delete(likedSong)
+            mBtnLiked.setImageResource(R.drawable.ic_like_border)
+            ToastUtil.showToast(context, "已从喜欢列表移除")
         }
     }
 
@@ -264,6 +306,12 @@ class PlayFragment : Fragment(), PlayStatusObserver {
             setProvider()
             setCover(mCurrentSong !!.albumCoverUrl)
             mTvTotalTime.text = getMinuteLength(mCurrentSong !!.length)
+            val isLiked = DAOUtil.getSession(context).likedSongDao.queryBuilder()
+                    .where(LikedSongDao.Properties.SongId.eq(mCurrentSong !!.songId))
+                    .list().size > 0
+            if (isLiked) {
+                mBtnLiked.setImageResource(R.drawable.ic_liked)
+            }
         }
         mCurrentPlayList = playStatus.currentList
         mSeekBar.progress = playStatus.playProgress.toInt()
@@ -304,7 +352,7 @@ class PlayFragment : Fragment(), PlayStatusObserver {
     }
 
     override fun onPlayInfo(msg: String) {
-
+        ToastUtil.showToast(context, msg)
     }
 
     override fun onNewSong(song: Song) {
@@ -316,6 +364,14 @@ class PlayFragment : Fragment(), PlayStatusObserver {
             setProvider()
             setTotalTime(mCurrentSong !!.length)
             setCurTime(0f)
+            val isLiked = DAOUtil.getSession(context).likedSongDao.queryBuilder()
+                    .where(LikedSongDao.Properties.SongId.eq(mCurrentSong !!.songId))
+                    .list().size > 0
+            if (isLiked) {
+                mBtnLiked.setImageResource(R.drawable.ic_liked)
+            } else {
+                mBtnLiked.setImageResource(R.drawable.ic_like_border)
+            }
         }
     }
 
@@ -346,8 +402,8 @@ class PlayFragment : Fragment(), PlayStatusObserver {
     }
 
     override fun onDestroyView() {
-        super.onDestroyView()
         playService.unregisterStatusObserver(this)
+        super.onDestroyView()
         mUnBinder.unbind()
     }
 
@@ -375,6 +431,5 @@ class PlayFragment : Fragment(), PlayStatusObserver {
             container !!.removeViewAt(position)
             super.destroyItem(container, position, `object`)
         }
-
     }
 }

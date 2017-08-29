@@ -25,7 +25,6 @@ import com.example.wenhai.listenall.data.bean.Song
 import com.example.wenhai.listenall.moudle.detail.DetailContract
 import com.example.wenhai.listenall.moudle.detail.DetailFragment
 import com.example.wenhai.listenall.moudle.main.MainActivity
-import com.example.wenhai.listenall.moudle.play.service.PlayService
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
 import com.example.wenhai.listenall.utils.ToastUtil
@@ -116,8 +115,7 @@ class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
             mPresenter.loadArtistHotSongs(artist, curHotSongPage)
         }
         mShuffleAll.setOnClickListener {
-            (activity as MainActivity).playService.replaceList(mHotSongAdapter.hotSongs)
-            (activity as MainActivity).playService.setPlayMode(PlayService.PlayMode.SHUFFLE)
+            (activity as MainActivity).playService.shuffleAll(mHotSongAdapter.hotSongs)
         }
     }
 
