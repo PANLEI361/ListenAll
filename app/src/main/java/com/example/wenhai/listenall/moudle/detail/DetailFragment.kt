@@ -18,12 +18,16 @@ import butterknife.Unbinder
 import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.data.bean.Album
 import com.example.wenhai.listenall.data.bean.Collect
+import com.example.wenhai.listenall.data.bean.LikedAlbum
+import com.example.wenhai.listenall.data.bean.LikedAlbumDao
 import com.example.wenhai.listenall.data.bean.Song
 import com.example.wenhai.listenall.moudle.main.MainActivity
 import com.example.wenhai.listenall.moudle.ranking.RankingContract
+import com.example.wenhai.listenall.utils.DAOUtil
 import com.example.wenhai.listenall.utils.DateUtil
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
+import com.example.wenhai.listenall.utils.LogUtil
 import com.example.wenhai.listenall.utils.ToastUtil
 
 class DetailFragment : Fragment(), DetailContract.View {
@@ -43,11 +47,16 @@ class DetailFragment : Fragment(), DetailContract.View {
     lateinit var mLoading: LinearLayout
     @BindView(R.id.loading_failed)
     lateinit var mLoadFailed: LinearLayout
+    @BindView(R.id.detail_liked_icon)
+    lateinit var mLikedIcon: ImageView
 
     private lateinit var mSongListAdapter: SongListAdapter
     lateinit var mPresenter: DetailContract.Presenter
     private lateinit var mUnBinder: Unbinder
     private lateinit var mLoadType: DetailContract.LoadType
+
+    private lateinit var mAlbum: Album
+    private lateinit var mCollect: Collect
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -118,7 +127,7 @@ class DetailFragment : Fragment(), DetailContract.View {
                 (activity as MainActivity).playService.addToPlayList(mSongListAdapter.songList)
             }
             R.id.detail_liked -> {
-                ToastUtil.showToast(activity, " liked")
+                switchLikedState()
             }
             R.id.detail_download_all -> {
                 ToastUtil.showToast(activity, "download all")
@@ -126,6 +135,48 @@ class DetailFragment : Fragment(), DetailContract.View {
             R.id.loading_failed -> {
                 loadDetail()
             }
+        }
+    }
+
+    private fun switchLikedState() {
+        if (mLoadType == DetailContract.LoadType.ALBUM) {
+            val dao = DAOUtil.getSession(context).likedAlbumDao
+            var liked = false
+            var likedAlbum = isCurAlbumLiked()
+            if (likedAlbum != null) {
+                dao.delete(likedAlbum)
+                ToastUtil.showToast(activity, "已取消收藏")
+            } else {
+                likedAlbum = LikedAlbum(mAlbum)
+                LogUtil.d("test", likedAlbum.toString())
+                dao.insert(likedAlbum)
+                liked = true
+                ToastUtil.showToast(activity, "已收藏")
+            }
+            setLikedIcon(liked)
+        }
+    }
+
+
+    private fun isCurAlbumLiked(): LikedAlbum? {
+        var likedAlbum: LikedAlbum? = null
+        val dao = DAOUtil.getSession(context).likedAlbumDao
+        val list = dao.queryBuilder()
+                .where(LikedAlbumDao.Properties.AlbumId.eq(mAlbum.id),
+                        LikedAlbumDao.Properties.ProviderName.eq(mAlbum.supplier.name))
+                .build().list()
+        if (list.size > 0) {
+            likedAlbum = list[0]
+        }
+        return likedAlbum
+    }
+
+
+    private fun setLikedIcon(isLiked: Boolean) {
+        if (isLiked) {
+            mLikedIcon.setImageResource(R.drawable.ic_liked)
+        } else {
+            mLikedIcon.setImageResource(R.drawable.ic_like_border)
         }
     }
 
@@ -181,6 +232,7 @@ class DetailFragment : Fragment(), DetailContract.View {
 
     override fun onAlbumDetailLoad(album: Album) {
         activity.runOnUiThread {
+            mAlbum = album
             mTitle.text = album.title
             mArtist.visibility = View.VISIBLE
             mArtist.text = album.artist
@@ -193,6 +245,9 @@ class DetailFragment : Fragment(), DetailContract.View {
 
             mLoading.visibility = View.GONE
             mSongList.visibility = View.VISIBLE
+            if (isCurAlbumLiked() != null) {
+                setLikedIcon(true)
+            }
         }
 
     }

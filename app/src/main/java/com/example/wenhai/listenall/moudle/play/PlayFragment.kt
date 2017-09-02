@@ -70,9 +70,9 @@ class PlayFragment : Fragment(), PlayStatusObserver {
     private lateinit var mTvArtistName: TextView
     private lateinit var mTvProvider: TextView
     private lateinit var mIvCover: ImageView
-    private lateinit var mBtnLiked: ImageButton
-    private lateinit var mBtnDownload: ImageButton
-    private lateinit var mBtnMore: ImageButton
+    private lateinit var mBtnLiked: ImageView
+    private lateinit var mBtnDownload: ImageView
+    private lateinit var mBtnMore: ImageView
 
     lateinit var lyricView: LinearLayout
 

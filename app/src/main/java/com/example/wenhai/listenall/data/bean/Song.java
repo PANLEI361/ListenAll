@@ -270,6 +270,17 @@ public final class Song implements Parcelable, Serializable {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Song) {
+            Song song = (Song) obj;
+            if (song.songId == this.songId && song.getSupplier() == this.supplier) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
     public String toString() {
         return "Song{" +
                 "songId=" + songId +

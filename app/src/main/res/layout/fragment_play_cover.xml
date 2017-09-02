@@ -96,29 +96,29 @@
         android:gravity="center"
         android:orientation="horizontal">
 
-        <ImageButton
+        <ImageView
             android:id="@+id/play_btn_like"
-            style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:background="@drawable/selector_white"
             android:src="@drawable/ic_like_border"
             tools:ignore="ContentDescription" />
 
-        <ImageButton
+        <ImageView
             android:id="@+id/play_btn_download"
-            style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
             android:layout_marginEnd="65dp"
             android:layout_marginStart="65dp"
+            android:background="@drawable/selector_white"
             android:src="@drawable/ic_main_download"
             tools:ignore="ContentDescription" />
 
-        <ImageButton
+        <ImageView
             android:id="@+id/play_btn_more_operation"
-            style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:background="@drawable/selector_white"
             android:src="@drawable/ic_more_vertical"
             tools:ignore="ContentDescription" />
 

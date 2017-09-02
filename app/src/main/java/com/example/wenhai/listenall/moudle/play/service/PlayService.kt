@@ -374,7 +374,8 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
      * 将歌曲添加到当前播放列表
      */
     fun addToPlayList(songs: List<Song>) {
-        playStatus.currentList.addAll(songs)
+        songs.filterNot { playStatus.currentList.contains(it) }
+                .forEach { playStatus.currentList.add(it) }
         notifyStatusChanged(STATUS_INFO, getString(R.string.play_has_added_to_cur_list))
     }
 
