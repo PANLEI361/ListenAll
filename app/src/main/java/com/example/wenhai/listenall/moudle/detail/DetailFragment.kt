@@ -20,6 +20,8 @@ import com.example.wenhai.listenall.data.bean.Album
 import com.example.wenhai.listenall.data.bean.Collect
 import com.example.wenhai.listenall.data.bean.LikedAlbum
 import com.example.wenhai.listenall.data.bean.LikedAlbumDao
+import com.example.wenhai.listenall.data.bean.LikedCollect
+import com.example.wenhai.listenall.data.bean.LikedCollectDao
 import com.example.wenhai.listenall.data.bean.Song
 import com.example.wenhai.listenall.moudle.main.MainActivity
 import com.example.wenhai.listenall.moudle.ranking.RankingContract
@@ -27,7 +29,6 @@ import com.example.wenhai.listenall.utils.DAOUtil
 import com.example.wenhai.listenall.utils.DateUtil
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
-import com.example.wenhai.listenall.utils.LogUtil
 import com.example.wenhai.listenall.utils.ToastUtil
 
 class DetailFragment : Fragment(), DetailContract.View {
@@ -148,8 +149,21 @@ class DetailFragment : Fragment(), DetailContract.View {
                 ToastUtil.showToast(activity, "已取消收藏")
             } else {
                 likedAlbum = LikedAlbum(mAlbum)
-                LogUtil.d("test", likedAlbum.toString())
                 dao.insert(likedAlbum)
+                liked = true
+                ToastUtil.showToast(activity, "已收藏")
+            }
+            setLikedIcon(liked)
+        } else if (mLoadType == DetailContract.LoadType.COLLECT) {
+            val dao = DAOUtil.getSession(context).likedCollectDao
+            var liked = false
+            var likedCollect = isCurCollectLiked()
+            if (likedCollect != null) {
+                dao.delete(likedCollect)
+                ToastUtil.showToast(activity, "已取消收藏")
+            } else {
+                likedCollect = LikedCollect(mCollect)
+                dao.insert(likedCollect)
                 liked = true
                 ToastUtil.showToast(activity, "已收藏")
             }
@@ -169,6 +183,19 @@ class DetailFragment : Fragment(), DetailContract.View {
             likedAlbum = list[0]
         }
         return likedAlbum
+    }
+
+    private fun isCurCollectLiked(): LikedCollect? {
+        var likedCollect: LikedCollect? = null
+        val dao = DAOUtil.getSession(context).likedCollectDao
+        val list = dao.queryBuilder().where(LikedCollectDao.Properties.CollectId.eq(mCollect.id),
+                LikedCollectDao.Properties.ProviderName.eq(mCollect.source.name))
+                .build()
+                .list()
+        if (list.size > 0) {
+            likedCollect = list[0]
+        }
+        return likedCollect
     }
 
 
@@ -192,6 +219,7 @@ class DetailFragment : Fragment(), DetailContract.View {
 
     override fun onCollectDetailLoad(collect: Collect) {
         activity.runOnUiThread({
+            mCollect = collect
             mTitle.text = collect.title
             mArtist.visibility = View.GONE
             GlideApp.with(context).load(collect.coverUrl)
@@ -204,6 +232,9 @@ class DetailFragment : Fragment(), DetailContract.View {
             mLoading.visibility = View.GONE
             mSongList.visibility = View.VISIBLE
 
+            if (isCurCollectLiked() != null) {
+                setLikedIcon(true)
+            }
         })
     }
 
