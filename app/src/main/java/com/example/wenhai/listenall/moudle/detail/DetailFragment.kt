@@ -276,8 +276,18 @@ class DetailFragment : Fragment(), DetailContract.View {
             val index = "${position + 1}"
             holder !!.index.text = index
             holder.title.text = song.name
-            val artistName = song.artistName
-            holder.artistAlbum.text = artistName
+            val displayArtistName =
+                    if (mLoadType == DetailContract.LoadType.ALBUM) {
+                        song.artistName
+                    } else {
+                        val artistAlbum = "${song.artistName} · ${song.albumName}"
+                        if (artistAlbum.length < 30) {
+                            artistAlbum
+                        } else {
+                            song.artistName
+                        }
+                    }
+            holder.artistAlbum.text = displayArtistName
             holder.item.setOnClickListener({
                 playSong(song)
             })
