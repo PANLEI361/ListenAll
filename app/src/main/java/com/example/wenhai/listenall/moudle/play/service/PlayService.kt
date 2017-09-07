@@ -29,16 +29,16 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
         MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnCompletionListener,
         MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnInfoListener {
 
-    private lateinit var mediaPlayer: MediaPlayer
     private val binder: Binder = ServiceBinder()
-    private lateinit var mStatusObservers: ArrayList<PlayStatusObserver>
-    private lateinit var timer: Timer
+    private var isFirstStart = true
     private lateinit var musicRepository: MusicRepository
 
+    private lateinit var mediaPlayer: MediaPlayer
+    lateinit var playStatus: PlayStatus//播放状态
+    private lateinit var mStatusObservers: ArrayList<PlayStatusObserver>
+
+    private lateinit var timer: Timer
     private var updateProgressTask: TimerTask? = null
-    //播放状态
-    lateinit var playStatus: PlayStatus
-    private var isFirstStart = true
 
     override fun onCreate() {
         super.onCreate()
@@ -46,7 +46,6 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent !!.action == ACTION_INIT) {
-
         }
         if (intent.action == ACTION_NEW_SONG) {
             val song = intent.getParcelableExtra<Song>("song")
@@ -205,6 +204,9 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
         next()
     }
 
+    /**
+     * 插入或者更新歌曲播放历史
+     */
     private fun insertOrUpdatePlayHistory() {
         val dao = DAOUtil.getSession(this).playHistoryDao
         val queryList = dao.queryBuilder()
@@ -246,16 +248,15 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
             mediaPlayer.pause()
             playStatus.isPlaying = false
             notifyStatusChanged(STATUS_PAUSE, null)
-            updateProgressTask !!.cancel()
+            updateProgressTask?.cancel()
         }
-
     }
 
     fun stop() {
         mediaPlayer.stop()
         playStatus.isPlaying = false
         notifyStatusChanged(STATUS_STOP, null)
-        updateProgressTask !!.cancel()
+        updateProgressTask?.cancel()
     }
 
     override fun onInfo(player: MediaPlayer?, what: Int, extra: Int): Boolean {
@@ -448,10 +449,12 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
     fun registerStatusObserver(observer: PlayStatusObserver) {
         observer.onPlayInit(playStatus)
         mStatusObservers.add(observer)
+
     }
 
     fun unregisterStatusObserver(observer: PlayStatusObserver) {
         mStatusObservers.remove(observer)
+        LogUtil.d("test", "current observers ${mStatusObservers.size}")
     }
 
     fun notifyStatusChanged(status: Int, extra: Any?) {
@@ -470,7 +473,6 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
                 STATUS_NEW_LIST -> observer.onNewSongList()
             }
         }
-
     }
 
     fun isMediaPlaying(): Boolean {

@@ -32,6 +32,7 @@ import com.example.wenhai.listenall.moudle.play.service.PlayService
 import com.example.wenhai.listenall.moudle.play.service.PlayStatusObserver
 import com.example.wenhai.listenall.utils.DAOUtil
 import com.example.wenhai.listenall.utils.GlideApp
+import com.example.wenhai.listenall.utils.LogUtil
 import com.example.wenhai.listenall.widget.PlayListDialog
 
 class PlayFragment : Fragment(), PlayStatusObserver {
@@ -340,8 +341,12 @@ class PlayFragment : Fragment(), PlayStatusObserver {
 
     override fun onPlayProgressUpdate(percent: Float) {
         activity.runOnUiThread {
-            mSeekBar.progress = percent.toInt()
-            setCurTime(percent)
+            try {
+                mSeekBar.progress = percent.toInt()
+                setCurTime(percent)
+            } catch (e: Exception) {
+                LogUtil.e("playException", e.localizedMessage)
+            }
         }
     }
 

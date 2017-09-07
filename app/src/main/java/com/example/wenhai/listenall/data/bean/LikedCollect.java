@@ -21,12 +21,13 @@ public class LikedCollect {
     private int playTimes;//播放次数
     private long createDate;//创建时间
     private long updateDate;//更新时间
+    private long likedTime;
 
-    @Generated(hash = 2135306526)
+    @Generated(hash = 1099010734)
     public LikedCollect(Long id, String title, String desc, long collectId,
                         String coverUrl, int coverDrawable, int songCount,
                         int songDownloadNumber, String providerName, int playTimes,
-                        long createDate, long updateDate) {
+                        long createDate, long updateDate, long likedTime) {
         this.id = id;
         this.title = title;
         this.desc = desc;
@@ -39,6 +40,7 @@ public class LikedCollect {
         this.playTimes = playTimes;
         this.createDate = createDate;
         this.updateDate = updateDate;
+        this.likedTime = likedTime;
     }
 
     @Generated(hash = 1076277660)
@@ -57,6 +59,7 @@ public class LikedCollect {
         this.playTimes = collect.getPlayTimes();
         this.createDate = collect.getCreateDate();
         this.updateDate = collect.getUpdateDate();
+        this.likedTime = System.currentTimeMillis();
     }
 
     public Collect getCollect() {
@@ -68,14 +71,7 @@ public class LikedCollect {
         collect.setCoverDrawable(coverDrawable);
         collect.setSongCount(songCount);
         collect.setSongDownloadNumber(songDownloadNumber);
-        MusicProvider provider;
-        if (providerName.equals(MusicProvider.NETEASE.name())) {
-            provider = MusicProvider.NETEASE;
-        } else if (providerName.equals(MusicProvider.QQMUSIC.name())) {
-            provider = MusicProvider.QQMUSIC;
-        } else {
-            provider = MusicProvider.XIAMI;
-        }
+        MusicProvider provider = MusicProvider.valueOf(providerName);
         collect.setSource(provider);
         collect.setPlayTimes(playTimes);
         collect.setCreateDate(createDate);
@@ -177,5 +173,13 @@ public class LikedCollect {
 
     public void setUpdateDate(long updateDate) {
         this.updateDate = updateDate;
+    }
+
+    public long getLikedTime() {
+        return this.likedTime;
+    }
+
+    public void setLikedTime(long likedTime) {
+        this.likedTime = likedTime;
     }
 }

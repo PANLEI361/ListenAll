@@ -18,8 +18,8 @@ object DAOUtil {
         if (daoSession == null) {
             synchronized(DAOUtil::class.java) {
                 if (daoSession == null) {
-                    val devHelper = DaoMaster.newDevSession(context, DATABASE_NAME)
-                    val daoMaster = DaoMaster(devHelper.database)
+                    val devHelper = DaoMaster.DevOpenHelper(context, DATABASE_NAME)
+                    val daoMaster = DaoMaster(devHelper.writableDb)
                     daoSession = daoMaster.newSession()
                 }
             }
