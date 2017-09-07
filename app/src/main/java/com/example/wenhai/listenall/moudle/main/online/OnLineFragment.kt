@@ -23,10 +23,10 @@ import com.example.wenhai.listenall.data.bean.Album
 import com.example.wenhai.listenall.data.bean.Banner
 import com.example.wenhai.listenall.data.bean.BannerType
 import com.example.wenhai.listenall.data.bean.Collect
-import com.example.wenhai.listenall.ktextension.hide
-import com.example.wenhai.listenall.ktextension.isShowing
-import com.example.wenhai.listenall.ktextension.show
-import com.example.wenhai.listenall.ktextension.showToast
+import com.example.wenhai.listenall.extension.hide
+import com.example.wenhai.listenall.extension.isShowing
+import com.example.wenhai.listenall.extension.show
+import com.example.wenhai.listenall.extension.showToast
 import com.example.wenhai.listenall.moudle.albumlist.AlbumListFragment
 import com.example.wenhai.listenall.moudle.artist.list.ArtistListFragment
 import com.example.wenhai.listenall.moudle.collect.CollectFilterFragment

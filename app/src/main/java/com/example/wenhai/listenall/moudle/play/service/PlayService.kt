@@ -454,7 +454,6 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
 
     fun unregisterStatusObserver(observer: PlayStatusObserver) {
         mStatusObservers.remove(observer)
-        LogUtil.d("test", "current observers ${mStatusObservers.size}")
     }
 
     fun notifyStatusChanged(status: Int, extra: Any?) {

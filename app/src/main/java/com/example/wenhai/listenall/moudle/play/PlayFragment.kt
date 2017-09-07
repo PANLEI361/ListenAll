@@ -27,7 +27,7 @@ import com.example.wenhai.listenall.data.MusicProvider
 import com.example.wenhai.listenall.data.bean.LikedSong
 import com.example.wenhai.listenall.data.bean.LikedSongDao
 import com.example.wenhai.listenall.data.bean.Song
-import com.example.wenhai.listenall.ktextension.showToast
+import com.example.wenhai.listenall.extension.showToast
 import com.example.wenhai.listenall.moudle.play.service.PlayService
 import com.example.wenhai.listenall.moudle.play.service.PlayStatusObserver
 import com.example.wenhai.listenall.utils.DAOUtil

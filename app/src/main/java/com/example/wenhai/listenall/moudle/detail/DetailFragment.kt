@@ -23,9 +23,9 @@ import com.example.wenhai.listenall.data.bean.LikedAlbumDao
 import com.example.wenhai.listenall.data.bean.LikedCollect
 import com.example.wenhai.listenall.data.bean.LikedCollectDao
 import com.example.wenhai.listenall.data.bean.Song
-import com.example.wenhai.listenall.ktextension.hide
-import com.example.wenhai.listenall.ktextension.show
-import com.example.wenhai.listenall.ktextension.showToast
+import com.example.wenhai.listenall.extension.hide
+import com.example.wenhai.listenall.extension.show
+import com.example.wenhai.listenall.extension.showToast
 import com.example.wenhai.listenall.moudle.main.MainActivity
 import com.example.wenhai.listenall.moudle.ranking.RankingContract
 import com.example.wenhai.listenall.utils.DAOUtil
