@@ -17,11 +17,15 @@ import butterknife.OnClick
 import butterknife.Unbinder
 import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.data.bean.Collect
+import com.example.wenhai.listenall.ktextension.hide
+import com.example.wenhai.listenall.ktextension.isShowing
+import com.example.wenhai.listenall.ktextension.show
+import com.example.wenhai.listenall.ktextension.showToast
 import com.example.wenhai.listenall.moudle.detail.DetailContract
 import com.example.wenhai.listenall.moudle.detail.DetailFragment
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
-import com.example.wenhai.listenall.utils.ToastUtil
+import com.scwang.smartrefresh.layout.SmartRefreshLayout
 
 internal class CollectListFragment : Fragment(), CollectListContract.View {
 
@@ -35,10 +39,15 @@ internal class CollectListFragment : Fragment(), CollectListContract.View {
     lateinit var mTitle: TextView
     @BindView(R.id.loading)
     lateinit var mLoading: LinearLayout
+    @BindView(R.id.loading_failed)
+    lateinit var mLoadFailed: LinearLayout
+    @BindView(R.id.refresh)
+    lateinit var mRefreshLayout: SmartRefreshLayout
 
     private lateinit var mUnBinder: Unbinder
     private lateinit var mPresenter: CollectListContract.Presenter
     private lateinit var mCollectListAdapter: CollectListAdapter
+    private var curLoadPage = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,36 +61,61 @@ internal class CollectListFragment : Fragment(), CollectListContract.View {
         return contentView
     }
 
-    @OnClick(R.id.action_bar_back)
-    fun onActionClick() {
-        FragmentUtil.removeFragment(fragmentManager, this)
+    @OnClick(R.id.action_bar_back, R.id.loading_failed)
+    fun onActionClick(view: View) {
+        when (view.id) {
+            R.id.loading_failed -> {
+                mPresenter.loadCollects(curLoadPage)
+            }
+            R.id.action_bar_back -> {
+                FragmentUtil.removeFragment(fragmentManager, this)
+            }
+        }
     }
 
     override fun initView() {
         mTitle.text = context.getString(R.string.main_hot_collect)
-        mRvCollectList.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
-
+        mRvCollectList.layoutManager = LinearLayoutManager(context)
         mCollectListAdapter = CollectListAdapter(context, ArrayList())
         mRvCollectList.adapter = mCollectListAdapter
-        mPresenter.loadCollects(10)
+        mPresenter.loadCollects(curLoadPage)
+
+        mRefreshLayout.setOnLoadmoreListener {
+            mPresenter.loadCollects(curLoadPage)
+        }
     }
 
     override fun setCollects(collects: List<Collect>) {
         activity.runOnUiThread {
-            mCollectListAdapter.setData(collects)
-            mLoading.visibility = View.GONE
-            mRvCollectList.visibility = View.VISIBLE
+            //page++ when current page load success
+            curLoadPage ++
+            if (mRefreshLayout.isLoading) {
+                mRefreshLayout.finishLoadmore(200, true)
+            }
+            mCollectListAdapter.addData(collects)
+            mLoading.hide()
+            mRvCollectList.show()
         }
     }
 
     override fun onLoading() {
-        mLoading.visibility = View.VISIBLE
-        mRvCollectList.visibility = View.GONE
+        if (curLoadPage == 1 || mLoadFailed.isShowing()) {
+            mLoading.show()
+            mRvCollectList.hide()
+            mLoadFailed.hide()
+        }
     }
 
     override fun onFailure(msg: String) {
         activity.runOnUiThread {
-            ToastUtil.showToast(context, msg)
+            if (mRefreshLayout.isLoading) {
+                mRefreshLayout.finishLoadmore(200, false)
+            }
+            if (mLoading.isShowing()) {
+                mLoading.hide()
+                mLoadFailed.show()
+            }
+            context.showToast(msg)
         }
     }
 
@@ -102,15 +136,10 @@ internal class CollectListFragment : Fragment(), CollectListContract.View {
             return ViewHolder(itemView)
         }
 
-        fun setData(newCollects: List<Collect>) {
-            collects = newCollects
+        fun addData(addCollects: List<Collect>) {
+            (collects as ArrayList<Collect>).addAll(addCollects)
             notifyDataSetChanged()
         }
-
-//        fun addData(addCollects: List<Collect>) {
-//            (collects as ArrayList<Collect>).addAll(addCollects)
-//            notifyDataSetChanged()
-//        }
 
         override fun getItemCount(): Int = collects.size
 

@@ -11,6 +11,6 @@ interface CollectListContract {
     }
 
     interface Presenter : BasePresenter {
-        fun loadCollects(count: Int)
+        fun loadCollects(page: Int)
     }
 }

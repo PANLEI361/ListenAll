@@ -18,19 +18,22 @@ import butterknife.Unbinder
 import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.data.bean.Album
 import com.example.wenhai.listenall.data.bean.Collect
+import com.example.wenhai.listenall.data.bean.LikedAlbum
+import com.example.wenhai.listenall.data.bean.LikedAlbumDao
+import com.example.wenhai.listenall.data.bean.LikedCollect
+import com.example.wenhai.listenall.data.bean.LikedCollectDao
 import com.example.wenhai.listenall.data.bean.Song
+import com.example.wenhai.listenall.ktextension.hide
+import com.example.wenhai.listenall.ktextension.show
+import com.example.wenhai.listenall.ktextension.showToast
 import com.example.wenhai.listenall.moudle.main.MainActivity
 import com.example.wenhai.listenall.moudle.ranking.RankingContract
+import com.example.wenhai.listenall.utils.DAOUtil
 import com.example.wenhai.listenall.utils.DateUtil
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
-import com.example.wenhai.listenall.utils.ToastUtil
 
 class DetailFragment : Fragment(), DetailContract.View {
-    companion object {
-        const val TAG = "DetailFragment"
-    }
-
     @BindView(R.id.action_bar_title)
     lateinit var mActionBarTitle: TextView
     @BindView(R.id.detail_cover)
@@ -45,11 +48,18 @@ class DetailFragment : Fragment(), DetailContract.View {
     lateinit var mSongList: RecyclerView
     @BindView(R.id.loading)
     lateinit var mLoading: LinearLayout
+    @BindView(R.id.loading_failed)
+    lateinit var mLoadFailed: LinearLayout
+    @BindView(R.id.detail_liked_icon)
+    lateinit var mLikedIcon: ImageView
 
     private lateinit var mSongListAdapter: SongListAdapter
     lateinit var mPresenter: DetailContract.Presenter
     private lateinit var mUnBinder: Unbinder
     private lateinit var mLoadType: DetailContract.LoadType
+
+    private lateinit var mAlbum: Album
+    private lateinit var mCollect: Collect
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,10 +70,7 @@ class DetailFragment : Fragment(), DetailContract.View {
         val contentView = inflater !!.inflate(R.layout.fragment_detail, container, false)
         mUnBinder = ButterKnife.bind(this, contentView)
         mLoadType = arguments.getSerializable(DetailContract.ARGS_LOAD_TYPE) as DetailContract.LoadType
-
         initView()
-
-
         return contentView
     }
 
@@ -77,7 +84,10 @@ class DetailFragment : Fragment(), DetailContract.View {
         mSongListAdapter = SongListAdapter(context, ArrayList())
         mSongList.layoutManager = LinearLayoutManager(context)
         mSongList.adapter = mSongListAdapter
+        loadDetail()
+    }
 
+    private fun loadDetail() {
         when (mLoadType) {
             DetailContract.LoadType.GLOBAL_RANKING -> {
                 val ranking: RankingContract.GlobalRanking = arguments.getSerializable(DetailContract.ARGS_GLOBAL_RANKING) as RankingContract.GlobalRanking
@@ -87,13 +97,19 @@ class DetailFragment : Fragment(), DetailContract.View {
                 val collect: Collect = arguments.getParcelable(DetailContract.ARGS_COLLECT)
                 setRankingDetail(collect)
             }
-            else -> {
+            DetailContract.LoadType.ALBUM -> {
                 val id = arguments.getLong(DetailContract.ARGS_ID)
-                mPresenter.loadSongsDetails(id, mLoadType)
+                mPresenter.loadAlbumDetail(id)
+            }
+            DetailContract.LoadType.COLLECT -> {
+                val id = arguments.getLong(DetailContract.ARGS_ID)
+                mPresenter.loadCollectDetail(id)
+            }
+            DetailContract.LoadType.SONG -> {
+                val id = arguments.getLong(DetailContract.ARGS_ID)
+                mPresenter.loadSongDetail(id)
             }
         }
-
-
     }
 
     private fun playSong(song: Song) {
@@ -101,27 +117,95 @@ class DetailFragment : Fragment(), DetailContract.View {
     }
 
     @OnClick(R.id.action_bar_back, R.id.detail_play_all, R.id.detail_download_all,
-            R.id.detail_add_to_play, R.id.detail_liked)
+            R.id.detail_add_to_play, R.id.detail_liked, R.id.loading_failed)
     fun onClick(view: View) {
         when (view.id) {
             R.id.action_bar_back -> {
                 FragmentUtil.removeFragment(fragmentManager, this)
             }
             R.id.detail_play_all -> {
-                ToastUtil.showToast(activity, "play all")
+                (activity as MainActivity).playService.replaceList(mSongListAdapter.songList)
             }
             R.id.detail_add_to_play -> {
-
-                ToastUtil.showToast(activity, "add to play list")
+                (activity as MainActivity).playService.addToPlayList(mSongListAdapter.songList)
             }
             R.id.detail_liked -> {
-
-                ToastUtil.showToast(activity, " liked")
+                switchLikedState()
             }
             R.id.detail_download_all -> {
-                ToastUtil.showToast(activity, "download all")
-
+                context.showToast("download all")
             }
+            R.id.loading_failed -> {
+                loadDetail()
+            }
+        }
+    }
+
+    private fun switchLikedState() {
+        if (mLoadType == DetailContract.LoadType.ALBUM) {
+            val dao = DAOUtil.getSession(context).likedAlbumDao
+            var liked = false
+            var likedAlbum = isCurAlbumLiked()
+            if (likedAlbum != null) {
+                dao.delete(likedAlbum)
+                context.showToast("已取消收藏")
+            } else {
+                likedAlbum = LikedAlbum(mAlbum)
+                dao.insert(likedAlbum)
+                liked = true
+                context.showToast("收藏成功")
+            }
+            setLikedIcon(liked)
+        } else if (mLoadType == DetailContract.LoadType.COLLECT) {
+            val dao = DAOUtil.getSession(context).likedCollectDao
+            var liked = false
+            var likedCollect = isCurCollectLiked()
+            if (likedCollect != null) {
+                dao.delete(likedCollect)
+                context.showToast(R.string.unliked)
+            } else {
+                likedCollect = LikedCollect(mCollect)
+                dao.insert(likedCollect)
+                liked = true
+                context.showToast(R.string.liked)
+            }
+            setLikedIcon(liked)
+        }
+    }
+
+
+    private fun isCurAlbumLiked(): LikedAlbum? {
+        var likedAlbum: LikedAlbum? = null
+        val dao = DAOUtil.getSession(context).likedAlbumDao
+        val list = dao.queryBuilder()
+                .where(LikedAlbumDao.Properties.AlbumId.eq(mAlbum.id),
+                        LikedAlbumDao.Properties.ProviderName.eq(mAlbum.supplier.name))
+                .build().list()
+        if (list.size > 0) {
+            likedAlbum = list[0]
+        }
+        return likedAlbum
+    }
+
+    private fun isCurCollectLiked(): LikedCollect? {
+        var likedCollect: LikedCollect? = null
+        val dao = DAOUtil.getSession(context).likedCollectDao
+        val list = dao.queryBuilder().where(LikedCollectDao.Properties.CollectId.eq(mCollect.id),
+                LikedCollectDao.Properties.ProviderName.eq(mCollect.source.name))
+                .build()
+                .list()
+        if (list.size > 0) {
+            likedCollect = list[0]
+        }
+        return likedCollect
+    }
+
+
+    private fun setLikedIcon(isLiked: Boolean) {
+        if (isLiked) {
+            mLikedIcon.setImageResource(R.drawable.ic_liked)
+        } else {
+            mLikedIcon.setImageResource(R.drawable.ic_like_border)
         }
     }
 
@@ -129,22 +213,17 @@ class DetailFragment : Fragment(), DetailContract.View {
         mPresenter = presenter
     }
 
-
-    override fun onSongDetailLoad(song: Song) {
-        activity.runOnUiThread {
-            playSong(song)
-        }
-    }
-
     override fun onLoading() {
-        mLoading.visibility = View.VISIBLE
-        mSongList.visibility = View.GONE
+        mLoading.show()
+        mLoadFailed.hide()
+        mSongList.hide()
     }
 
     override fun onCollectDetailLoad(collect: Collect) {
         activity.runOnUiThread({
+            mCollect = collect
             mTitle.text = collect.title
-            mArtist.visibility = View.GONE
+            mArtist.hide()
             GlideApp.with(context).load(collect.coverUrl)
                     .placeholder(R.drawable.ic_main_all_music)
                     .into(mCover)
@@ -152,8 +231,12 @@ class DetailFragment : Fragment(), DetailContract.View {
             mDate.text = displayDate
             mSongListAdapter.setData(collect.songs)
 
-            mLoading.visibility = View.GONE
-            mSongList.visibility = View.VISIBLE
+            mLoading.hide()
+            mSongList.show()
+
+            if (isCurCollectLiked() != null) {
+                setLikedIcon(true)
+            }
         })
     }
 
@@ -165,11 +248,11 @@ class DetailFragment : Fragment(), DetailContract.View {
             GlideApp.with(context)
                     .load(collect.coverDrawable)
                     .into(mCover)
-            mDate.visibility = View.GONE
+            mDate.hide()
             mSongListAdapter.setData(collect.songs)
 
-            mLoading.visibility = View.GONE
-            mSongList.visibility = View.VISIBLE
+            mLoading.hide()
+            mSongList.show()
         })
     }
 
@@ -182,8 +265,9 @@ class DetailFragment : Fragment(), DetailContract.View {
 
     override fun onAlbumDetailLoad(album: Album) {
         activity.runOnUiThread {
+            mAlbum = album
             mTitle.text = album.title
-            mArtist.visibility = View.VISIBLE
+            mArtist.show()
             mArtist.text = album.artist
             val displayDate = "发行时间：${DateUtil.getDate(album.publishDate)}"
             GlideApp.with(context).load(album.coverUrl)
@@ -192,15 +276,20 @@ class DetailFragment : Fragment(), DetailContract.View {
             mDate.text = displayDate
             mSongListAdapter.setData(album.songs)
 
-            mLoading.visibility = View.GONE
-            mSongList.visibility = View.VISIBLE
+            mLoading.hide()
+            mSongList.show()
+            if (isCurAlbumLiked() != null) {
+                setLikedIcon(true)
+            }
         }
 
     }
 
     override fun onFailure(msg: String) {
         activity.runOnUiThread {
-            ToastUtil.showToast(context, msg)
+            mLoading.hide()
+            mLoadFailed.show()
+            context.showToast(msg)
         }
     }
 
@@ -209,17 +298,31 @@ class DetailFragment : Fragment(), DetailContract.View {
         mUnBinder.unbind()
     }
 
-    inner class SongListAdapter(val context: Context, private var songList: List<Song>) : RecyclerView.Adapter<SongListAdapter.ViewHolder>() {
+    companion object {
+        const val TAG = "DetailFragment"
+    }
+
+    inner class SongListAdapter(val context: Context, var songList: List<Song>) : RecyclerView.Adapter<SongListAdapter.ViewHolder>() {
 
         override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
             val song = songList[position]
             val index = "${position + 1}"
             holder !!.index.text = index
             holder.title.text = song.name
-            val artistName = song.artistName
-            holder.artistAlbum.text = artistName
+            val displayArtistName =
+                    if (mLoadType == DetailContract.LoadType.ALBUM) {
+                        song.artistName
+                    } else {
+                        val artistAlbum = "${song.artistName} · ${song.albumName}"
+                        if (artistAlbum.length < 30) {
+                            artistAlbum
+                        } else {
+                            song.artistName
+                        }
+                    }
+            holder.artistAlbum.text = displayArtistName
             holder.item.setOnClickListener({
-                mPresenter.loadSongDetail(song)
+                playSong(song)
             })
         }
 

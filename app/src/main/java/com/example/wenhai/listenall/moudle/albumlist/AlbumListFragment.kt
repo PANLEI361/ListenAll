@@ -3,12 +3,11 @@ package com.example.wenhai.listenall.moudle.albumlist
 import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.widget.GridLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.BaseAdapter
-import android.widget.GridView
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -18,29 +17,33 @@ import butterknife.OnClick
 import butterknife.Unbinder
 import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.data.bean.Album
+import com.example.wenhai.listenall.ktextension.hide
+import com.example.wenhai.listenall.ktextension.isShowing
+import com.example.wenhai.listenall.ktextension.show
+import com.example.wenhai.listenall.ktextension.showToast
 import com.example.wenhai.listenall.moudle.detail.DetailContract
 import com.example.wenhai.listenall.moudle.detail.DetailFragment
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
-import com.example.wenhai.listenall.utils.ToastUtil
+import com.scwang.smartrefresh.layout.SmartRefreshLayout
 
 class AlbumListFragment : Fragment(), AlbumListContract.View {
     @BindView(R.id.action_bar_title)
     lateinit var mTitle: TextView
     @BindView(R.id.new_albums)
-    lateinit var mGridNewAlbums: GridView
+    lateinit var mNewAlbumList: RecyclerView
     @BindView(R.id.loading)
     lateinit var mLoading: LinearLayout
-
-    private lateinit var mAlbumList: List<Album>
+    @BindView(R.id.refresh)
+    lateinit var mRefreshLayout: SmartRefreshLayout
+    @BindView(R.id.loading_failed)
+    lateinit var mLoadFailed: LinearLayout
 
     lateinit var mPresenter: AlbumListContract.Presenter
+    private lateinit var albumAdapter: AlbumListAdapter
     private lateinit var mUnBinder: Unbinder
+    private var curPage = 1
 
-
-    override fun setPresenter(presenter: AlbumListContract.Presenter) {
-        mPresenter = presenter
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,45 +59,74 @@ class AlbumListFragment : Fragment(), AlbumListContract.View {
 
     override fun initView() {
         mTitle.text = context.getString(R.string.main_new_songs)
-        mGridNewAlbums.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
-            val album = mAlbumList[position]
-            val data = Bundle()
-            data.putLong(DetailContract.ARGS_ID, album.id)
-            data.putSerializable(DetailContract.ARGS_LOAD_TYPE, DetailContract.LoadType.ALBUM)
-            val detailFragment = DetailFragment()
-            detailFragment.arguments = data
-            FragmentUtil.addFragmentToMainView(fragmentManager, detailFragment)
+        albumAdapter = AlbumListAdapter(context, ArrayList())
+        mNewAlbumList.adapter = albumAdapter
+        mNewAlbumList.layoutManager = GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
+        mPresenter.loadNewAlbums(curPage)
+
+        mRefreshLayout.setOnLoadmoreListener {
+            mPresenter.loadNewAlbums(curPage)
         }
-        mPresenter.loadNewAlbums()
 
     }
 
-    override fun setNewAlbums(albumList: List<Album>) {
+    override fun onNewAlbumsLoad(albumList: List<Album>) {
         activity.runOnUiThread {
-            mAlbumList = albumList
-            mGridNewAlbums.adapter = AlbumListAdapter(context, mAlbumList)
-
-            mLoading.visibility = View.GONE
-            mGridNewAlbums.visibility = View.VISIBLE
+            curPage ++
+            if (mRefreshLayout.isLoading) {
+                mRefreshLayout.finishLoadmore(200, true)
+            }
+            albumAdapter.addData(albumList)
+            if (mLoading.isShowing()) {
+                mLoading.hide()
+                mNewAlbumList.show()
+            }
         }
+    }
+
+
+    override fun setPresenter(presenter: AlbumListContract.Presenter) {
+        mPresenter = presenter
     }
 
     override fun onLoading() {
-        mLoading.visibility = View.VISIBLE
-        mGridNewAlbums.visibility = View.GONE
+        if (curPage == 1 || mLoadFailed.isShowing()) {
+            mLoading.show()
+            mNewAlbumList.hide()
+            mLoadFailed.hide()
+        }
     }
 
     override fun onFailure(msg: String) {
         activity.runOnUiThread {
-            ToastUtil.showToast(context, msg)
+            if (mRefreshLayout.isLoading) {
+                mRefreshLayout.finishLoadmore(200, false)
+            }
+            if (mLoading.isShowing()) {
+                mLoading.hide()
+                mLoadFailed.show()
+            }
+            context.showToast(msg)
         }
     }
 
-    @OnClick(R.id.action_bar_back)
+    private fun showAlbumDetail(album: Album) {
+        val data = Bundle()
+        data.putLong(DetailContract.ARGS_ID, album.id)
+        data.putSerializable(DetailContract.ARGS_LOAD_TYPE, DetailContract.LoadType.ALBUM)
+        val detailFragment = DetailFragment()
+        detailFragment.arguments = data
+        FragmentUtil.addFragmentToMainView(fragmentManager, detailFragment)
+    }
+
+    @OnClick(R.id.action_bar_back, R.id.loading_failed)
     fun onClick(view: View) {
         when (view.id) {
             R.id.action_bar_back -> {
                 FragmentUtil.removeFragment(fragmentManager, this)
+            }
+            R.id.loading_failed -> {
+                mPresenter.loadNewAlbums(curPage)
             }
         }
     }
@@ -104,35 +136,34 @@ class AlbumListFragment : Fragment(), AlbumListContract.View {
         mUnBinder.unbind()
     }
 
-    internal class AlbumListAdapter(private val context: Context, private val albumList: List<Album>) : BaseAdapter() {
-
-        override fun getCount(): Int = albumList.size
-
-        override fun getItem(i: Int): Any = albumList[i]
-
-        override fun getItemId(i: Int): Long = i.toLong()
-
-        override fun getView(position: Int, convertView: View?, viewGroup: ViewGroup): View {
-            var itemView = convertView
-            var viewHolder: ViewHolder
-            if (itemView == null) {
-                itemView = LayoutInflater.from(context).inflate(R.layout.item_album_list, viewGroup, false)
-                viewHolder = ViewHolder(itemView)
-                itemView.tag = viewHolder
-            }
-            viewHolder = itemView !!.tag as ViewHolder
+    inner class AlbumListAdapter(private val context: Context, private val albumList: List<Album>)
+        : RecyclerView.Adapter<AlbumListAdapter.ViewHolder>() {
+        override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
             val album = albumList[position]
-            viewHolder.title.text = album.title
-            viewHolder.artist.text = album.artist
+            holder !!.title.text = album.title
+            holder.artist.text = album.artist
             GlideApp.with(context)
                     .load(album.coverUrl)
                     .placeholder(R.drawable.ic_main_all_music)
-                    .into(viewHolder.cover)
-
-            return itemView
+                    .into(holder.cover)
+            holder.itemView.setOnClickListener {
+                showAlbumDetail(album)
+            }
         }
 
-        inner class ViewHolder(itemView: View) {
+        override fun getItemCount(): Int = albumList.size
+
+        override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
+            val itemView = LayoutInflater.from(context).inflate(R.layout.item_album_list, parent, false)
+            return ViewHolder(itemView)
+        }
+
+        fun addData(data: List<Album>) {
+            (albumList as ArrayList<Album>).addAll(data)
+            notifyDataSetChanged()
+        }
+
+        inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             var cover: ImageView = itemView.findViewById(R.id.album_cover)
             var title: TextView = itemView.findViewById(R.id.album_title)
             var artist: TextView = itemView.findViewById(R.id.album_artist)

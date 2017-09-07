@@ -15,14 +15,14 @@ internal class AlbumListPresenter(val view: AlbumListContract.View) : AlbumListC
         view.setPresenter(this)
     }
 
-    override fun loadNewAlbums() {
-        musicRepository.loadNewAlbum(14, object : LoadAlbumCallback {
+    override fun loadNewAlbums(page: Int) {
+        musicRepository.loadNewAlbum(page, object : LoadAlbumCallback {
             override fun onStart() {
                 view.onLoading()
             }
 
             override fun onSuccess(albumList: List<Album>) {
-                view.setNewAlbums(albumList)
+                view.onNewAlbumsLoad(albumList)
             }
 
             override fun onFailure(msg: String) {

@@ -22,7 +22,7 @@ import butterknife.ButterKnife
 import butterknife.OnClick
 import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.data.bean.Song
-import com.example.wenhai.listenall.moudle.play.PlayFragment
+import com.example.wenhai.listenall.moudle.play.PLayActivity
 import com.example.wenhai.listenall.moudle.play.service.PlayService
 import com.example.wenhai.listenall.moudle.play.service.PlayStatusObserver
 import com.example.wenhai.listenall.utils.AppUtil
@@ -32,13 +32,8 @@ import com.example.wenhai.listenall.utils.LogUtil
 import com.example.wenhai.listenall.widget.PlayListDialog
 import com.example.wenhai.listenall.widget.ProgressImageButton
 
-
 class MainActivity : AppCompatActivity(), PlayStatusObserver {
-    companion object {
-        const val TAG = "MainActivity"
-    }
-
-    //    drawer
+    //views in drawer
     @BindView(R.id.main_drawer)
     lateinit var mDrawer: DrawerLayout
     @BindView(R.id.slide_menu_app_version)
@@ -66,7 +61,7 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
     @BindView(R.id.slide_menu_quit)
     lateinit var smBtnQuit: Button
 
-    //    play bar
+    // views in bottom play bar
     @BindView(R.id.main_iv_cover)
     lateinit var mCover: ImageView
     @BindView(R.id.main_song_name)
@@ -98,6 +93,31 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
         initPlayService()
     }
 
+    private fun initSlideMenu() {
+        // TODO: 2017/8/4  初始化侧滑菜单
+        val appVersion = AppUtil.getAppVersionName(this)
+        val displayAppVersion = "V $appVersion"
+        smTvAppVersion.text = displayAppVersion
+        smTvAppVersion.isSelected = true
+    }
+
+    private fun initPlayService() {
+        val intent = Intent(this, PlayService::class.java)
+        intent.action = PlayService.ACTION_INIT
+        connection = object : ServiceConnection {
+            override fun onServiceDisconnected(p0: ComponentName?) {
+
+            }
+
+            override fun onServiceConnected(p0: ComponentName?, binder: IBinder?) {
+                val serviceBinder: PlayService.ServiceBinder = binder as PlayService.ServiceBinder
+                playService = serviceBinder.getPlayService()
+                playService.registerStatusObserver(this@MainActivity)
+            }
+
+        }
+        bindService(intent, connection, Context.BIND_AUTO_CREATE)
+    }
 
     @OnClick(R.id.slide_only_wifi_switcher, R.id.slide_set_time_close_switcher, R.id.slide_menu_clean_cache,
             R.id.slide_menu_set_cache_size, R.id.slide_menu_open_source, R.id.slide_menu_about_app,
@@ -110,7 +130,7 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
         }
     }
 
-    @OnClick(R.id.play_bar_control, R.id.main_ll_song_info, R.id.play_bar_song_list)
+    @OnClick(R.id.play_bar_control, R.id.main_iv_cover, R.id.main_ll_song_info, R.id.play_bar_song_list)
     fun onPlayBarClick(view: View) {
         when (view.id) {
             R.id.play_bar_control -> {
@@ -120,9 +140,8 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
                     playService.pause()
                 }
             }
-            R.id.main_ll_song_info -> {
-                val playDetailFragment = PlayFragment()
-                FragmentUtil.addFragmentToView(supportFragmentManager, playDetailFragment, R.id.main_activity)
+            R.id.main_ll_song_info, R.id.main_iv_cover -> {
+                startActivity(Intent(this, PLayActivity::class.java))
             }
             R.id.play_bar_song_list -> {
                 val dialog = PlayListDialog(this, currentPlayList)
@@ -136,31 +155,6 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
                 dialog.show()
             }
         }
-    }
-
-    private fun initPlayService() {
-        val intent = Intent(this, PlayService::class.java)
-        intent.action = PlayService.ACTION_INIT
-        connection = object : ServiceConnection {
-            override fun onServiceDisconnected(p0: ComponentName?) {
-
-            }
-
-            override fun onServiceConnected(p0: ComponentName?, binder: IBinder?) {
-                val controlBinder: PlayService.ControlBinder = binder as PlayService.ControlBinder
-                playService = controlBinder.getPlayService()
-                playService.registerStatusObserver(this@MainActivity)
-            }
-
-        }
-        bindService(intent, connection, Context.BIND_AUTO_CREATE)
-    }
-
-    private fun initSlideMenu() {
-        // TODO: 2017/8/4  初始化侧滑菜单
-        val appVersion = AppUtil.getAppVersionName(this)
-        val displayAppVersion = "V $appVersion"
-        smTvAppVersion.text = displayAppVersion
     }
 
     fun openDrawer() {
@@ -210,11 +204,11 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
         currentSong = playStatus.currentSong
         if (currentSong != null) {
             mSongName.text = currentSong !!.name
-            mSingerOrLyric.text = currentSong !!.artistName
+            mSingerOrLyric.text = currentSong !!.displayArtistName
             setCover(currentSong !!.miniAlbumCoverUrl)
         }
         isPlaying = playStatus.isPlaying
-        setPlayIcon(isPlaying)
+        setControlIcon(isPlaying)
 
         mBtnControl.progress = playStatus.playProgress
         currentPlayList = playStatus.currentList
@@ -227,7 +221,7 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
                 .into(mCover)
     }
 
-    private fun setPlayIcon(playing: Boolean) {
+    private fun setControlIcon(playing: Boolean) {
         val drawableId =
                 if (playing) {
                     R.drawable.ic_pause
@@ -239,15 +233,19 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
 
     override fun onPlayStart() {
         isPlaying = true
-        setPlayIcon(isPlaying)
-        GlideApp.with(this).load(currentSong?.albumCoverUrl).into(smCover)
+        setControlIcon(isPlaying)
+        //设置侧滑菜单顶部图标
+        GlideApp.with(this)
+                .load(currentSong?.albumCoverUrl)
+                .into(smCover)
         smTitle.text = currentSong?.name
-        smTvAppVersion.text = currentSong?.artistName
+        smTvAppVersion.text = currentSong?.displayArtistName
     }
 
     override fun onPlayPause() {
         isPlaying = false
-        setPlayIcon(isPlaying)
+        setControlIcon(isPlaying)
+        //设置侧滑菜单顶部图标
         smCover.setImageResource(R.drawable.ic_main_android)
         smTitle.text = getString(R.string.app_name)
         smTvAppVersion.text = AppUtil.getAppVersionName(this)
@@ -280,16 +278,32 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
     }
 
     override fun onPlayInfo(msg: String) {
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+        runOnUiThread {
+            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onNewSong(song: Song) {
-        currentSong = song
-        mSongName.text = song.name
-        mSingerOrLyric.text = song.artistName
-        mBtnControl.animateProgress(0.toFloat())
-        setCover(song.miniAlbumCoverUrl)
+        runOnUiThread {
+            currentSong = song
+            mSongName.text = song.name
+            mSingerOrLyric.text = song.displayArtistName
+            mBtnControl.animateProgress(0.toFloat())
+            setCover(song.miniAlbumCoverUrl)
+        }
     }
+
+    override fun onNewSongList() {
+        mSongName.text = ""
+        mSingerOrLyric.text = ""
+        mBtnControl.animateProgress(0.toFloat())
+        mCover.setImageResource(R.drawable.ic_main_all_music)
+    }
+
+    companion object {
+        const val TAG = "MainActivity"
+    }
+
 
     interface OnBackKeyEventListener {
         fun onBackKeyPressed()

@@ -9,6 +9,7 @@
     <include layout="@layout/include_action_bar" />
 
     <LinearLayout
+        android:id="@+id/play_history_shuffle_all"
         android:layout_width="match_parent"
         android:layout_height="45dp"
         android:gravity="center_vertical"

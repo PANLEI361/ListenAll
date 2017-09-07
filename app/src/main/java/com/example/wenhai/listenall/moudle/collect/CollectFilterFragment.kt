@@ -17,11 +17,15 @@ import butterknife.OnClick
 import butterknife.Unbinder
 import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.data.bean.Collect
+import com.example.wenhai.listenall.ktextension.hide
+import com.example.wenhai.listenall.ktextension.isShowing
+import com.example.wenhai.listenall.ktextension.show
+import com.example.wenhai.listenall.ktextension.showToast
 import com.example.wenhai.listenall.moudle.detail.DetailContract
 import com.example.wenhai.listenall.moudle.detail.DetailFragment
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
-import com.example.wenhai.listenall.utils.ToastUtil
+import com.scwang.smartrefresh.layout.SmartRefreshLayout
 
 class CollectFilterFragment : Fragment(), CollectFilterContract.View {
 
@@ -35,14 +39,18 @@ class CollectFilterFragment : Fragment(), CollectFilterContract.View {
     lateinit var mCollectList: RecyclerView
     @BindView(R.id.loading)
     lateinit var mLoading: LinearLayout
-    @BindView(R.id.loading_icon)
-    lateinit var mLoadingIcon: ImageView
+    @BindView(R.id.loading_failed)
+    lateinit var mLoadFailed: LinearLayout
+    @BindView(R.id.refresh)
+    lateinit var mRefreshLayout: SmartRefreshLayout
 
     private lateinit var mUnbinder: Unbinder
     private lateinit var mCollectCategoryFragment: CollectCategoryFragment
     private var isFilterShown = false
     private var curCategory: String = ""
     private lateinit var mPresenter: CollectFilterContract.Presenter
+    private var curPage = 1
+    private lateinit var mCollectAdapter: CollectListAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,16 +66,24 @@ class CollectFilterFragment : Fragment(), CollectFilterContract.View {
 
     override fun initView() {
         curCategory = mFilterTitle.text.toString()
-        mPresenter.loadCollectByCategory(curCategory)
+        mPresenter.loadCollectByCategory(curCategory, curPage)
+        mCollectList.layoutManager = LinearLayoutManager(context)
+        mCollectAdapter = CollectListAdapter(context, ArrayList())
+        mCollectList.adapter = mCollectAdapter
+        mRefreshLayout.setOnLoadmoreListener {
+            mPresenter.loadCollectByCategory(curCategory, curPage)
+        }
     }
 
     fun setFilterTitle(category: String) {
         //所选分类与当前不同，加载新数据
         if (category != curCategory) {
             curCategory = category
+            mCollectAdapter.clearData()
+            curPage = 1
             mFilterTitle.text = curCategory
             //刷新数据
-            mPresenter.loadCollectByCategory(curCategory)
+            mPresenter.loadCollectByCategory(curCategory, curPage)
         }
         setFilterTitleIcon(false)
     }
@@ -82,7 +98,8 @@ class CollectFilterFragment : Fragment(), CollectFilterContract.View {
         mFilterIcon.setImageResource(iconId)
     }
 
-    @OnClick(R.id.action_bar_back, R.id.collect_filter, R.id.collect_filter_action_bar)
+    @OnClick(R.id.action_bar_back, R.id.collect_filter, R.id.collect_filter_action_bar,
+            R.id.loading_failed)
     fun onClick(view: View) {
         when (view.id) {
             R.id.action_bar_back -> {
@@ -111,6 +128,9 @@ class CollectFilterFragment : Fragment(), CollectFilterContract.View {
                     mCollectCategoryFragment.onFilterChosen(curCategory)
                 }
             }
+            R.id.loading_failed -> {
+                mPresenter.loadCollectByCategory(curCategory, curPage)
+            }
         }
     }
 
@@ -120,21 +140,36 @@ class CollectFilterFragment : Fragment(), CollectFilterContract.View {
 
     override fun onFailure(msg: String) {
         activity.runOnUiThread {
-            ToastUtil.showToast(context, msg)
+            if (mRefreshLayout.isLoading) {
+                mRefreshLayout.finishLoadmore(200, false)
+            }
+            if (mLoading.isShowing()) {
+                mLoading.hide()
+                mLoadFailed.show()
+            }
+            context.showToast(msg)
         }
     }
 
     override fun onLoading() {
-        mLoading.visibility = View.VISIBLE
-        mCollectList.visibility = View.GONE
+        if (curPage == 1 || mLoadFailed.isShowing()) {
+            mLoading.show()
+            mCollectList.hide()
+            mLoadFailed.hide()
+        }
     }
 
     override fun onCollectLoad(collects: List<Collect>) {
         activity.runOnUiThread {
-            mCollectList.layoutManager = LinearLayoutManager(context)
-            mCollectList.adapter = CollectListAdapter(context, collects)
-            mLoading.visibility = View.GONE
-            mCollectList.visibility = View.VISIBLE
+            if (mRefreshLayout.isLoading) {
+                mRefreshLayout.finishLoadmore(200, true)
+            }
+            curPage ++
+            mCollectAdapter.addData(collects)
+            if (mLoading.isShowing()) {
+                mLoading.hide()
+                mCollectList.show()
+            }
         }
     }
 
@@ -144,22 +179,22 @@ class CollectFilterFragment : Fragment(), CollectFilterContract.View {
         mUnbinder.unbind()
     }
 
-    inner class CollectListAdapter(val context: Context, private var collects: List<Collect>) : RecyclerView.Adapter<CollectListAdapter.ViewHolder>() {
+    inner class CollectListAdapter(val context: Context, var collects: List<Collect>) : RecyclerView.Adapter<CollectListAdapter.ViewHolder>() {
 
         override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
             val itemView = LayoutInflater.from(context).inflate(R.layout.item_collect_list, parent, false)
             return ViewHolder(itemView)
         }
 
-//        fun setData(newCollects: List<Collect>) {
-//            collects = newCollects
-//            notifyDataSetChanged()
-//        }
-//
-//        fun addData(addCollects: List<Collect>) {
-//            (collects as ArrayList<Collect>).addAll(addCollects)
-//            notifyDataSetChanged()
-//        }
+        fun addData(addCollects: List<Collect>) {
+            (collects as ArrayList<Collect>).addAll(addCollects)
+            notifyDataSetChanged()
+        }
+
+        fun clearData() {
+            (collects as ArrayList).clear()
+            notifyDataSetChanged()
+        }
 
         override fun getItemCount(): Int = collects.size
 
@@ -189,7 +224,6 @@ class CollectFilterFragment : Fragment(), CollectFilterContract.View {
             var collectTitle: TextView = itemView.findViewById(R.id.collect_list_title)
             var collectDesc: TextView = itemView.findViewById(R.id.collect_list_desc)
             var collectCover: ImageView = itemView.findViewById(R.id.collect_list_cover)
-
         }
     }
 

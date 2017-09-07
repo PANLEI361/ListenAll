@@ -14,7 +14,6 @@ public class Album {
     private String miniCoverUrl;//封面 url
     private int songNumber;//包含歌曲数量
     private int songDownloadNumber;//已下载歌曲数量
-    private MusicProvider source;//来源
     private long publishDate;//发行时间
     private String publishDateStr;
     private MusicProvider supplier;
@@ -98,14 +97,6 @@ public class Album {
 
     public void setPublishDateStr(String publishDateStr) {
         this.publishDateStr = publishDateStr;
-    }
-
-    public MusicProvider getSource() {
-        return source;
-    }
-
-    public void setSource(MusicProvider source) {
-        this.source = source;
     }
 
     public long getPublishDate() {

@@ -20,7 +20,7 @@ internal class SearchPresenter(val view: SearchContract.View) : SearchContract.P
             }
 
             override fun onFailure(msg: String) {
-
+                view.onFailure("搜索失败")
             }
 
             override fun onSuccess(loadedSongs: List<Song>) {
@@ -34,9 +34,11 @@ internal class SearchPresenter(val view: SearchContract.View) : SearchContract.P
     override fun loadSearchRecommend(keyword: String) {
         musicRepository.loadSearchRecommend(keyword, object : LoadSearchRecommendCallback {
             override fun onStart() {
+                //do not call view.onLoading()
             }
 
             override fun onFailure(msg: String) {
+                view.onFailure("获取关键字失败")
             }
 
             override fun onSuccess(recommendKeyword: List<String>) {

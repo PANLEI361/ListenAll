@@ -1,6 +1,11 @@
 package com.example.wenhai.listenall.moudle.play
 
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
 import android.os.Bundle
+import android.os.IBinder
 import android.support.v4.app.Fragment
 import android.support.v4.view.PagerAdapter
 import android.support.v4.view.ViewPager
@@ -19,19 +24,19 @@ import butterknife.OnClick
 import butterknife.Unbinder
 import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.data.MusicProvider
+import com.example.wenhai.listenall.data.bean.LikedSong
+import com.example.wenhai.listenall.data.bean.LikedSongDao
 import com.example.wenhai.listenall.data.bean.Song
-import com.example.wenhai.listenall.moudle.main.MainActivity
+import com.example.wenhai.listenall.ktextension.showToast
 import com.example.wenhai.listenall.moudle.play.service.PlayService
 import com.example.wenhai.listenall.moudle.play.service.PlayStatusObserver
-import com.example.wenhai.listenall.utils.FragmentUtil
+import com.example.wenhai.listenall.utils.DAOUtil
 import com.example.wenhai.listenall.utils.GlideApp
 import com.example.wenhai.listenall.widget.PlayListDialog
 
 class PlayFragment : Fragment(), PlayStatusObserver {
-
     @BindView(R.id.play_song_name)
     lateinit var mSongName: TextView
-
     @BindView(R.id.play_pager)
     lateinit var mPager: ViewPager
 
@@ -65,10 +70,13 @@ class PlayFragment : Fragment(), PlayStatusObserver {
     private lateinit var mTvArtistName: TextView
     private lateinit var mTvProvider: TextView
     private lateinit var mIvCover: ImageView
+    private lateinit var mBtnLiked: ImageView
+    private lateinit var mBtnDownload: ImageView
+    private lateinit var mBtnMore: ImageView
 
     lateinit var lyricView: LinearLayout
 
-
+    private lateinit var connection: ServiceConnection
     private lateinit var mUnBinder: Unbinder
     private var mCurrentSong: Song? = null
     private lateinit var mCurrentPlayList: ArrayList<Song>
@@ -76,30 +84,41 @@ class PlayFragment : Fragment(), PlayStatusObserver {
     private var playMode: PlayService.PlayMode = PlayService.PlayMode.REPEAT_LIST
     private var isPlaying: Boolean = false
 
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        playService = (activity as MainActivity).playService
-    }
-
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val contentView = inflater !!.inflate(R.layout.fragment_play, container, false)
         //init coverView
         coverView = inflater.inflate(R.layout.fragment_play_cover, container, false) as RelativeLayout
-        mIvCover = coverView.findViewById(R.id.play_cover)
-        mTvArtistName = coverView.findViewById(R.id.play_artist_name)
-        mTvProvider = coverView.findViewById(R.id.play_provider)
 
         //init lyricView
         lyricView = inflater.inflate(R.layout.fragment_play_lyric, container, false) as LinearLayout
         //init
         mUnBinder = ButterKnife.bind(this, contentView)
         initView()
-        playService.registerStatusObserver(this)
+        initPlayService()
         return contentView
     }
 
+    //bind PlayService
+    private fun initPlayService() {
+        val intent = Intent(context, PlayService::class.java)
+        connection = object : ServiceConnection {
+            override fun onServiceDisconnected(p0: ComponentName?) {
+
+            }
+
+            override fun onServiceConnected(p0: ComponentName?, binder: IBinder?) {
+                val serviceBinder: PlayService.ServiceBinder = binder as PlayService.ServiceBinder
+                playService = serviceBinder.getPlayService()
+                playService.registerStatusObserver(this@PlayFragment)
+            }
+
+        }
+        context.bindService(intent, connection, Context.BIND_AUTO_CREATE)
+    }
+
+
     private fun initView() {
+        mSongName.isSelected = true //validate marquee
         mPager.adapter = PlayPagerAdapter()
         mPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
             override fun onPageScrollStateChanged(state: Int) {
@@ -138,6 +157,23 @@ class PlayFragment : Fragment(), PlayStatusObserver {
 
         })
 
+        initCoverView()
+
+    }
+
+    private fun initCoverView() {
+        mIvCover = coverView.findViewById(R.id.play_cover)
+        mTvArtistName = coverView.findViewById(R.id.play_artist_name)
+        //TextView 跑马灯需要设置 selected=true
+        mTvArtistName.isSelected = true
+        mTvProvider = coverView.findViewById(R.id.play_provider)
+        mBtnLiked = coverView.findViewById(R.id.play_btn_like)
+        mBtnDownload = coverView.findViewById(R.id.play_btn_download)
+        mBtnMore = coverView.findViewById(R.id.play_btn_more_operation)
+        mBtnLiked.setOnClickListener {
+            likeCurrentSong()
+        }
+
     }
 
     @OnClick(R.id.action_bar_back, R.id.play_btn_start_pause, R.id.play_btn_previous,
@@ -145,8 +181,7 @@ class PlayFragment : Fragment(), PlayStatusObserver {
     fun onClick(view: View) {
         when (view.id) {
             R.id.action_bar_back -> {
-                playService.unregisterStatusObserver(this)
-                FragmentUtil.removeFragment(fragmentManager, this)
+                activity.finish()
             }
             R.id.play_btn_start_pause -> {
                 if (playService.isMediaPlaying()) {
@@ -176,6 +211,27 @@ class PlayFragment : Fragment(), PlayStatusObserver {
                 })
                 dialog.show()
             }
+        }
+    }
+
+    private fun likeCurrentSong() {
+        val likedSongDao = DAOUtil.getSession(context).likedSongDao
+        val queryList = likedSongDao.queryBuilder()
+                .where(LikedSongDao.Properties.SongId.eq(mCurrentSong !!.songId))
+                .list()
+        if (queryList.isEmpty()) {
+            //添加当前歌曲到喜欢列表
+            val likedSong = LikedSong(mCurrentSong)
+            if (likedSongDao.insert(likedSong) > 0) {
+                context.showToast(R.string.liked)
+                mBtnLiked.setImageResource(R.drawable.ic_liked)
+            }
+        } else {
+            //将当前歌曲从喜欢列表中移除
+            val likedSong = queryList[0]
+            likedSongDao.delete(likedSong)
+            mBtnLiked.setImageResource(R.drawable.ic_like_border)
+            context.showToast(R.string.unliked)
         }
     }
 
@@ -233,10 +289,6 @@ class PlayFragment : Fragment(), PlayStatusObserver {
         mTvTotalTime.text = getMinuteLength(length)
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        mUnBinder.unbind()
-    }
 
     // call from PlayService
     override fun onPlayInit(playStatus: PlayService.PlayStatus) {
@@ -248,10 +300,16 @@ class PlayFragment : Fragment(), PlayStatusObserver {
         mCurrentSong = playStatus.currentSong
         if (mCurrentSong != null) {
             mSongName.text = mCurrentSong !!.name
-            mTvArtistName.text = mCurrentSong !!.artistName
+            mTvArtistName.text = mCurrentSong !!.displayArtistName
             setProvider()
             setCover(mCurrentSong !!.albumCoverUrl)
             mTvTotalTime.text = getMinuteLength(mCurrentSong !!.length)
+            val isLiked = DAOUtil.getSession(context).likedSongDao.queryBuilder()
+                    .where(LikedSongDao.Properties.SongId.eq(mCurrentSong !!.songId))
+                    .list().size > 0
+            if (isLiked) {
+                mBtnLiked.setImageResource(R.drawable.ic_liked)
+            }
         }
         mCurrentPlayList = playStatus.currentList
         mSeekBar.progress = playStatus.playProgress.toInt()
@@ -292,17 +350,31 @@ class PlayFragment : Fragment(), PlayStatusObserver {
     }
 
     override fun onPlayInfo(msg: String) {
-
+        context.showToast(msg)
     }
 
     override fun onNewSong(song: Song) {
-        mCurrentSong = song
-        mSongName.text = mCurrentSong !!.name
-        setCover(mCurrentSong !!.albumCoverUrl)
-        mTvArtistName.text = mCurrentSong !!.artistName
-        setProvider()
-        setTotalTime(mCurrentSong !!.length)
-        setCurTime(0f)
+        activity.runOnUiThread {
+            mCurrentSong = song
+            mSongName.text = mCurrentSong !!.name
+            setCover(mCurrentSong !!.albumCoverUrl)
+            mTvArtistName.text = mCurrentSong !!.displayArtistName
+            setProvider()
+            setTotalTime(mCurrentSong !!.length)
+            setCurTime(0f)
+            val isLiked = DAOUtil.getSession(context).likedSongDao.queryBuilder()
+                    .where(LikedSongDao.Properties.SongId.eq(mCurrentSong !!.songId))
+                    .list().size > 0
+            if (isLiked) {
+                mBtnLiked.setImageResource(R.drawable.ic_liked)
+            } else {
+                mBtnLiked.setImageResource(R.drawable.ic_like_border)
+            }
+        }
+    }
+
+    override fun onNewSongList() {
+
     }
 
     @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
@@ -310,13 +382,13 @@ class PlayFragment : Fragment(), PlayStatusObserver {
         val provider = mCurrentSong !!.supplier
         val providerStr = when (provider) {
             MusicProvider.XIAMI -> {
-                "虾米音乐"
+                getString(R.string.provider_xiami)
             }
             MusicProvider.QQMUSIC -> {
-                "QQ音乐"
+                getString(R.string.provider_qq)
             }
             MusicProvider.NETEASE -> {
-                "网易云音乐"
+                getString(R.string.provider_netease)
             }
         }
         mTvProvider.text = providerStr
@@ -325,6 +397,17 @@ class PlayFragment : Fragment(), PlayStatusObserver {
     override fun onSongCompleted() {
         //adjust
         onPlayProgressUpdate(100f)
+    }
+
+    override fun onDestroyView() {
+        playService.unregisterStatusObserver(this)
+        super.onDestroyView()
+        mUnBinder.unbind()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        context.unbindService(connection)
     }
 
     inner class PlayPagerAdapter : PagerAdapter() {
@@ -346,6 +429,5 @@ class PlayFragment : Fragment(), PlayStatusObserver {
             container !!.removeViewAt(position)
             super.destroyItem(container, position, `object`)
         }
-
     }
 }

@@ -22,12 +22,16 @@ import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.data.bean.Album
 import com.example.wenhai.listenall.data.bean.Artist
 import com.example.wenhai.listenall.data.bean.Song
+import com.example.wenhai.listenall.ktextension.hide
+import com.example.wenhai.listenall.ktextension.isShowing
+import com.example.wenhai.listenall.ktextension.show
+import com.example.wenhai.listenall.ktextension.showToast
 import com.example.wenhai.listenall.moudle.detail.DetailContract
 import com.example.wenhai.listenall.moudle.detail.DetailFragment
 import com.example.wenhai.listenall.moudle.main.MainActivity
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
-import com.example.wenhai.listenall.utils.ToastUtil
+import com.scwang.smartrefresh.layout.SmartRefreshLayout
 
 class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
 
@@ -44,10 +48,18 @@ class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
     //歌手热门歌曲
     lateinit var mHotSongsView: LinearLayout
     private lateinit var mHotSongList: RecyclerView
+    private lateinit var mHotSongRefresh: SmartRefreshLayout
+    lateinit var mShuffleAll: LinearLayout
+    private lateinit var mHotSongAdapter: HotSongsAdapter
+    private var curHotSongPage = 1
+
 
     //歌手专辑
     lateinit var mAlbumsView: LinearLayout
     private lateinit var mAlbumList: RecyclerView
+    private lateinit var mAlbumRefresh: SmartRefreshLayout
+    private lateinit var mAlbumAdapter: AlbumAdapter
+    private var curAlbumPage = 1
 
     //歌手详情
     lateinit var mArtistInfoView: LinearLayout
@@ -56,6 +68,7 @@ class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
     private lateinit var mUnbinder: Unbinder
     lateinit var mPresenter: ArtistDetailContract.Presenter
     lateinit var artist: Artist
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,9 +81,12 @@ class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
 
         mHotSongsView = inflater.inflate(R.layout.fragment_artist_detail_hot_songs, container, false) as LinearLayout
         mHotSongList = mHotSongsView.findViewById(R.id.detail_song_list)
+        mHotSongRefresh = mHotSongsView.findViewById(R.id.hotSongRefresh)
+        mShuffleAll = mHotSongsView.findViewById(R.id.shuffle_all)
 
         mAlbumsView = inflater.inflate(R.layout.fragment_artist_detail_albums, container, false) as LinearLayout
         mAlbumList = mAlbumsView.findViewById(R.id.detail_album_list)
+        mAlbumRefresh = mAlbumsView.findViewById(R.id.album_refresh)
 
         mArtistInfoView = inflater.inflate(R.layout.fragment_artist_detail_info, container, false) as LinearLayout
         mArtistDesc = mArtistInfoView.findViewById(R.id.detail_artist_desc)
@@ -86,8 +102,33 @@ class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
         mArtistName.text = artist.name
         mArtistPhoto.setOnClickListener { }
 
-        mPresenter.loadArtistHotSongs(artist)
-        mPresenter.loadArtistAlbums(artist)
+        mPresenter.loadArtistHotSongs(artist, curHotSongPage)
+        mPresenter.loadArtistAlbums(artist, curAlbumPage)
+
+        initHotSongView()
+        initAlbumView()
+
+    }
+
+    private fun initHotSongView() {
+        mHotSongAdapter = HotSongsAdapter(context, ArrayList())
+        mHotSongList.layoutManager = LinearLayoutManager(context)
+        mHotSongList.adapter = mHotSongAdapter
+        mHotSongRefresh.setOnLoadmoreListener {
+            mPresenter.loadArtistHotSongs(artist, curHotSongPage)
+        }
+        mShuffleAll.setOnClickListener {
+            (activity as MainActivity).playService.shuffleAll(mHotSongAdapter.hotSongs)
+        }
+    }
+
+    private fun initAlbumView() {
+        mAlbumAdapter = AlbumAdapter(context, ArrayList())
+        mAlbumList.adapter = mAlbumAdapter
+        mAlbumList.layoutManager = LinearLayoutManager(context)
+        mAlbumRefresh.setOnLoadmoreListener {
+            mPresenter.loadArtistAlbums(artist, curAlbumPage)
+        }
     }
 
     @OnClick(R.id.action_bar_back)
@@ -96,14 +137,9 @@ class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
             R.id.action_bar_back -> {
                 FragmentUtil.removeFragment(fragmentManager, this)
             }
-
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        mUnbinder.unbind()
-    }
 
     override fun setPresenter(presenter: ArtistDetailContract.Presenter) {
         mPresenter = presenter
@@ -111,7 +147,13 @@ class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
 
     override fun onFailure(msg: String) {
         activity.runOnUiThread {
-            ToastUtil.showToast(context, msg)
+            if (mAlbumRefresh.isLoading) {
+                mAlbumRefresh.finishLoadmore(200, false)
+            }
+            if (mHotSongRefresh.isLoading) {
+                mHotSongRefresh.finishLoadmore(200, false)
+            }
+            context.showToast(msg)
         }
     }
 
@@ -129,20 +171,34 @@ class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
 
     override fun onHotSongsLoad(hotSongs: List<Song>) {
         activity.runOnUiThread {
-            mHotSongList.layoutManager = LinearLayoutManager(context)
-            mHotSongList.adapter = HotSongsAdapter(context, hotSongs)
+            if (mHotSongRefresh.isLoading) {
+                mHotSongRefresh.finishLoadmore(200, true)
+            }
+            if (! mShuffleAll.isShowing()) {
+                mShuffleAll.show()
+            }
+            curHotSongPage ++
+            mHotSongAdapter.addData(hotSongs)
         }
     }
 
     override fun onAlbumsLoad(albums: List<Album>) {
         activity.runOnUiThread {
-            mAlbumList.adapter = AlbumAdapter(context, albums)
-            mAlbumList.layoutManager = LinearLayoutManager(context)
+            if (mAlbumRefresh.isLoading) {
+                mAlbumRefresh.finishLoadmore(200, true)
+            }
+            curAlbumPage ++
+            mAlbumAdapter.addData(albums)
         }
     }
 
     override fun onSongDetailLoaded(song: Song) {
         (activity as MainActivity).playNewSong(song)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        mUnbinder.unbind()
     }
 
 
@@ -198,7 +254,7 @@ class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
 
     }
 
-    inner class HotSongsAdapter(val context: Context, private var hotSongs: List<Song>) : RecyclerView.Adapter<HotSongsAdapter.ViewHolder>() {
+    inner class HotSongsAdapter(val context: Context, var hotSongs: List<Song>) : RecyclerView.Adapter<HotSongsAdapter.ViewHolder>() {
 
         override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
             val song = hotSongs[position]
@@ -207,10 +263,10 @@ class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
             holder.title.text = song.name
             // 虾米没有专辑信息
             if (song.albumName != "") {
-                holder.album.visibility = View.VISIBLE
+                holder.album.hide()
                 holder.album.text = song.albumName
             } else {
-                holder.album.visibility = View.GONE
+                holder.album.hide()
             }
             holder.item.setOnClickListener({
                 mPresenter.loadSongDetail(song)
@@ -229,6 +285,11 @@ class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
             var index: TextView = itemView.findViewById(R.id.detail_index)
             val title: TextView = itemView.findViewById(R.id.detail_song_title)
             var album: TextView = itemView.findViewById(R.id.detail_album)
+        }
+
+        fun addData(data: List<Song>) {
+            (hotSongs as ArrayList).addAll(data)
+            notifyDataSetChanged()
         }
     }
 
@@ -255,6 +316,11 @@ class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
                 FragmentUtil.addFragmentToMainView(fragmentManager, detailFragment)
 
             }
+        }
+
+        fun addData(data: List<Album>) {
+            (albums as ArrayList).addAll(data)
+            notifyDataSetChanged()
         }
 
         override fun getItemCount(): Int = albums.size

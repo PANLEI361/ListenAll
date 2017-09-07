@@ -13,8 +13,8 @@ internal class CollectFilterPresenter(val view: CollectFilterContract.View) : Co
         view.setPresenter(this)
     }
 
-    override fun loadCollectByCategory(category: String) {
-        musicRepository.loadCollectByCategory(category, object : LoadCollectByCategoryCallback {
+    override fun loadCollectByCategory(category: String, page: Int) {
+        musicRepository.loadCollectByCategory(category, page, object : LoadCollectByCategoryCallback {
             override fun onStart() {
                 view.onLoading()
             }

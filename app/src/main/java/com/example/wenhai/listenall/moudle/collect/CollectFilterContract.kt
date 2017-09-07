@@ -11,6 +11,6 @@ interface CollectFilterContract {
     }
 
     interface Presenter : BasePresenter {
-        fun loadCollectByCategory(category: String)
+        fun loadCollectByCategory(category: String, page: Int)
     }
 }

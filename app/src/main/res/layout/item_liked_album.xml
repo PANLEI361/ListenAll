@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="90dp"
+    android:background="@drawable/selector_white"
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
+
+    <ImageView
+        android:id="@+id/liked_album_cover"
+        android:layout_width="89dp"
+        android:layout_height="89dp"
+        android:layout_margin="5dp"
+        android:src="@drawable/ic_main_all_music"
+        tools:ignore="ContentDescription" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/liked_album_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="15dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="X(Deluxe Edition)"
+            android:textColor="@color/colorBlack"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/liked_album_artist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@id/liked_album_name"
+            android:layout_below="@+id/liked_album_name"
+            android:layout_marginTop="10dp"
+            android:text="Ed Sheeran" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:layout_alignParentBottom="true"
+            android:background="@color/colorDivider" />
+    </RelativeLayout>
+</LinearLayout>

@@ -8,7 +8,7 @@ import com.example.wenhai.listenall.data.bean.Artist
 
 interface ArtistListContract {
     interface Presenter : BasePresenter {
-        fun loadArtists(region: ArtistRegion)
+        fun loadArtists(region: ArtistRegion, page: Int)
 
     }
 

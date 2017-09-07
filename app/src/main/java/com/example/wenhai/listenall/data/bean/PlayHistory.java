@@ -1,5 +1,7 @@
 package com.example.wenhai.listenall.data.bean;
 
+import com.example.wenhai.listenall.data.MusicProvider;
+
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
@@ -43,6 +45,44 @@ public class PlayHistory {
 
     @Generated(hash = 2145518983)
     public PlayHistory() {
+    }
+
+    public PlayHistory(Song song) {
+        this.playTimeInMills = System.currentTimeMillis();
+        this.playTimes = 0;
+        this.songName = song.getName();
+        this.songId = song.getSongId();
+        this.artistId = song.getArtistId();
+        this.albumId = song.getAlbumId();
+        this.coverUrl = song.getAlbumCoverUrl();
+        this.artistName = song.getArtistName();
+        this.albumName = song.getAlbumName();
+        this.listenFileUrl = song.getListenFileUrl();
+        this.miniAlbumCoverUrl = song.getMiniAlbumCoverUrl();
+        this.providerName = song.getSupplier().name();
+    }
+
+    public Song getSong() {
+        Song song = new Song();
+        song.setName(songName);
+        song.setSongId(songId);
+        song.setArtistId(artistId);
+        song.setAlbumId(albumId);
+        song.setAlbumCoverUrl(coverUrl);
+        song.setArtistName(artistName);
+        song.setAlbumName(albumName);
+        song.setListenFileUrl(listenFileUrl);
+        song.setMiniAlbumCoverUrl(miniAlbumCoverUrl);
+        MusicProvider provider;
+        if (providerName.equals(MusicProvider.NETEASE.name())) {
+            provider = MusicProvider.NETEASE;
+        } else if (providerName.equals(MusicProvider.QQMUSIC.name())) {
+            provider = MusicProvider.QQMUSIC;
+        } else {
+            provider = MusicProvider.XIAMI;
+        }
+        song.setSupplier(provider);
+        return song;
     }
 
     public Long getId() {

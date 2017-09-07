@@ -12,55 +12,53 @@ import com.example.wenhai.listenall.moudle.ranking.RankingContract
 
 internal class DetailPresenter(val view: DetailContract.View) : DetailContract.Presenter {
 
-
-    companion object {
-        const val TAG = "DetailPresenter"
-    }
-
     private val musicRepository: MusicRepository = MusicRepository.INSTANCE
 
     init {
         view.setPresenter(this)
     }
 
-    override fun loadSongsDetails(id: Long, type: DetailContract.LoadType) {
-        if (type == DetailContract.LoadType.COLLECT) {
-            musicRepository.loadCollectDetail(id, object : LoadCollectDetailCallback {
-                override fun onStart() {
-                    view.onLoading()
-                }
+    override fun loadAlbumDetail(id: Long) {
+        musicRepository.loadAlbumDetail(id, object : LoadAlbumDetailCallback {
+            override fun onStart() {
+                view.onLoading()
+            }
 
-                override fun onFailure(msg: String) {
-                    view.onFailure(msg)
-                }
+            override fun onFailure(msg: String) {
+                view.onFailure(msg)
+            }
 
-                override fun onSuccess(collect: Collect) {
-                    view.onCollectDetailLoad(collect)
-                }
+            override fun onSuccess(album: Album) {
+                view.onAlbumDetailLoad(album)
+            }
 
-            })
-        } else {
-            musicRepository.loadAlbumDetail(id, object : LoadAlbumDetailCallback {
-                override fun onStart() {
-                    view.onLoading()
-                }
-
-                override fun onFailure(msg: String) {
-                    view.onFailure(msg)
-                }
-
-                override fun onSuccess(album: Album) {
-                    view.onAlbumDetailLoad(album)
-                }
-
-            })
-        }
+        })
     }
 
-    override fun loadSongDetail(song: Song) {
+    override fun loadCollectDetail(id: Long) {
+        musicRepository.loadCollectDetail(id, object : LoadCollectDetailCallback {
+            override fun onStart() {
+                view.onLoading()
+            }
+
+            override fun onFailure(msg: String) {
+                view.onFailure(msg)
+            }
+
+            override fun onSuccess(collect: Collect) {
+                view.onCollectDetailLoad(collect)
+            }
+
+        })
+
+    }
+
+    override fun loadSongDetail(id: Long) {
+        val song = Song()
+        song.songId = id
         musicRepository.loadSongDetail(song, object : LoadSongDetailCallback {
             override fun onStart() {
-
+                view.onLoading()
             }
 
             override fun onFailure(msg: String) {
@@ -68,11 +66,13 @@ internal class DetailPresenter(val view: DetailContract.View) : DetailContract.P
             }
 
             override fun onSuccess(loadedSong: Song) {
-                view.onSongDetailLoad(loadedSong)
+                //加载专辑详情
+                loadAlbumDetail(song.albumId)
             }
 
         })
     }
+
 
     override fun loadGlobalRanking(ranking: RankingContract.GlobalRanking) {
         musicRepository.loadGlobalRanking(ranking, object : LoadSingleRankingCallback {
@@ -90,6 +90,10 @@ internal class DetailPresenter(val view: DetailContract.View) : DetailContract.P
             }
         })
 
+    }
+
+    companion object {
+        const val TAG = "DetailPresenter"
     }
 
 }
