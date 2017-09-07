@@ -16,9 +16,9 @@ import butterknife.Unbinder
 import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.data.bean.LikedSong
 import com.example.wenhai.listenall.data.bean.Song
+import com.example.wenhai.listenall.ktextension.showToast
 import com.example.wenhai.listenall.moudle.main.MainActivity
 import com.example.wenhai.listenall.utils.DAOUtil
-import com.example.wenhai.listenall.utils.ToastUtil
 
 class LikedSongFragment : Fragment() {
     @BindView(R.id.liked_songs)
@@ -48,7 +48,7 @@ class LikedSongFragment : Fragment() {
         when (view.id) {
             R.id.liked_shuffle_all -> {
                 if (mLikedSongAdapter.likedSongs.isEmpty()) {
-                    ToastUtil.showToast(context, "没有歌曲可以播放")
+                    context.showToast(R.string.no_songs_to_play)
                 } else {
                     //shuffle all liked songs
                     val songList: ArrayList<Song> = ArrayList()

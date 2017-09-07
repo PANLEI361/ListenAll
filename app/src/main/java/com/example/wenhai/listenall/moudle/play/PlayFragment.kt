@@ -27,11 +27,11 @@ import com.example.wenhai.listenall.data.MusicProvider
 import com.example.wenhai.listenall.data.bean.LikedSong
 import com.example.wenhai.listenall.data.bean.LikedSongDao
 import com.example.wenhai.listenall.data.bean.Song
+import com.example.wenhai.listenall.ktextension.showToast
 import com.example.wenhai.listenall.moudle.play.service.PlayService
 import com.example.wenhai.listenall.moudle.play.service.PlayStatusObserver
 import com.example.wenhai.listenall.utils.DAOUtil
 import com.example.wenhai.listenall.utils.GlideApp
-import com.example.wenhai.listenall.utils.ToastUtil
 import com.example.wenhai.listenall.widget.PlayListDialog
 
 class PlayFragment : Fragment(), PlayStatusObserver {
@@ -223,17 +223,15 @@ class PlayFragment : Fragment(), PlayStatusObserver {
             //添加当前歌曲到喜欢列表
             val likedSong = LikedSong(mCurrentSong)
             if (likedSongDao.insert(likedSong) > 0) {
-                ToastUtil.showToast(context, "添加成功")
+                context.showToast(R.string.liked)
                 mBtnLiked.setImageResource(R.drawable.ic_liked)
-            } else {
-                ToastUtil.showToast(context, "添加失败，请重试")
             }
         } else {
             //将当前歌曲从喜欢列表中移除
             val likedSong = queryList[0]
             likedSongDao.delete(likedSong)
             mBtnLiked.setImageResource(R.drawable.ic_like_border)
-            ToastUtil.showToast(context, "已从喜欢列表移除")
+            context.showToast(R.string.unliked)
         }
     }
 
@@ -352,7 +350,7 @@ class PlayFragment : Fragment(), PlayStatusObserver {
     }
 
     override fun onPlayInfo(msg: String) {
-        ToastUtil.showToast(context, msg)
+        context.showToast(msg)
     }
 
     override fun onNewSong(song: Song) {

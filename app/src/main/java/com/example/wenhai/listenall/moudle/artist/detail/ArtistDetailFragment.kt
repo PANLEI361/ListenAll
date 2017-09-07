@@ -22,12 +22,15 @@ import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.data.bean.Album
 import com.example.wenhai.listenall.data.bean.Artist
 import com.example.wenhai.listenall.data.bean.Song
+import com.example.wenhai.listenall.ktextension.hide
+import com.example.wenhai.listenall.ktextension.isShowing
+import com.example.wenhai.listenall.ktextension.show
+import com.example.wenhai.listenall.ktextension.showToast
 import com.example.wenhai.listenall.moudle.detail.DetailContract
 import com.example.wenhai.listenall.moudle.detail.DetailFragment
 import com.example.wenhai.listenall.moudle.main.MainActivity
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
-import com.example.wenhai.listenall.utils.ToastUtil
 import com.scwang.smartrefresh.layout.SmartRefreshLayout
 
 class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
@@ -150,7 +153,7 @@ class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
             if (mHotSongRefresh.isLoading) {
                 mHotSongRefresh.finishLoadmore(200, false)
             }
-            ToastUtil.showToast(context, msg)
+            context.showToast(msg)
         }
     }
 
@@ -171,8 +174,8 @@ class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
             if (mHotSongRefresh.isLoading) {
                 mHotSongRefresh.finishLoadmore(200, true)
             }
-            if (mShuffleAll.visibility == View.GONE) {
-                mShuffleAll.visibility = View.VISIBLE
+            if (! mShuffleAll.isShowing()) {
+                mShuffleAll.show()
             }
             curHotSongPage ++
             mHotSongAdapter.addData(hotSongs)
@@ -260,10 +263,10 @@ class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
             holder.title.text = song.name
             // 虾米没有专辑信息
             if (song.albumName != "") {
-                holder.album.visibility = View.VISIBLE
+                holder.album.hide()
                 holder.album.text = song.albumName
             } else {
-                holder.album.visibility = View.GONE
+                holder.album.hide()
             }
             holder.item.setOnClickListener({
                 mPresenter.loadSongDetail(song)

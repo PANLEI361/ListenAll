@@ -20,6 +20,8 @@ import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.data.bean.SearchHistory
 import com.example.wenhai.listenall.data.bean.SearchHistoryDao
 import com.example.wenhai.listenall.data.bean.Song
+import com.example.wenhai.listenall.ktextension.hide
+import com.example.wenhai.listenall.ktextension.show
 import com.example.wenhai.listenall.moudle.main.MainActivity
 import com.example.wenhai.listenall.moudle.main.MainFragment
 import com.example.wenhai.listenall.utils.DAOUtil
@@ -107,8 +109,8 @@ class SearchFragment : Fragment(), SearchContract.View {
 
     fun showSearchHistory() {
         currentContent = CONTENT_SEARCH_HISTORY
-//        mHotSearch.visibility = View.VISIBLE
-        mSearchView.visibility = View.GONE
+//        mHotSearch.show()
+        mSearchView.hide()
         val dao = DAOUtil.getSession(context).searchHistoryDao
         val query = dao.queryBuilder()
                 .where(SearchHistoryDao.Properties.Keyword.notEq(""))
@@ -125,7 +127,7 @@ class SearchFragment : Fragment(), SearchContract.View {
 
     fun showSearchRecommend(keyword: String) {
         searchKeyword = keyword
-        mSearchView.visibility = View.VISIBLE
+        mSearchView.show()
         val display = "搜索\"$keyword\""
         mTvBeginSearch.text = display
         currentContent = CONTENT_RECOMMEND_KEYWORD
@@ -148,29 +150,29 @@ class SearchFragment : Fragment(), SearchContract.View {
     override fun onSearchResult(songs: List<Song>) {
         if (currentContent == CONTENT_SEARCH_RESULT) {
             activity.runOnUiThread {
-                mSearchView.visibility = View.GONE
+                mSearchView.hide()
                 resultSongs = songs
                 mContentList.adapter = ResultSongsAdapter(resultSongs)
                 mContentList.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
 
-                mLoading.visibility = View.GONE
-                mContentList.visibility = View.VISIBLE
+                mLoading.hide()
+                mContentList.show()
             }
         }
     }
 
     override fun onLoading() {
-        mLoading.visibility = View.VISIBLE
-        mContentList.visibility = View.GONE
-        mLoadFailed.visibility = View.GONE
+        mLoading.show()
+        mContentList.hide()
+        mLoadFailed.hide()
     }
 
     override fun onFailure(msg: String) {
         activity.runOnUiThread {
-            mLoadFailed.visibility = View.VISIBLE
-            mLoading.visibility = View.GONE
-            mContentList.visibility = View.GONE
-            mSearchView.visibility = View.GONE
+            mLoadFailed.show()
+            mLoading.hide()
+            mContentList.hide()
+            mSearchView.hide()
 //            ToastUtil.showToast(context, msg)
         }
     }

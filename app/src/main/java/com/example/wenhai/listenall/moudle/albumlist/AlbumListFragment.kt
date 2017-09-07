@@ -17,11 +17,14 @@ import butterknife.OnClick
 import butterknife.Unbinder
 import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.data.bean.Album
+import com.example.wenhai.listenall.ktextension.hide
+import com.example.wenhai.listenall.ktextension.isShowing
+import com.example.wenhai.listenall.ktextension.show
+import com.example.wenhai.listenall.ktextension.showToast
 import com.example.wenhai.listenall.moudle.detail.DetailContract
 import com.example.wenhai.listenall.moudle.detail.DetailFragment
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
-import com.example.wenhai.listenall.utils.ToastUtil
 import com.scwang.smartrefresh.layout.SmartRefreshLayout
 
 class AlbumListFragment : Fragment(), AlbumListContract.View {
@@ -74,9 +77,9 @@ class AlbumListFragment : Fragment(), AlbumListContract.View {
                 mRefreshLayout.finishLoadmore(200, true)
             }
             albumAdapter.addData(albumList)
-            if (mLoading.visibility == View.VISIBLE) {
-                mLoading.visibility = View.GONE
-                mNewAlbumList.visibility = View.VISIBLE
+            if (mLoading.isShowing()) {
+                mLoading.hide()
+                mNewAlbumList.show()
             }
         }
     }
@@ -87,10 +90,10 @@ class AlbumListFragment : Fragment(), AlbumListContract.View {
     }
 
     override fun onLoading() {
-        if (curPage == 1 || mLoadFailed.visibility == View.VISIBLE) {
-            mLoading.visibility = View.VISIBLE
-            mNewAlbumList.visibility = View.GONE
-            mLoadFailed.visibility = View.GONE
+        if (curPage == 1 || mLoadFailed.isShowing()) {
+            mLoading.show()
+            mNewAlbumList.hide()
+            mLoadFailed.hide()
         }
     }
 
@@ -99,11 +102,11 @@ class AlbumListFragment : Fragment(), AlbumListContract.View {
             if (mRefreshLayout.isLoading) {
                 mRefreshLayout.finishLoadmore(200, false)
             }
-            if (mLoading.visibility == View.VISIBLE) {
-                mLoading.visibility = View.GONE
-                mLoadFailed.visibility = View.VISIBLE
+            if (mLoading.isShowing()) {
+                mLoading.hide()
+                mLoadFailed.show()
             }
-            ToastUtil.showToast(context, msg)
+            context.showToast(msg)
         }
     }
 

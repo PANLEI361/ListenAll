@@ -23,13 +23,15 @@ import com.example.wenhai.listenall.data.bean.LikedAlbumDao
 import com.example.wenhai.listenall.data.bean.LikedCollect
 import com.example.wenhai.listenall.data.bean.LikedCollectDao
 import com.example.wenhai.listenall.data.bean.Song
+import com.example.wenhai.listenall.ktextension.hide
+import com.example.wenhai.listenall.ktextension.show
+import com.example.wenhai.listenall.ktextension.showToast
 import com.example.wenhai.listenall.moudle.main.MainActivity
 import com.example.wenhai.listenall.moudle.ranking.RankingContract
 import com.example.wenhai.listenall.utils.DAOUtil
 import com.example.wenhai.listenall.utils.DateUtil
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
-import com.example.wenhai.listenall.utils.ToastUtil
 
 class DetailFragment : Fragment(), DetailContract.View {
     @BindView(R.id.action_bar_title)
@@ -131,7 +133,7 @@ class DetailFragment : Fragment(), DetailContract.View {
                 switchLikedState()
             }
             R.id.detail_download_all -> {
-                ToastUtil.showToast(activity, "download all")
+                context.showToast("download all")
             }
             R.id.loading_failed -> {
                 loadDetail()
@@ -146,12 +148,12 @@ class DetailFragment : Fragment(), DetailContract.View {
             var likedAlbum = isCurAlbumLiked()
             if (likedAlbum != null) {
                 dao.delete(likedAlbum)
-                ToastUtil.showToast(activity, "已取消收藏")
+                context.showToast("已取消收藏")
             } else {
                 likedAlbum = LikedAlbum(mAlbum)
                 dao.insert(likedAlbum)
                 liked = true
-                ToastUtil.showToast(activity, "已收藏")
+                context.showToast("收藏成功")
             }
             setLikedIcon(liked)
         } else if (mLoadType == DetailContract.LoadType.COLLECT) {
@@ -160,12 +162,12 @@ class DetailFragment : Fragment(), DetailContract.View {
             var likedCollect = isCurCollectLiked()
             if (likedCollect != null) {
                 dao.delete(likedCollect)
-                ToastUtil.showToast(activity, "已取消收藏")
+                context.showToast(R.string.unliked)
             } else {
                 likedCollect = LikedCollect(mCollect)
                 dao.insert(likedCollect)
                 liked = true
-                ToastUtil.showToast(activity, "已收藏")
+                context.showToast(R.string.liked)
             }
             setLikedIcon(liked)
         }
@@ -212,16 +214,16 @@ class DetailFragment : Fragment(), DetailContract.View {
     }
 
     override fun onLoading() {
-        mLoading.visibility = View.VISIBLE
-        mLoadFailed.visibility = View.GONE
-        mSongList.visibility = View.GONE
+        mLoading.show()
+        mLoadFailed.hide()
+        mSongList.hide()
     }
 
     override fun onCollectDetailLoad(collect: Collect) {
         activity.runOnUiThread({
             mCollect = collect
             mTitle.text = collect.title
-            mArtist.visibility = View.GONE
+            mArtist.hide()
             GlideApp.with(context).load(collect.coverUrl)
                     .placeholder(R.drawable.ic_main_all_music)
                     .into(mCover)
@@ -229,8 +231,8 @@ class DetailFragment : Fragment(), DetailContract.View {
             mDate.text = displayDate
             mSongListAdapter.setData(collect.songs)
 
-            mLoading.visibility = View.GONE
-            mSongList.visibility = View.VISIBLE
+            mLoading.hide()
+            mSongList.show()
 
             if (isCurCollectLiked() != null) {
                 setLikedIcon(true)
@@ -246,11 +248,11 @@ class DetailFragment : Fragment(), DetailContract.View {
             GlideApp.with(context)
                     .load(collect.coverDrawable)
                     .into(mCover)
-            mDate.visibility = View.GONE
+            mDate.hide()
             mSongListAdapter.setData(collect.songs)
 
-            mLoading.visibility = View.GONE
-            mSongList.visibility = View.VISIBLE
+            mLoading.hide()
+            mSongList.show()
         })
     }
 
@@ -265,7 +267,7 @@ class DetailFragment : Fragment(), DetailContract.View {
         activity.runOnUiThread {
             mAlbum = album
             mTitle.text = album.title
-            mArtist.visibility = View.VISIBLE
+            mArtist.show()
             mArtist.text = album.artist
             val displayDate = "发行时间：${DateUtil.getDate(album.publishDate)}"
             GlideApp.with(context).load(album.coverUrl)
@@ -274,8 +276,8 @@ class DetailFragment : Fragment(), DetailContract.View {
             mDate.text = displayDate
             mSongListAdapter.setData(album.songs)
 
-            mLoading.visibility = View.GONE
-            mSongList.visibility = View.VISIBLE
+            mLoading.hide()
+            mSongList.show()
             if (isCurAlbumLiked() != null) {
                 setLikedIcon(true)
             }
@@ -285,9 +287,9 @@ class DetailFragment : Fragment(), DetailContract.View {
 
     override fun onFailure(msg: String) {
         activity.runOnUiThread {
-            mLoading.visibility = View.GONE
-            mLoadFailed.visibility = View.VISIBLE
-            ToastUtil.showToast(context, msg)
+            mLoading.hide()
+            mLoadFailed.show()
+            context.showToast(msg)
         }
     }
 

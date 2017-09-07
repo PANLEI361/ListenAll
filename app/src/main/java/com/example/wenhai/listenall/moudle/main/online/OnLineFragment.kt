@@ -23,6 +23,10 @@ import com.example.wenhai.listenall.data.bean.Album
 import com.example.wenhai.listenall.data.bean.Banner
 import com.example.wenhai.listenall.data.bean.BannerType
 import com.example.wenhai.listenall.data.bean.Collect
+import com.example.wenhai.listenall.ktextension.hide
+import com.example.wenhai.listenall.ktextension.isShowing
+import com.example.wenhai.listenall.ktextension.show
+import com.example.wenhai.listenall.ktextension.showToast
 import com.example.wenhai.listenall.moudle.albumlist.AlbumListFragment
 import com.example.wenhai.listenall.moudle.artist.list.ArtistListFragment
 import com.example.wenhai.listenall.moudle.collect.CollectFilterFragment
@@ -33,7 +37,6 @@ import com.example.wenhai.listenall.moudle.ranking.RankingFragment
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
 import com.example.wenhai.listenall.utils.LogUtil
-import com.example.wenhai.listenall.utils.ToastUtil
 import com.scwang.smartrefresh.layout.SmartRefreshLayout
 import com.scwang.smartrefresh.layout.header.ClassicsHeader
 import com.youth.banner.BannerConfig
@@ -172,9 +175,9 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
     }
 
     override fun onLoading() {
-        mLoading.visibility = View.VISIBLE
-        mFailed.visibility = View.GONE
-        mContent.visibility = View.GONE
+        mLoading.show()
+        mFailed.hide()
+        mContent.hide()
     }
 
     override fun onFailure(msg: String) {
@@ -182,11 +185,11 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
             if (mRefreshLayout.isRefreshing) {
                 mRefreshLayout.finishRefresh(200, false)
             }
-            if (mLoading.visibility == View.VISIBLE) {
-                mLoading.visibility = View.GONE
-                mFailed.visibility = View.VISIBLE
+            if (mLoading.isShowing()) {
+                mLoading.hide()
+                mFailed.show()
             }
-            ToastUtil.showToast(context, msg)
+            context.showToast(msg)
         }
     }
 
@@ -197,9 +200,9 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
             }
             mHotCollectAdapter = HotCollectsAdapter(context, hotCollects.subList(0, 6))
             mHotCollects.adapter = mHotCollectAdapter
-            if (mLoading.visibility == View.VISIBLE) {
-                mLoading.visibility = View.GONE
-                mContent.visibility = View.VISIBLE
+            if (mLoading.isShowing()) {
+                mLoading.hide()
+                mContent.show()
             }
         }
     }
@@ -212,9 +215,9 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
             }
             mNewAlbumAdapter = NewAlbumsAdapter(context, newAlbums.subList(0, 6))
             mNewAlbums.adapter = mNewAlbumAdapter
-            if (mLoading.visibility == View.VISIBLE) {
-                mLoading.visibility = View.GONE
-                mContent.visibility = View.VISIBLE
+            if (mLoading.isShowing()) {
+                mLoading.hide()
+                mContent.show()
             }
         }
     }

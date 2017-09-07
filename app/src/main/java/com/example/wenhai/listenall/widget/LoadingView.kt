@@ -11,6 +11,7 @@ class LoadingView(context: Context, attributeSet: AttributeSet, refStyle: Int)
     : ImageView(context, attributeSet, refStyle) {
     constructor(context: Context, attributeSet: AttributeSet) : this(context, attributeSet, 0)
 
+    lateinit var mRotateAnimator: ObjectAnimator
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
     }
@@ -22,11 +23,16 @@ class LoadingView(context: Context, attributeSet: AttributeSet, refStyle: Int)
 
 
     private fun beginLoadingAnimation() {
-        val rotateAnimator = ObjectAnimator.ofFloat(this, "rotation", 0f, 360f)
-        rotateAnimator.interpolator = AccelerateDecelerateInterpolator()
-        rotateAnimator.duration = 900
-        rotateAnimator.repeatMode = ObjectAnimator.RESTART
-        rotateAnimator.repeatCount = ObjectAnimator.INFINITE
-        rotateAnimator.start()
+        mRotateAnimator = ObjectAnimator.ofFloat(this, "rotation", 0f, 360f)
+        mRotateAnimator.interpolator = AccelerateDecelerateInterpolator()
+        mRotateAnimator.duration = 900
+        mRotateAnimator.repeatMode = ObjectAnimator.RESTART
+        mRotateAnimator.repeatCount = ObjectAnimator.INFINITE
+        mRotateAnimator.start()
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        mRotateAnimator.cancel()
     }
 }

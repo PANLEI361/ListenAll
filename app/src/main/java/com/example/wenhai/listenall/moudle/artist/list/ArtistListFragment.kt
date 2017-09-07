@@ -18,10 +18,13 @@ import butterknife.Unbinder
 import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.data.ArtistRegion
 import com.example.wenhai.listenall.data.bean.Artist
+import com.example.wenhai.listenall.ktextension.hide
+import com.example.wenhai.listenall.ktextension.isShowing
+import com.example.wenhai.listenall.ktextension.show
+import com.example.wenhai.listenall.ktextension.showToast
 import com.example.wenhai.listenall.moudle.artist.detail.ArtistDetailFragment
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
-import com.example.wenhai.listenall.utils.ToastUtil
 import com.scwang.smartrefresh.layout.SmartRefreshLayout
 
 class ArtistListFragment : Fragment(), ArtistListContract.View {
@@ -85,11 +88,11 @@ class ArtistListFragment : Fragment(), ArtistListContract.View {
             if (mRefreshLayout.isLoading) {
                 mRefreshLayout.finishLoadmore(200, false)
             }
-            if (mLoading.visibility == View.VISIBLE) {
-                mLoading.visibility = View.GONE
-                mLoadFailed.visibility = View.VISIBLE
+            if (mLoading.isShowing()) {
+                mLoading.hide()
+                mLoadFailed.show()
             }
-            ToastUtil.showToast(context, msg)
+            context.showToast(msg)
         }
     }
 
@@ -100,18 +103,18 @@ class ArtistListFragment : Fragment(), ArtistListContract.View {
                 mRefreshLayout.finishLoadmore(200, true)
             }
             mArtistAdapter.addData(artists)
-            if (mLoading.visibility == View.VISIBLE) {
-                mLoading.visibility = View.GONE
-                mArtistList.visibility = View.VISIBLE
+            if (mLoading.isShowing()) {
+                mLoading.hide()
+                mArtistList.show()
             }
         }
     }
 
     override fun onLoading() {
-        if (curPage == 1 || mLoadFailed.visibility == View.VISIBLE) {
-            mLoading.visibility = View.VISIBLE
-            mArtistList.visibility = View.GONE
-            mLoadFailed.visibility = View.GONE
+        if (curPage == 1 || mLoadFailed.isShowing()) {
+            mLoading.show()
+            mArtistList.hide()
+            mLoadFailed.hide()
         }
     }
 

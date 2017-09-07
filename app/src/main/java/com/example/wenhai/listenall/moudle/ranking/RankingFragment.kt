@@ -19,6 +19,8 @@ import butterknife.Unbinder
 import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.data.MusicProvider
 import com.example.wenhai.listenall.data.bean.Collect
+import com.example.wenhai.listenall.ktextension.hide
+import com.example.wenhai.listenall.ktextension.show
 import com.example.wenhai.listenall.moudle.detail.DetailContract
 import com.example.wenhai.listenall.moudle.detail.DetailFragment
 import com.example.wenhai.listenall.utils.FragmentUtil
@@ -109,8 +111,8 @@ class RankingFragment : Fragment(), RankingContract.View {
         activity.runOnUiThread {
             mOfficialRanking.adapter = OfficialRankingAdapter(collects)
             mOfficialRanking.layoutManager = LinearLayoutManager(context)
-            mLoading.visibility = View.GONE
-            mContent.visibility = View.VISIBLE
+            mLoading.hide()
+            mContent.show()
         }
     }
 
@@ -124,16 +126,16 @@ class RankingFragment : Fragment(), RankingContract.View {
     }
 
     override fun onLoading() {
-        mLoading.visibility = View.VISIBLE
-        mContent.visibility = View.GONE
-        mLoadFailed.visibility = View.GONE
+        mLoading.show()
+        mContent.hide()
+        mLoadFailed.hide()
     }
 
     override fun onFailure(msg: String) {
         activity.runOnUiThread {
-            mLoading.visibility = View.GONE
-            mContent.visibility = View.GONE
-            mLoadFailed.visibility = View.VISIBLE
+            mLoading.hide()
+            mContent.hide()
+            mLoadFailed.show()
 //            ToastUtil.showToast(context, msg)
         }
     }

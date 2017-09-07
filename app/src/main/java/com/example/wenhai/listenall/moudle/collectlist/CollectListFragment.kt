@@ -17,11 +17,14 @@ import butterknife.OnClick
 import butterknife.Unbinder
 import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.data.bean.Collect
+import com.example.wenhai.listenall.ktextension.hide
+import com.example.wenhai.listenall.ktextension.isShowing
+import com.example.wenhai.listenall.ktextension.show
+import com.example.wenhai.listenall.ktextension.showToast
 import com.example.wenhai.listenall.moudle.detail.DetailContract
 import com.example.wenhai.listenall.moudle.detail.DetailFragment
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
-import com.example.wenhai.listenall.utils.ToastUtil
 import com.scwang.smartrefresh.layout.SmartRefreshLayout
 
 internal class CollectListFragment : Fragment(), CollectListContract.View {
@@ -90,16 +93,16 @@ internal class CollectListFragment : Fragment(), CollectListContract.View {
                 mRefreshLayout.finishLoadmore(200, true)
             }
             mCollectListAdapter.addData(collects)
-            mLoading.visibility = View.GONE
-            mRvCollectList.visibility = View.VISIBLE
+            mLoading.hide()
+            mRvCollectList.show()
         }
     }
 
     override fun onLoading() {
-        if (curLoadPage == 1 || mLoadFailed.visibility == View.VISIBLE) {
-            mLoading.visibility = View.VISIBLE
-            mRvCollectList.visibility = View.GONE
-            mLoadFailed.visibility = View.GONE
+        if (curLoadPage == 1 || mLoadFailed.isShowing()) {
+            mLoading.show()
+            mRvCollectList.hide()
+            mLoadFailed.hide()
         }
     }
 
@@ -108,11 +111,11 @@ internal class CollectListFragment : Fragment(), CollectListContract.View {
             if (mRefreshLayout.isLoading) {
                 mRefreshLayout.finishLoadmore(200, false)
             }
-            if (mLoading.visibility == View.VISIBLE) {
-                mLoading.visibility = View.GONE
-                mLoadFailed.visibility = View.VISIBLE
+            if (mLoading.isShowing()) {
+                mLoading.hide()
+                mLoadFailed.show()
             }
-            ToastUtil.showToast(context, msg)
+            context.showToast(msg)
         }
     }
 

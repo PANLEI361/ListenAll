@@ -17,9 +17,9 @@ import butterknife.Unbinder
 import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.data.bean.PlayHistory
 import com.example.wenhai.listenall.data.bean.Song
+import com.example.wenhai.listenall.ktextension.showToast
 import com.example.wenhai.listenall.moudle.main.MainActivity
 import com.example.wenhai.listenall.utils.FragmentUtil
-import com.example.wenhai.listenall.utils.ToastUtil
 
 class PlayHistoryFragment : Fragment(), PlayHistoryContract.View {
     @BindView(R.id.action_bar_title)
@@ -59,7 +59,7 @@ class PlayHistoryFragment : Fragment(), PlayHistoryContract.View {
             }
             R.id.play_history_shuffle_all -> {
                 if (mPlayHistoryAdapter.playHistoryList.isEmpty()) {
-                    ToastUtil.showToast(context, "没有歌曲可以播放")
+                    context.showToast(R.string.no_songs_to_play)
                 } else {
                     val songList = ArrayList<Song>()
                     mPlayHistoryAdapter.playHistoryList.mapTo(songList) { it.song }
@@ -77,14 +77,17 @@ class PlayHistoryFragment : Fragment(), PlayHistoryContract.View {
         mPlayHistoryAdapter.setData(playHistory)
     }
 
-    override fun onNoPlayHistory() = ToastUtil.showToast(context, getString(R.string.no_play_history))
+    override fun onNoPlayHistory() {
+        context.showToast(R.string.no_play_history)
+    }
+
 
     override fun onLoading() {
 
     }
 
     override fun onFailure(msg: String) {
-        ToastUtil.showToast(context, msg)
+        context.showToast(msg)
     }
 
     inner class PlayHistoryAdapter(var playHistoryList: List<PlayHistory>) : RecyclerView.Adapter<PlayHistoryAdapter.ViewHolder>() {

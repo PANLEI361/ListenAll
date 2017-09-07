@@ -24,6 +24,8 @@ import butterknife.ButterKnife
 import butterknife.OnClick
 import butterknife.Unbinder
 import com.example.wenhai.listenall.R
+import com.example.wenhai.listenall.ktextension.hide
+import com.example.wenhai.listenall.ktextension.show
 import com.example.wenhai.listenall.moudle.main.local.LocalFragment
 import com.example.wenhai.listenall.moudle.main.online.OnLineFragment
 import com.example.wenhai.listenall.moudle.search.SearchFragment
@@ -104,12 +106,12 @@ class MainFragment : Fragment() {
     }
 
     fun hideSearchBar() {
-        mTab.visibility = View.VISIBLE
-        mBtnSearch.visibility = View.VISIBLE
-        mEtSearch.visibility = View.GONE
+        mTab.show()
+        mBtnSearch.show()
+        mEtSearch.hide()
         mEtSearch.removeTextChangedListener(textWatch)
         textWatch = null
-        mCancelSearch.visibility = View.GONE
+        mCancelSearch.hide()
         FragmentUtil.removeFragment(fragmentManager, searchFragment)
         hideSoftInput()
     }
@@ -125,10 +127,10 @@ class MainFragment : Fragment() {
         searchFragment = SearchFragment()
         FragmentUtil.addFragmentToView(fragmentManager, searchFragment, R.id.main_pager_container)
 
-        mTab.visibility = View.GONE
-        mBtnSearch.visibility = View.GONE
-        mCancelSearch.visibility = View.VISIBLE
-        mEtSearch.visibility = View.VISIBLE
+        mTab.hide()
+        mBtnSearch.hide()
+        mCancelSearch.show()
+        mEtSearch.show()
         mEtSearch.setText("")
         showSoftInput()
 

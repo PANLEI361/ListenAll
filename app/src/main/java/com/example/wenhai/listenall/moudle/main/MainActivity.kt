@@ -278,7 +278,9 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
     }
 
     override fun onPlayInfo(msg: String) {
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+        runOnUiThread {
+            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onNewSong(song: Song) {

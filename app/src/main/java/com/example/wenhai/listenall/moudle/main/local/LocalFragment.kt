@@ -100,9 +100,7 @@ class LocalFragment : android.support.v4.app.Fragment() {
             val dao = DAOUtil.getSession(context).likedCollectDao
             val likedCollectList = dao.queryBuilder().build().list()
             val collectList = ArrayList<Collect>()
-            likedCollectList.mapTo(collectList) {
-                it.collect
-            }
+            likedCollectList.mapTo(collectList) { it.collect }
             mCollectAdapter.setData(collectList)
         }
     }
@@ -126,11 +124,6 @@ class LocalFragment : android.support.v4.app.Fragment() {
         data.putSerializable(DetailContract.ARGS_LOAD_TYPE, DetailContract.LoadType.COLLECT)
         detailFragment.arguments = data
         FragmentUtil.addFragmentToMainView(fragmentManager, detailFragment)
-    }
-
-    override fun onStart() {
-        super.onStart()
-        mScrollView.smoothScrollTo(0, 0)
     }
 
     override fun onDestroyView() {
