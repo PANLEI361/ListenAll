@@ -138,6 +138,10 @@ class CollectFilterFragment : Fragment(), CollectFilterContract.View {
         mPresenter = presenter
     }
 
+    override fun getViewContext(): Context {
+        return context
+    }
+
     override fun onFailure(msg: String) {
         activity.runOnUiThread {
             if (mRefreshLayout.isLoading) {

@@ -213,6 +213,11 @@ class DetailFragment : Fragment(), DetailContract.View {
         mPresenter = presenter
     }
 
+
+    override fun getViewContext(): Context {
+        return context
+    }
+
     override fun onLoading() {
         mLoading.show()
         mLoadFailed.hide()

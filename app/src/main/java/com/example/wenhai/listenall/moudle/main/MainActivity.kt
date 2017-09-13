@@ -21,6 +21,7 @@ import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
 import com.example.wenhai.listenall.R
+import com.example.wenhai.listenall.common.Config
 import com.example.wenhai.listenall.data.bean.Song
 import com.example.wenhai.listenall.moudle.play.PLayActivity
 import com.example.wenhai.listenall.moudle.play.service.PlayService
@@ -99,6 +100,15 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
         val displayAppVersion = "V $appVersion"
         smTvAppVersion.text = displayAppVersion
         smTvAppVersion.isSelected = true
+
+        //onlyWifi
+        val sp = getSharedPreferences(Config.NAME, Context.MODE_PRIVATE)
+        val onlyWifi = sp.getBoolean(Config.ONLY_WIFI, false)
+        smSwitchOnlyWifi.isChecked = onlyWifi
+        smSwitchOnlyWifi.setOnCheckedChangeListener { _, isChecked ->
+            sp.edit().putBoolean(Config.ONLY_WIFI, isChecked).apply()
+        }
+
     }
 
     private fun initPlayService() {

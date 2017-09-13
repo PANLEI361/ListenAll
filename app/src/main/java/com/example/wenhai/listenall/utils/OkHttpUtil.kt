@@ -1,6 +1,11 @@
 package com.example.wenhai.listenall.utils
 
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkInfo
+import android.os.Bundle
 import android.util.Log
+import com.example.wenhai.listenall.common.Config
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient
@@ -17,7 +22,6 @@ object OkHttpUtil {
     @JvmStatic
     private var client: OkHttpClient? = null
 
-
     @JvmStatic
     fun getHttpClient(): OkHttpClient {
         if (client == null) {
@@ -33,10 +37,43 @@ object OkHttpUtil {
     }
 
     @JvmStatic
-    fun getForXiami(url: String, callback: ResponseCallBack) {
+    fun checkNetWork(context: Context): Bundle {
+        val conn: ConnectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetwork: NetworkInfo? = conn.activeNetworkInfo
+        val connect = if (activeNetwork != null && activeNetwork.isConnected) {
+            activeNetwork.type
+        } else {
+            - 1
+        }
+        val bundle = Bundle()
+        if (connect != - 1) {//有网络连接
+            val sp = context.getSharedPreferences(Config.NAME, Context.MODE_PRIVATE)
+            val onlyWifi = sp.getBoolean(Config.ONLY_WIFI, false)
+            //判断用户设置
+            if (onlyWifi && connect == ConnectivityManager.TYPE_WIFI || ! onlyWifi) {
+                bundle.putInt("state", 1)
+            } else {
+                bundle.putInt("state", 0)
+                bundle.putString("msg", "非wifi网络自动停止加载")
+            }
+        } else {//没有网络连接
+            bundle.putInt("state", 0)
+            bundle.putString("msg", "没有网络")
+        }
+        return bundle
+    }
+
+    @JvmStatic
+    fun getForXiami(context: Context, url: String, callback: ResponseCallBack) {
         //start request
         LogUtil.d(TAG, url)
         callback.onStart()
+        val networkData = checkNetWork(context)
+        if (networkData.getInt("state", 0) == 0) {
+            callback.onFailure(networkData.getString("msg"))
+            LogUtil.e("test", networkData.getString("msg"))
+            return
+        }
         val request = Request.Builder()
                 .url(url)
                 .addHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8")

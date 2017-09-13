@@ -17,6 +17,7 @@ import com.example.wenhai.listenall.data.bean.PlayHistoryDao
 import com.example.wenhai.listenall.data.bean.Song
 import com.example.wenhai.listenall.utils.DAOUtil
 import com.example.wenhai.listenall.utils.LogUtil
+import com.example.wenhai.listenall.utils.OkHttpUtil
 import java.io.IOException
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
@@ -75,7 +76,7 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
         mediaPlayer.setOnCompletionListener(this)
         mediaPlayer.setOnBufferingUpdateListener(this)
         timer = Timer()
-        musicRepository = MusicRepository.INSTANCE
+        musicRepository = MusicRepository.getInstance(this)
         mStatusObservers = ArrayList()
 
         try {
@@ -147,13 +148,18 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
 
     @Suppress("DEPRECATION")
     private fun setCurSongAndPrepareAsync(song: Song) {
-        playStatus.currentSong = song
-        notifyStatusChanged(STATUS_NEW_SONG, song)
-        mediaPlayer.reset()
-        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC)
         try {
-            mediaPlayer.setDataSource(song.listenFileUrl)
-            mediaPlayer.prepareAsync()
+            val bundle = OkHttpUtil.checkNetWork(this)
+            if (bundle.getInt("state") == 1) {
+                mediaPlayer.reset()
+                mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC)
+                mediaPlayer.setDataSource(song.listenFileUrl)
+                mediaPlayer.prepareAsync()
+                playStatus.currentSong = song
+                notifyStatusChanged(STATUS_NEW_SONG, song)
+            } else {
+                notifyStatusChanged(STATUS_INFO, bundle.getString("msg"))
+            }
         } catch (e: IllegalArgumentException) {
             notifyStatusChanged(STATUS_ERROR, "参数有误")
             mediaPlayer.reset()
@@ -297,6 +303,7 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
     }
 
     override fun onError(player: MediaPlayer?, what: Int, extra: Int): Boolean {
+        LogUtil.e("test", "onError")
         val msg = when (extra) {
             MediaPlayer.MEDIA_ERROR_UNSUPPORTED -> {
                 "文件格式不支持"
@@ -500,7 +507,6 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
         const val STATUS_TMP_FILE_NAME = "play_status.tmp"
         const val ACTION_NEW_SONG = BuildConfig.APPLICATION_ID + "newsong"
         const val ACTION_INIT = BuildConfig.APPLICATION_ID + "init"
-//        const val ACTION_BIND = BuildConfig.APPLICATION_ID + "bind"
 
         const val STATUS_STOP = 0x00
         const val STATUS_START = 0x01

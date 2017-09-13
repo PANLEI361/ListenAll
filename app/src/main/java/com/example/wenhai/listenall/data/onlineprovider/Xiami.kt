@@ -1,6 +1,7 @@
 package com.example.wenhai.listenall.data.onlineprovider
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.AsyncTask
 import android.text.TextUtils
 import com.example.wenhai.listenall.R
@@ -47,7 +48,7 @@ import java.net.URLEncoder
  * 虾米音乐
  * Created by Wenhai on 2017/8/4.
  */
-internal class Xiami : MusicSource {
+internal class Xiami(val context: Context) : MusicSource {
     companion object {
         @JvmStatic
         val TAG = "Xiami"
@@ -100,7 +101,7 @@ internal class Xiami : MusicSource {
 
     override fun loadBanner(callback: LoadBannerCallback) {
         val url = URL_HOME
-        OkHttpUtil.getForXiami(url, object : BaseResponseCallback() {
+        OkHttpUtil.getForXiami(context, url, object : BaseResponseCallback() {
             override fun onStart() {
                 callback.onStart()
             }
@@ -150,7 +151,7 @@ internal class Xiami : MusicSource {
 
     override fun loadHotCollect(page: Int, callback: LoadCollectCallback) {
         val url = URL_HOME + URL_HOT_COLLECT + page
-        OkHttpUtil.getForXiami(url, object : BaseResponseCallback() {
+        OkHttpUtil.getForXiami(context, url, object : BaseResponseCallback() {
             override fun onStart() {
                 callback.onStart()
             }
@@ -191,7 +192,7 @@ internal class Xiami : MusicSource {
 
     override fun loadNewAlbum(page: Int, callback: LoadAlbumCallback) {
         val url = URL_HOME + URL_NEW_ALBUM + page
-        OkHttpUtil.getForXiami(url, object : BaseResponseCallback() {
+        OkHttpUtil.getForXiami(context, url, object : BaseResponseCallback() {
             override fun onStart() {
                 callback.onStart()
             }
@@ -243,7 +244,7 @@ internal class Xiami : MusicSource {
 
     override fun loadCollectDetail(id: Long, callback: LoadCollectDetailCallback) {
         val url = BASE_URL + "id=$id" + SUFFIX_COLLECT_DETAIL
-        OkHttpUtil.getForXiami(url, object : BaseResponseCallback() {
+        OkHttpUtil.getForXiami(context, url, object : BaseResponseCallback() {
             override fun onStart() {
                 callback.onStart()
             }
@@ -312,7 +313,7 @@ internal class Xiami : MusicSource {
     override fun loadSongDetail(song: Song, callback: LoadSongDetailCallback) {
         val id = song.songId
         val url = URL_HOME + PREFIX_SONG_DETAIL + id + SUFFIX_SONG_DETAIL
-        OkHttpUtil.getForXiami(url, object : BaseResponseCallback() {
+        OkHttpUtil.getForXiami(context, url, object : BaseResponseCallback() {
             override fun onStart() {
                 callback.onStart()
             }
@@ -385,7 +386,7 @@ internal class Xiami : MusicSource {
 
     override fun loadAlbumDetail(id: Long, callback: LoadAlbumDetailCallback) {
         val url = BASE_URL + "id=$id" + SUFFIX_ALBUM_DETAIL
-        OkHttpUtil.getForXiami(url, object : BaseResponseCallback() {
+        OkHttpUtil.getForXiami(context, url, object : BaseResponseCallback() {
             override fun onStart() {
                 callback.onStart()
             }
@@ -416,7 +417,7 @@ internal class Xiami : MusicSource {
     override fun searchByKeyword(keyword: String, callback: LoadSearchResultCallback) {
         val encodedKeyword = URLEncoder.encode(keyword, "utf-8")
         val url = PREFIX_SEARCH_SONG + encodedKeyword + SUFFIX_SEARCH_SONG
-        OkHttpUtil.getForXiami(url, object : BaseResponseCallback() {
+        OkHttpUtil.getForXiami(context, url, object : BaseResponseCallback() {
             override fun onStart() {
                 callback.onStart()
             }
@@ -441,7 +442,7 @@ internal class Xiami : MusicSource {
     override fun loadSearchRecommend(keyword: String, callback: LoadSearchRecommendCallback) {
         val currentTime = System.currentTimeMillis()
         val url = PREFIX_SEARCH_RECOMMEND + URLEncoder.encode(keyword, "utf-8") + INFIX_SEARCH_RECOMMEND + currentTime
-        OkHttpUtil.getForXiami(url, object : BaseResponseCallback() {
+        OkHttpUtil.getForXiami(context, url, object : BaseResponseCallback() {
 
             override fun onStart() {
                 callback.onStart()
@@ -489,7 +490,7 @@ internal class Xiami : MusicSource {
             }
         }
         val url = URL_HOME + URL_PREFIX_LOAD_ARTISTS + "$type" + URL_INFIX_LOAD_ARTISTS + page
-        OkHttpUtil.getForXiami(url, object : BaseResponseCallback() {
+        OkHttpUtil.getForXiami(context, url, object : BaseResponseCallback() {
             override fun onStart() {
                 callback.onStart()
             }
@@ -541,7 +542,7 @@ internal class Xiami : MusicSource {
 
     override fun loadArtistDetail(artist: Artist, callback: LoadArtistDetailCallback) {
         val url = URL_HOME + artist.homePageSuffix
-        OkHttpUtil.getForXiami(url, object : BaseResponseCallback() {
+        OkHttpUtil.getForXiami(context, url, object : BaseResponseCallback() {
             override fun onStart() {
                 callback.onStart()
             }
@@ -577,7 +578,7 @@ internal class Xiami : MusicSource {
 
     override fun loadArtistHotSongs(artist: Artist, page: Int, callback: LoadArtistHotSongsCallback) {
         val url = URL_HOME + artist.hotSongSuffix + "?page=$page"
-        OkHttpUtil.getForXiami(url, object : BaseResponseCallback() {
+        OkHttpUtil.getForXiami(context, url, object : BaseResponseCallback() {
             override fun onStart() {
                 callback.onStart()
             }
@@ -632,7 +633,7 @@ internal class Xiami : MusicSource {
 
     override fun loadArtistAlbums(artist: Artist, page: Int, callback: LoadArtistAlbumsCallback) {
         val url = URL_HOME + artist.albumSuffix + "?page=$page"
-        OkHttpUtil.getForXiami(url, object : BaseResponseCallback() {
+        OkHttpUtil.getForXiami(context, url, object : BaseResponseCallback() {
             override fun onStart() {
                 callback.onStart()
             }
@@ -687,7 +688,7 @@ internal class Xiami : MusicSource {
         } else {
             "http://www.xiami.com/search/collect/page/$page?key=${URLEncoder.encode(category, "utf-8")}"
         }
-        OkHttpUtil.getForXiami(url, object : BaseResponseCallback() {
+        OkHttpUtil.getForXiami(context, url, object : BaseResponseCallback() {
             override fun onStart() {
                 callback.onStart()
             }
@@ -776,7 +777,7 @@ internal class Xiami : MusicSource {
             }
         }
         val url = URL_HOME + suffix + System.currentTimeMillis()
-        OkHttpUtil.getForXiami(url, object : BaseResponseCallback() {
+        OkHttpUtil.getForXiami(context, url, object : BaseResponseCallback() {
             override fun onStart() {
                 callback.onStart()
             }

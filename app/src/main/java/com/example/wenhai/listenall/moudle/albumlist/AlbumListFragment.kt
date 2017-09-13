@@ -89,6 +89,10 @@ class AlbumListFragment : Fragment(), AlbumListContract.View {
         mPresenter = presenter
     }
 
+    override fun getViewContext(): Context {
+        return context
+    }
+
     override fun onLoading() {
         if (curPage == 1 || mLoadFailed.isShowing()) {
             mLoading.show()

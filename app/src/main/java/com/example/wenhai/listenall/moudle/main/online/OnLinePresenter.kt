@@ -11,7 +11,7 @@ import com.example.wenhai.listenall.data.bean.Collect
 
 internal class OnLinePresenter(var view: OnLineContract.View) : OnLineContract.Presenter {
 
-    private var musicRepository: MusicRepository = MusicRepository.INSTANCE
+    private var musicRepository: MusicRepository = MusicRepository.getInstance(view.getViewContext())
 
     init {
         view.setPresenter(this)

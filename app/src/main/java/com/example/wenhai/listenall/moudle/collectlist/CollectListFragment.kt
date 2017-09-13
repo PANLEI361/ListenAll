@@ -124,6 +124,11 @@ internal class CollectListFragment : Fragment(), CollectListContract.View {
         mPresenter = presenter
     }
 
+
+    override fun getViewContext(): Context {
+        return context
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         mUnBinder.unbind()

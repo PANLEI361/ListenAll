@@ -76,9 +76,7 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
         mPresenter = OnLinePresenter(this)
     }
 
-    override fun setPresenter(presenter: OnLineContract.Presenter) {
-        mPresenter = presenter
-    }
+
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val rootView = inflater !!.inflate(R.layout.fragment_main_online, container, false)
@@ -139,6 +137,14 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
             mPresenter.loadHotCollects()
         }
         mRefreshLayout.isEnableLoadmore = false
+    }
+
+    override fun setPresenter(presenter: OnLineContract.Presenter) {
+        mPresenter = presenter
+    }
+
+    override fun getViewContext(): Context {
+        return context
     }
 
     //加载 banner、热门歌单和最新专辑

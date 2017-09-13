@@ -12,7 +12,7 @@ import com.example.wenhai.listenall.moudle.ranking.RankingContract
 
 internal class DetailPresenter(val view: DetailContract.View) : DetailContract.Presenter {
 
-    private val musicRepository: MusicRepository = MusicRepository.INSTANCE
+    private val musicRepository: MusicRepository = MusicRepository.getInstance(view.getViewContext())
 
     init {
         view.setPresenter(this)

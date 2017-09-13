@@ -181,9 +181,6 @@ class MainFragment : Fragment() {
         mEtSearch.setText(keyword)
     }
 
-    override fun onStop() {
-        super.onStop()
-    }
 
     override fun onDestroyView() {
         super.onDestroyView()
