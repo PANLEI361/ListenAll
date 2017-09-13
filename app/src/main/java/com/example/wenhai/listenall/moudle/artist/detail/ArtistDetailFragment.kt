@@ -145,6 +145,10 @@ class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
         mPresenter = presenter
     }
 
+    override fun getViewContext(): Context {
+        return context
+    }
+
     override fun onFailure(msg: String) {
         activity.runOnUiThread {
             if (mAlbumRefresh.isLoading) {
