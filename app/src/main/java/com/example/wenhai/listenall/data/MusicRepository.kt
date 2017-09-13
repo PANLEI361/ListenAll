@@ -1,31 +1,44 @@
 package com.example.wenhai.listenall.data
 
+import android.content.Context
 import com.example.wenhai.listenall.data.bean.Artist
 import com.example.wenhai.listenall.data.bean.Song
 import com.example.wenhai.listenall.data.onlineprovider.Xiami
 import com.example.wenhai.listenall.moudle.ranking.RankingContract
 
-internal class MusicRepository() : MusicSource {
+internal class MusicRepository(context: Context) : MusicSource {
 
     private var musicSource: MusicSource
     private var curProvider: MusicProvider
 
     companion object {
         @JvmStatic
-        val INSTANCE = MusicRepository()
+        var INSTANCE: MusicRepository? = null
+
+        @JvmStatic
+        fun getInstance(context: Context): MusicRepository {
+            if (INSTANCE == null) {
+                synchronized(MusicRepository::class.java) {
+                    if (INSTANCE == null) {
+                        INSTANCE = MusicRepository(context)
+                    }
+                }
+            }
+            return INSTANCE !!
+        }
     }
 
     init {
         //default
         curProvider = MusicProvider.XIAMI
-        musicSource = Xiami()
+        musicSource = Xiami(context)
     }
 
-    constructor(sourceProvider: MusicProvider) : this() {
+    constructor(sourceProvider: MusicProvider, context: Context) : this(context) {
         curProvider = sourceProvider
         when (sourceProvider) {
             MusicProvider.XIAMI -> {
-                musicSource = Xiami()
+                musicSource = Xiami(context)
             }
             MusicProvider.QQMUSIC -> {
 //                musicSource = QQ()
@@ -36,11 +49,11 @@ internal class MusicRepository() : MusicSource {
         }
     }
 
-    fun changeMusicSource(provider: MusicProvider) {
+    fun changeMusicSource(provider: MusicProvider, context: Context) {
         if (provider != curProvider) {
             when (provider) {
                 MusicProvider.XIAMI -> {
-                    musicSource = Xiami()
+                    musicSource = Xiami(context)
                 }
                 MusicProvider.QQMUSIC -> {
 //                musicSource = QQ()

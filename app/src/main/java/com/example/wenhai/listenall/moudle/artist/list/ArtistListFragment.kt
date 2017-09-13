@@ -1,5 +1,6 @@
 package com.example.wenhai.listenall.moudle.artist.list
 
+import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
@@ -18,10 +19,10 @@ import butterknife.Unbinder
 import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.data.ArtistRegion
 import com.example.wenhai.listenall.data.bean.Artist
-import com.example.wenhai.listenall.ktextension.hide
-import com.example.wenhai.listenall.ktextension.isShowing
-import com.example.wenhai.listenall.ktextension.show
-import com.example.wenhai.listenall.ktextension.showToast
+import com.example.wenhai.listenall.extension.hide
+import com.example.wenhai.listenall.extension.isShowing
+import com.example.wenhai.listenall.extension.show
+import com.example.wenhai.listenall.extension.showToast
 import com.example.wenhai.listenall.moudle.artist.detail.ArtistDetailFragment
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
@@ -68,6 +69,10 @@ class ArtistListFragment : Fragment(), ArtistListContract.View {
 
     override fun setPresenter(presenter: ArtistListContract.Presenter) {
         mPresenter = presenter
+    }
+
+    override fun getViewContext(): Context {
+        return context
     }
 
 

@@ -20,11 +20,12 @@ public class LikedSong {
     private String listenFileUrl;
     private String miniAlbumCoverUrl;
     private String providerName;
+    private long likedTime;
 
-    @Generated(hash = 709857612)
-    public LikedSong(Long id, String songName, long songId, long artistId,
-                     long albumId, String coverUrl, String artistName, String albumName,
-                     String listenFileUrl, String miniAlbumCoverUrl, String providerName) {
+    @Generated(hash = 1529005998)
+    public LikedSong(Long id, String songName, long songId, long artistId, long albumId,
+                     String coverUrl, String artistName, String albumName, String listenFileUrl,
+                     String miniAlbumCoverUrl, String providerName, long likedTime) {
         this.id = id;
         this.songName = songName;
         this.songId = songId;
@@ -36,6 +37,7 @@ public class LikedSong {
         this.listenFileUrl = listenFileUrl;
         this.miniAlbumCoverUrl = miniAlbumCoverUrl;
         this.providerName = providerName;
+        this.likedTime = likedTime;
     }
 
     @Generated(hash = 838669917)
@@ -53,6 +55,7 @@ public class LikedSong {
         listenFileUrl = song.getListenFileUrl();
         miniAlbumCoverUrl = song.getMiniAlbumCoverUrl();
         providerName = song.getSupplier().name();
+        likedTime = System.currentTimeMillis();
     }
 
     public Song getSong() {
@@ -66,14 +69,7 @@ public class LikedSong {
         song.setAlbumName(albumName);
         song.setListenFileUrl(listenFileUrl);
         song.setMiniAlbumCoverUrl(miniAlbumCoverUrl);
-        MusicProvider provider;
-        if (providerName.equals(MusicProvider.NETEASE.name())) {
-            provider = MusicProvider.NETEASE;
-        } else if (providerName.equals(MusicProvider.QQMUSIC.name())) {
-            provider = MusicProvider.QQMUSIC;
-        } else {
-            provider = MusicProvider.XIAMI;
-        }
+        MusicProvider provider = MusicProvider.valueOf(providerName);
         song.setSupplier(provider);
         return song;
     }
@@ -164,5 +160,13 @@ public class LikedSong {
 
     public void setProviderName(String providerName) {
         this.providerName = providerName;
+    }
+
+    public long getLikedTime() {
+        return this.likedTime;
+    }
+
+    public void setLikedTime(long likedTime) {
+        this.likedTime = likedTime;
     }
 }

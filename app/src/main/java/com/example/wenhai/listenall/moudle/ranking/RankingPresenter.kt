@@ -7,14 +7,14 @@ import com.example.wenhai.listenall.data.bean.Collect
 
 class RankingPresenter(val view: RankingContract.View) : RankingContract.Presenter {
 
-    private val musicRepository = MusicRepository.INSTANCE
+    private val musicRepository = MusicRepository.getInstance(view.getViewContext())
 
     init {
         view.setPresenter(this)
     }
 
     override fun loadOfficialRanking(provider: MusicProvider) {
-        musicRepository.changeMusicSource(provider)
+        musicRepository.changeMusicSource(provider, view.getViewContext())
         musicRepository.loadOfficialRanking(provider, object : LoadRankingCallback {
             override fun onStart() {
                 view.onLoading()

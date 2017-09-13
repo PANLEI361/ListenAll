@@ -17,6 +17,7 @@ import butterknife.OnClick
 import butterknife.Unbinder
 import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.data.bean.Collect
+import com.example.wenhai.listenall.data.bean.LikedCollectDao
 import com.example.wenhai.listenall.moudle.detail.DetailContract
 import com.example.wenhai.listenall.moudle.detail.DetailFragment
 import com.example.wenhai.listenall.moudle.liked.LikedFragment
@@ -98,7 +99,9 @@ class LocalFragment : android.support.v4.app.Fragment() {
             mCollectAdapter.setData(myCollects)
         } else {
             val dao = DAOUtil.getSession(context).likedCollectDao
-            val likedCollectList = dao.queryBuilder().build().list()
+            val likedCollectList = dao.queryBuilder()
+                    .orderDesc(LikedCollectDao.Properties.LikedTime)
+                    .build().list()
             val collectList = ArrayList<Collect>()
             likedCollectList.mapTo(collectList) { it.collect }
             mCollectAdapter.setData(collectList)

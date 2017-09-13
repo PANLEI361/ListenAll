@@ -15,6 +15,7 @@ import butterknife.Unbinder
 import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.data.bean.Album
 import com.example.wenhai.listenall.data.bean.LikedAlbum
+import com.example.wenhai.listenall.data.bean.LikedAlbumDao
 import com.example.wenhai.listenall.moudle.detail.DetailContract
 import com.example.wenhai.listenall.moudle.detail.DetailFragment
 import com.example.wenhai.listenall.utils.DAOUtil
@@ -41,6 +42,7 @@ class LikedAlbumFragment : Fragment() {
     private fun initView() {
         val dao = DAOUtil.getSession(context).likedAlbumDao
         val list: List<LikedAlbum> = dao.queryBuilder()
+                .orderDesc(LikedAlbumDao.Properties.LikedTime)
                 .build()
                 .list()
         mAlbumList.adapter = LikedAlbumListAdapter(list)
@@ -57,7 +59,7 @@ class LikedAlbumFragment : Fragment() {
     }
 
 
-    inner class LikedAlbumListAdapter(val albumList: List<LikedAlbum>) : RecyclerView.Adapter<LikedAlbumListAdapter.ViewHolder>() {
+    inner class LikedAlbumListAdapter(private val albumList: List<LikedAlbum>) : RecyclerView.Adapter<LikedAlbumListAdapter.ViewHolder>() {
         override fun getItemCount(): Int = albumList.size
 
         override fun onBindViewHolder(holder: ViewHolder?, position: Int) {

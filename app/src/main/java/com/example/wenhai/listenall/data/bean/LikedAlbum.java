@@ -22,12 +22,13 @@ public class LikedAlbum {
     private String providerName;//来源
     private long publishDate;//发行时间
     private String publishDateStr;
+    private long likedTime;
 
-    @Generated(hash = 304949634)
-    public LikedAlbum(Long id, String title, String desc, long albumId,
-                      String artist, long artistId, String coverUrl, String miniCoverUrl,
-                      int songNumber, int songDownloadNumber, String providerName,
-                      long publishDate, String publishDateStr) {
+    @Generated(hash = 773688278)
+    public LikedAlbum(Long id, String title, String desc, long albumId, String artist,
+                      long artistId, String coverUrl, String miniCoverUrl, int songNumber,
+                      int songDownloadNumber, String providerName, long publishDate,
+                      String publishDateStr, long likedTime) {
         this.id = id;
         this.title = title;
         this.desc = desc;
@@ -41,6 +42,7 @@ public class LikedAlbum {
         this.providerName = providerName;
         this.publishDate = publishDate;
         this.publishDateStr = publishDateStr;
+        this.likedTime = likedTime;
     }
 
     @Generated(hash = 2061804808)
@@ -60,6 +62,7 @@ public class LikedAlbum {
         publishDate = album.getPublishDate();
         publishDateStr = album.getPublishDateStr();
         providerName = album.getSupplier().name();
+        likedTime = System.currentTimeMillis();
     }
 
     public Album getAlbum() {
@@ -75,14 +78,7 @@ public class LikedAlbum {
         album.setSongDownloadNumber(songDownloadNumber);
         album.setPublishDate(publishDate);
         album.setPublishDateStr(publishDateStr);
-        MusicProvider provider;
-        if (providerName.equals(MusicProvider.NETEASE.name())) {
-            provider = MusicProvider.NETEASE;
-        } else if (providerName.equals(MusicProvider.QQMUSIC.name())) {
-            provider = MusicProvider.QQMUSIC;
-        } else {
-            provider = MusicProvider.XIAMI;
-        }
+        MusicProvider provider = MusicProvider.valueOf(providerName);
         album.setSupplier(provider);
         return album;
     }
@@ -208,5 +204,13 @@ public class LikedAlbum {
                 ", publishDate=" + publishDate +
                 ", publishDateStr='" + publishDateStr + '\'' +
                 '}';
+    }
+
+    public long getLikedTime() {
+        return this.likedTime;
+    }
+
+    public void setLikedTime(long likedTime) {
+        this.likedTime = likedTime;
     }
 }

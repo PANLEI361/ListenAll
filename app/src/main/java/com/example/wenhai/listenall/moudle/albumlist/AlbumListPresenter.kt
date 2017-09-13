@@ -9,7 +9,7 @@ internal class AlbumListPresenter(val view: AlbumListContract.View) : AlbumListC
         const val TAG = "AlbumListPresenter"
     }
 
-    private val musicRepository: MusicRepository = MusicRepository.INSTANCE
+    private val musicRepository: MusicRepository = MusicRepository.getInstance(view.getViewContext())
 
     init {
         view.setPresenter(this)

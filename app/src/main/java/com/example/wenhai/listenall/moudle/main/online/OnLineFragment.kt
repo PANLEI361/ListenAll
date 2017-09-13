@@ -23,10 +23,10 @@ import com.example.wenhai.listenall.data.bean.Album
 import com.example.wenhai.listenall.data.bean.Banner
 import com.example.wenhai.listenall.data.bean.BannerType
 import com.example.wenhai.listenall.data.bean.Collect
-import com.example.wenhai.listenall.ktextension.hide
-import com.example.wenhai.listenall.ktextension.isShowing
-import com.example.wenhai.listenall.ktextension.show
-import com.example.wenhai.listenall.ktextension.showToast
+import com.example.wenhai.listenall.extension.hide
+import com.example.wenhai.listenall.extension.isShowing
+import com.example.wenhai.listenall.extension.show
+import com.example.wenhai.listenall.extension.showToast
 import com.example.wenhai.listenall.moudle.albumlist.AlbumListFragment
 import com.example.wenhai.listenall.moudle.artist.list.ArtistListFragment
 import com.example.wenhai.listenall.moudle.collect.CollectFilterFragment
@@ -76,9 +76,7 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
         mPresenter = OnLinePresenter(this)
     }
 
-    override fun setPresenter(presenter: OnLineContract.Presenter) {
-        mPresenter = presenter
-    }
+
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val rootView = inflater !!.inflate(R.layout.fragment_main_online, container, false)
@@ -139,6 +137,14 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
             mPresenter.loadHotCollects()
         }
         mRefreshLayout.isEnableLoadmore = false
+    }
+
+    override fun setPresenter(presenter: OnLineContract.Presenter) {
+        mPresenter = presenter
+    }
+
+    override fun getViewContext(): Context {
+        return context
     }
 
     //加载 banner、热门歌单和最新专辑

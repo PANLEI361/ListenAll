@@ -17,10 +17,10 @@ import butterknife.OnClick
 import butterknife.Unbinder
 import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.data.bean.Collect
-import com.example.wenhai.listenall.ktextension.hide
-import com.example.wenhai.listenall.ktextension.isShowing
-import com.example.wenhai.listenall.ktextension.show
-import com.example.wenhai.listenall.ktextension.showToast
+import com.example.wenhai.listenall.extension.hide
+import com.example.wenhai.listenall.extension.isShowing
+import com.example.wenhai.listenall.extension.show
+import com.example.wenhai.listenall.extension.showToast
 import com.example.wenhai.listenall.moudle.detail.DetailContract
 import com.example.wenhai.listenall.moudle.detail.DetailFragment
 import com.example.wenhai.listenall.utils.FragmentUtil
@@ -136,6 +136,10 @@ class CollectFilterFragment : Fragment(), CollectFilterContract.View {
 
     override fun setPresenter(presenter: CollectFilterContract.Presenter) {
         mPresenter = presenter
+    }
+
+    override fun getViewContext(): Context {
+        return context
     }
 
     override fun onFailure(msg: String) {

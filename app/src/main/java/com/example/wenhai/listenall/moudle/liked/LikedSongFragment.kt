@@ -15,8 +15,9 @@ import butterknife.OnClick
 import butterknife.Unbinder
 import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.data.bean.LikedSong
+import com.example.wenhai.listenall.data.bean.LikedSongDao
 import com.example.wenhai.listenall.data.bean.Song
-import com.example.wenhai.listenall.ktextension.showToast
+import com.example.wenhai.listenall.extension.showToast
 import com.example.wenhai.listenall.moudle.main.MainActivity
 import com.example.wenhai.listenall.utils.DAOUtil
 
@@ -36,7 +37,9 @@ class LikedSongFragment : Fragment() {
 
     fun initView() {
         val likedSongDao = DAOUtil.getSession(context).likedSongDao
-        val likedSongList = likedSongDao.queryBuilder().list()
+        val likedSongList = likedSongDao.queryBuilder()
+                .orderDesc(LikedSongDao.Properties.LikedTime)
+                .list()
         mLikedSongAdapter = LikedSongsAdapter(likedSongList)
         mSongs.adapter = mLikedSongAdapter
         mSongs.layoutManager = LinearLayoutManager(context)

@@ -1,5 +1,6 @@
 package com.example.wenhai.listenall.moudle.search
 
+import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
@@ -20,8 +21,8 @@ import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.data.bean.SearchHistory
 import com.example.wenhai.listenall.data.bean.SearchHistoryDao
 import com.example.wenhai.listenall.data.bean.Song
-import com.example.wenhai.listenall.ktextension.hide
-import com.example.wenhai.listenall.ktextension.show
+import com.example.wenhai.listenall.extension.hide
+import com.example.wenhai.listenall.extension.show
 import com.example.wenhai.listenall.moudle.main.MainActivity
 import com.example.wenhai.listenall.moudle.main.MainFragment
 import com.example.wenhai.listenall.utils.DAOUtil
@@ -61,6 +62,10 @@ class SearchFragment : Fragment(), SearchContract.View {
 
     override fun setPresenter(presenter: SearchContract.Presenter) {
         mPresenter = presenter
+    }
+
+    override fun getViewContext(): Context {
+        return context
     }
 
     override fun initView() {

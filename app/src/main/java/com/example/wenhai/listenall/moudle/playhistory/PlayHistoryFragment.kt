@@ -1,5 +1,6 @@
 package com.example.wenhai.listenall.moudle.playhistory
 
+import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
@@ -17,7 +18,7 @@ import butterknife.Unbinder
 import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.data.bean.PlayHistory
 import com.example.wenhai.listenall.data.bean.Song
-import com.example.wenhai.listenall.ktextension.showToast
+import com.example.wenhai.listenall.extension.showToast
 import com.example.wenhai.listenall.moudle.main.MainActivity
 import com.example.wenhai.listenall.utils.FragmentUtil
 
@@ -71,6 +72,10 @@ class PlayHistoryFragment : Fragment(), PlayHistoryContract.View {
 
     override fun setPresenter(presenter: PlayHistoryContract.Presenter) {
         mPresenter = presenter
+    }
+
+    override fun getViewContext(): Context {
+        return context
     }
 
     override fun onPlayHistoryLoad(playHistory: List<PlayHistory>) {

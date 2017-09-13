@@ -7,7 +7,7 @@ import com.example.wenhai.listenall.data.bean.Collect
 
 internal class CollectFilterPresenter(val view: CollectFilterContract.View) : CollectFilterContract.Presenter {
 
-    private val musicRepository = MusicRepository.INSTANCE
+    private val musicRepository = MusicRepository.getInstance(view.getViewContext())
 
     init {
         view.setPresenter(this)
