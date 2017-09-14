@@ -1,6 +1,6 @@
 # Listen All   
 ## 简介
-`Listen All` 是一款汇集 QQ 音乐和虾米音乐平台资源的 Android 音乐播放器。   
+`Listen All` 是一款汇集 QQ 音乐和虾米音乐平台资源的 Android 音乐播放器。   
 项目采用 `MVP` 架构，使用 [Kotlin](https://kotlinlang.org/docs/reference/) 开发。
 
 它来自于一款 `Chrome` 浏览器插件 [Listen 1](https://github.com/listen1/listen1_chrome_extension)，所有的数据接口都是从这个项目中获取的，非常感谢。
