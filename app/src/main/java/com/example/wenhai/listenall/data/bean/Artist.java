@@ -1,6 +1,5 @@
 package com.example.wenhai.listenall.data.bean;
 
-
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -10,9 +9,6 @@ public class Artist implements Parcelable {
     private String desc;
     private String miniImgUrl;
     private String imgUrl;
-    private String homePageSuffix;//用于拼接url
-    private String hotSongSuffix;//用于拼接url
-    private String albumSuffix;//用于拼接url
 
     public Artist() {
     }
@@ -57,29 +53,6 @@ public class Artist implements Parcelable {
         this.imgUrl = imgUrl;
     }
 
-    public String getHomePageSuffix() {
-        return homePageSuffix;
-    }
-
-    public void setHomePageSuffix(String homePageSuffix) {
-        this.homePageSuffix = homePageSuffix;
-    }
-
-    public String getHotSongSuffix() {
-        return hotSongSuffix;
-    }
-
-    public void setHotSongSuffix(String hotSongSuffix) {
-        this.hotSongSuffix = hotSongSuffix;
-    }
-
-    public String getAlbumSuffix() {
-        return albumSuffix;
-    }
-
-    public void setAlbumSuffix(String albumSuffix) {
-        this.albumSuffix = albumSuffix;
-    }
 
     protected Artist(Parcel in) {
         artistId = in.readString();
@@ -87,9 +60,6 @@ public class Artist implements Parcelable {
         desc = in.readString();
         miniImgUrl = in.readString();
         imgUrl = in.readString();
-        homePageSuffix = in.readString();
-        hotSongSuffix = in.readString();
-        albumSuffix = in.readString();
     }
 
     @Override
@@ -99,9 +69,6 @@ public class Artist implements Parcelable {
         dest.writeString(desc);
         dest.writeString(miniImgUrl);
         dest.writeString(imgUrl);
-        dest.writeString(homePageSuffix);
-        dest.writeString(hotSongSuffix);
-        dest.writeString(albumSuffix);
     }
 
     @Override

@@ -29,6 +29,7 @@ import com.example.wenhai.listenall.extension.showToast
 import com.example.wenhai.listenall.moudle.detail.DetailContract
 import com.example.wenhai.listenall.moudle.detail.DetailFragment
 import com.example.wenhai.listenall.moudle.main.MainActivity
+import com.example.wenhai.listenall.moudle.play.service.PlayProxy
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
 import com.scwang.smartrefresh.layout.SmartRefreshLayout
@@ -197,7 +198,7 @@ class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
     }
 
     override fun onSongDetailLoaded(song: Song) {
-        (activity as MainActivity).playNewSong(song)
+        (activity as PlayProxy).playSong(song)
     }
 
     override fun onDestroyView() {

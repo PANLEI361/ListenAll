@@ -529,11 +529,8 @@ internal class Xiami(val context: Context) : MusicSource {
             val homePageSuffix = artistElement.getElementsByClass("image").first()
                     .select("a").first()
                     .attr("href")
-            artist.homePageSuffix = homePageSuffix
             val artistId = homePageSuffix.substring(homePageSuffix.lastIndexOf("/") + 1)
             artist.artistId = artistId
-            artist.hotSongSuffix = "/artist/top-" + artistId
-            artist.albumSuffix = "/artist/album-" + artistId
             result.add(artist)
         }
         return result
@@ -541,7 +538,7 @@ internal class Xiami(val context: Context) : MusicSource {
     }
 
     override fun loadArtistDetail(artist: Artist, callback: LoadArtistDetailCallback) {
-        val url = URL_HOME + artist.homePageSuffix
+        val url = URL_HOME + "/artist/" + artist.artistId
         OkHttpUtil.getForXiami(context, url, object : BaseResponseCallback() {
             override fun onStart() {
                 callback.onStart()
@@ -577,7 +574,7 @@ internal class Xiami(val context: Context) : MusicSource {
     }
 
     override fun loadArtistHotSongs(artist: Artist, page: Int, callback: LoadArtistHotSongsCallback) {
-        val url = URL_HOME + artist.hotSongSuffix + "?page=$page"
+        val url = URL_HOME + "/artist/top-" + artist.artistId + "?page=$page"
         OkHttpUtil.getForXiami(context, url, object : BaseResponseCallback() {
             override fun onStart() {
                 callback.onStart()
@@ -632,7 +629,8 @@ internal class Xiami(val context: Context) : MusicSource {
     }
 
     override fun loadArtistAlbums(artist: Artist, page: Int, callback: LoadArtistAlbumsCallback) {
-        val url = URL_HOME + artist.albumSuffix + "?page=$page"
+
+        val url = URL_HOME + "/artist/album-" + artist.artistId + "?page=$page"
         OkHttpUtil.getForXiami(context, url, object : BaseResponseCallback() {
             override fun onStart() {
                 callback.onStart()
@@ -805,6 +803,7 @@ internal class Xiami(val context: Context) : MusicSource {
             song.supplier = MusicProvider.XIAMI
             song.miniAlbumCoverUrl = element.getElementsByClass("image").first()
                     .select("img").first().attr("src")
+            song.albumName = ""
             song.albumCoverUrl = song.miniAlbumCoverUrl.substring(0, song.miniAlbumCoverUrl.indexOf("@"))
             val info = element.getElementsByClass("info").first()
             song.name = info.select("p").first().select("a").first().text()
