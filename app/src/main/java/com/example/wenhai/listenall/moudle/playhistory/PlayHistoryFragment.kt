@@ -21,6 +21,7 @@ import com.example.wenhai.listenall.data.bean.Song
 import com.example.wenhai.listenall.extension.showToast
 import com.example.wenhai.listenall.moudle.main.MainActivity
 import com.example.wenhai.listenall.utils.FragmentUtil
+import com.example.wenhai.listenall.widget.SongOpsDialog
 
 class PlayHistoryFragment : Fragment(), PlayHistoryContract.View {
     @BindView(R.id.action_bar_title)
@@ -110,7 +111,8 @@ class PlayHistoryFragment : Fragment(), PlayHistoryContract.View {
             val songInfoStr = "${playHistory.artistName} · ${playHistory.albumName}"
             holder.songInfo.text = songInfoStr
             holder.operation.setOnClickListener {
-
+                val dialog = SongOpsDialog(context, playHistory.song, activity)
+                dialog.show()
             }
             holder.item.setOnClickListener {
                 (activity as MainActivity).playService.playNewSong(playHistory.song)

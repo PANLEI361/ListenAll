@@ -20,6 +20,7 @@ import com.example.wenhai.listenall.data.bean.Song
 import com.example.wenhai.listenall.extension.showToast
 import com.example.wenhai.listenall.moudle.main.MainActivity
 import com.example.wenhai.listenall.utils.DAOUtil
+import com.example.wenhai.listenall.widget.SongOpsDialog
 
 class LikedSongFragment : Fragment() {
     @BindView(R.id.liked_songs)
@@ -40,9 +41,17 @@ class LikedSongFragment : Fragment() {
         val likedSongList = likedSongDao.queryBuilder()
                 .orderDesc(LikedSongDao.Properties.LikedTime)
                 .list()
-        mLikedSongAdapter = LikedSongsAdapter(likedSongList)
+        val list: ArrayList<LikedSong> = ArrayList()
+        likedSongList.mapTo(list) { it }
+        mLikedSongAdapter = LikedSongsAdapter(list)
         mSongs.adapter = mLikedSongAdapter
         mSongs.layoutManager = LinearLayoutManager(context)
+    }
+
+    private fun deleteLikedSong(song: LikedSong) {
+        val likedSongDao = DAOUtil.getSession(context).likedSongDao
+        likedSongDao.delete(song)
+        context.showToast("已取消喜欢")
     }
 
 
@@ -63,7 +72,7 @@ class LikedSongFragment : Fragment() {
     }
 
 
-    inner class LikedSongsAdapter(var likedSongs: List<LikedSong>) : RecyclerView.Adapter<LikedSongsAdapter.ViewHolder>() {
+    inner class LikedSongsAdapter(var likedSongs: ArrayList<LikedSong>) : RecyclerView.Adapter<LikedSongsAdapter.ViewHolder>() {
         override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
             val itemView = LayoutInflater.from(context).inflate(R.layout.item_liked_song, parent, false)
             return ViewHolder(itemView)
@@ -77,7 +86,15 @@ class LikedSongFragment : Fragment() {
             val songInfoStr = "${song.artistName} · ${song.albumName}"
             holder.songInfo.text = songInfoStr
             holder.operation.setOnClickListener {
-
+                val dialog = SongOpsDialog(context, song.song, activity)
+                dialog.showDelete = true
+                dialog.deleteListener = View.OnClickListener {
+                    likedSongs.remove(song)
+                    notifyDataSetChanged()
+                    deleteLikedSong(song)
+                    dialog.dismiss()
+                }
+                dialog.show()
             }
             holder.itemView.setOnClickListener {
                 (activity as MainActivity).playService.playNewSong(song.song)
@@ -88,7 +105,6 @@ class LikedSongFragment : Fragment() {
             var songName: TextView = item.findViewById(R.id.liked_song_name)
             var songInfo: TextView = item.findViewById(R.id.liked_song_info)
             var operation: ImageButton = item.findViewById(R.id.liked_song_ops)
-
         }
     }
 

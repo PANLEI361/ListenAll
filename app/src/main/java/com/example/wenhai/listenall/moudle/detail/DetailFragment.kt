@@ -1,6 +1,7 @@
 package com.example.wenhai.listenall.moudle.detail
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
@@ -8,6 +9,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -27,11 +29,14 @@ import com.example.wenhai.listenall.extension.hide
 import com.example.wenhai.listenall.extension.show
 import com.example.wenhai.listenall.extension.showToast
 import com.example.wenhai.listenall.moudle.main.MainActivity
+import com.example.wenhai.listenall.moudle.play.PLayActivity
+import com.example.wenhai.listenall.moudle.play.service.PlayProxy
 import com.example.wenhai.listenall.moudle.ranking.RankingContract
 import com.example.wenhai.listenall.utils.DAOUtil
 import com.example.wenhai.listenall.utils.DateUtil
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
+import com.example.wenhai.listenall.widget.SongOpsDialog
 
 class DetailFragment : Fragment(), DetailContract.View {
     @BindView(R.id.action_bar_title)
@@ -61,6 +66,8 @@ class DetailFragment : Fragment(), DetailContract.View {
     private lateinit var mAlbum: Album
     private lateinit var mCollect: Collect
 
+    private var shouldRestartPlayActivity = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         DetailPresenter(this)
@@ -70,6 +77,7 @@ class DetailFragment : Fragment(), DetailContract.View {
         val contentView = inflater !!.inflate(R.layout.fragment_detail, container, false)
         mUnBinder = ButterKnife.bind(this, contentView)
         mLoadType = arguments.getSerializable(DetailContract.ARGS_LOAD_TYPE) as DetailContract.LoadType
+        shouldRestartPlayActivity = arguments.getBoolean("restartPlayActivity", false)
         initView()
         return contentView
     }
@@ -113,7 +121,7 @@ class DetailFragment : Fragment(), DetailContract.View {
     }
 
     private fun playSong(song: Song) {
-        (activity as MainActivity).playNewSong(song)
+        (activity as PlayProxy).playSong(song)
     }
 
     @OnClick(R.id.action_bar_back, R.id.detail_play_all, R.id.detail_download_all,
@@ -121,6 +129,9 @@ class DetailFragment : Fragment(), DetailContract.View {
     fun onClick(view: View) {
         when (view.id) {
             R.id.action_bar_back -> {
+                if (shouldRestartPlayActivity) {
+                    activity.startActivityForResult(Intent(context, PLayActivity::class.java), MainActivity.REQUSET_CODE)
+                }
                 FragmentUtil.removeFragment(fragmentManager, this)
             }
             R.id.detail_play_all -> {
@@ -309,6 +320,11 @@ class DetailFragment : Fragment(), DetailContract.View {
 
     inner class SongListAdapter(val context: Context, var songList: List<Song>) : RecyclerView.Adapter<SongListAdapter.ViewHolder>() {
 
+        override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
+            val itemView = LayoutInflater.from(context).inflate(R.layout.item_detail_song_list, parent, false)
+            return ViewHolder(itemView)
+        }
+
         override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
             val song = songList[position]
             val index = "${position + 1}"
@@ -318,9 +334,13 @@ class DetailFragment : Fragment(), DetailContract.View {
                     if (mLoadType == DetailContract.LoadType.ALBUM) {
                         song.artistName
                     } else {
-                        val artistAlbum = "${song.artistName} · ${song.albumName}"
-                        if (artistAlbum.length < 30) {
-                            artistAlbum
+                        if (song.albumName != "") {
+                            val artistAlbum = "${song.artistName} · ${song.albumName}"
+                            if (artistAlbum.length < 30) {
+                                artistAlbum
+                            } else {
+                                song.artistName
+                            }
                         } else {
                             song.artistName
                         }
@@ -329,14 +349,19 @@ class DetailFragment : Fragment(), DetailContract.View {
             holder.item.setOnClickListener({
                 playSong(song)
             })
+            holder.opration.setOnClickListener {
+                val dialog = SongOpsDialog(context, song, activity)
+                if (mLoadType == DetailContract.LoadType.COLLECT && mCollect.isFromUser) {
+                    dialog.showDelete = true
+                    dialog.deleteListener = View.OnClickListener {
+                        // TODO: 2017/9/16 删除自建歌单内的歌曲
+                    }
+                }
+                dialog.show()
+            }
         }
 
         override fun getItemCount(): Int = songList.size
-
-        override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
-            val itemView = LayoutInflater.from(context).inflate(R.layout.item_detail_song_list, parent, false)
-            return ViewHolder(itemView)
-        }
 
         fun setData(songList: List<Song>) {
             this.songList = songList
@@ -348,6 +373,7 @@ class DetailFragment : Fragment(), DetailContract.View {
             var index: TextView = itemView.findViewById(R.id.detail_index)
             val title: TextView = itemView.findViewById(R.id.detail_song_title)
             var artistAlbum: TextView = itemView.findViewById(R.id.detail_artist_album)
+            var opration: ImageButton = itemView.findViewById(R.id.detail_btn_operation)
         }
     }
 }

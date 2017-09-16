@@ -65,7 +65,7 @@ class ProgressImageButton constructor(context: Context, attrs: AttributeSet?, de
 
         //draw progress bar
         mPaint.strokeWidth = progressStokeWidth.toFloat()
-        mPaint.strokeCap = Paint.Cap.ROUND
+        mPaint.strokeCap = Paint.Cap.SQUARE
         val swipeDegree: Float = progress / 100f * 360f
         canvas.drawArc(progressBounds, - 90f, swipeDegree, false, mPaint)
 

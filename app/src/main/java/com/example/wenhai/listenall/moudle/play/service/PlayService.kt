@@ -395,10 +395,14 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
     /**
      * 设置歌曲下一首播放
      */
-    fun setNextSong(song: Song) {
+    fun setNextSong(song: Song): Boolean {
         val curIndex = playStatus.currentList.indexOf(playStatus.currentSong)
-        playStatus.currentList.add(curIndex + 1, song)
-        notifyStatusChanged(STATUS_INFO, getString(R.string.play_has_set_to_next))
+        return if (playStatus.currentList.contains(song)) {
+            false
+        } else {
+            playStatus.currentList.add(curIndex + 1, song)
+            true
+        }
     }
 
     /**

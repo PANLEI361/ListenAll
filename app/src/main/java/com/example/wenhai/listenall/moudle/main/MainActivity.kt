@@ -23,7 +23,10 @@ import butterknife.OnClick
 import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.common.Config
 import com.example.wenhai.listenall.data.bean.Song
+import com.example.wenhai.listenall.moudle.artist.detail.ArtistDetailFragment
+import com.example.wenhai.listenall.moudle.detail.DetailFragment
 import com.example.wenhai.listenall.moudle.play.PLayActivity
+import com.example.wenhai.listenall.moudle.play.service.PlayProxy
 import com.example.wenhai.listenall.moudle.play.service.PlayService
 import com.example.wenhai.listenall.moudle.play.service.PlayStatusObserver
 import com.example.wenhai.listenall.utils.AppUtil
@@ -33,7 +36,7 @@ import com.example.wenhai.listenall.utils.LogUtil
 import com.example.wenhai.listenall.widget.PlayListDialog
 import com.example.wenhai.listenall.widget.ProgressImageButton
 
-class MainActivity : AppCompatActivity(), PlayStatusObserver {
+class MainActivity : AppCompatActivity(), PlayStatusObserver, PlayProxy {
     //views in drawer
     @BindView(R.id.main_drawer)
     lateinit var mDrawer: DrawerLayout
@@ -151,7 +154,7 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
                 }
             }
             R.id.main_ll_song_info, R.id.main_iv_cover -> {
-                startActivity(Intent(this, PLayActivity::class.java))
+                startActivityForResult(Intent(this, PLayActivity::class.java), REQUSET_CODE)
             }
             R.id.play_bar_song_list -> {
                 val dialog = PlayListDialog(this, currentPlayList)
@@ -167,15 +170,46 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
         }
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUSET_CODE) {
+            when (resultCode) {
+                RESULT_SHOW_ALBUM -> {
+                    showAlbumDetail(data)
+                }
+                RESULT_SHOW_ARTIST -> {
+                    showArtistDetail(data)
+                }
+            }
+        }
+    }
+
+    private fun showArtistDetail(data: Intent?) {
+        val artistDetailFragment = ArtistDetailFragment()
+        artistDetailFragment.arguments = data?.extras
+        FragmentUtil.addFragmentToMainView(supportFragmentManager, artistDetailFragment)
+    }
+
+    private fun showAlbumDetail(data: Intent?) {
+        val detailFragment = DetailFragment()
+        detailFragment.arguments = data?.extras
+        FragmentUtil.addFragmentToMainView(supportFragmentManager, detailFragment)
+    }
+
     fun openDrawer() {
         mDrawer.openDrawer(Gravity.START)
     }
 
-    fun playNewSong(song: Song) {
+    override fun playSong(song: Song) {
         runOnUiThread {
             playService.playNewSong(song)
         }
     }
+
+    /**
+     * 下一首播放
+     */
+    override fun setNextSong(song: Song): Boolean = playService.setNextSong(song)
 
     fun addBackKeyEventListener(listener: OnBackKeyEventListener) {
         if (backKeyEventListeners == null) {
@@ -242,23 +276,27 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
     }
 
     override fun onPlayStart() {
-        isPlaying = true
-        setControlIcon(isPlaying)
-        //设置侧滑菜单顶部图标
-        GlideApp.with(this)
-                .load(currentSong?.albumCoverUrl)
-                .into(smCover)
-        smTitle.text = currentSong?.name
-        smTvAppVersion.text = currentSong?.displayArtistName
+        runOnUiThread {
+            isPlaying = true
+            setControlIcon(isPlaying)
+            //设置侧滑菜单顶部图标
+            GlideApp.with(this)
+                    .load(currentSong?.albumCoverUrl)
+                    .into(smCover)
+            smTitle.text = currentSong?.name
+            smTvAppVersion.text = currentSong?.displayArtistName
+        }
     }
 
     override fun onPlayPause() {
-        isPlaying = false
-        setControlIcon(isPlaying)
-        //设置侧滑菜单顶部图标
-        smCover.setImageResource(R.drawable.ic_main_android)
-        smTitle.text = getString(R.string.app_name)
-        smTvAppVersion.text = AppUtil.getAppVersionName(this)
+        runOnUiThread {
+            isPlaying = false
+            setControlIcon(isPlaying)
+            //设置侧滑菜单顶部图标
+            smCover.setImageResource(R.drawable.ic_main_android)
+            smTitle.text = getString(R.string.app_name)
+            smTvAppVersion.text = AppUtil.getAppVersionName(this)
+        }
     }
 
     override fun onPlayStop() {
@@ -312,6 +350,9 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver {
 
     companion object {
         const val TAG = "MainActivity"
+        const val REQUSET_CODE = 0x01
+        const val RESULT_SHOW_ALBUM = 0x11
+        const val RESULT_SHOW_ARTIST = 0x12
     }
 
 
