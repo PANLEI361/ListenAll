@@ -337,6 +337,7 @@ internal class Xiami(val context: Context) : MusicSource {
                         song.length = track.getInt("length")
                         try {
                             song.lyricUrl = track.getString("lyric_url")
+                            LogUtil.d(TAG, "lyric:${song.lyricUrl}")
                         } catch (e: JSONException) {
                             song.lyricUrl = ""
                         }

@@ -1,7 +1,6 @@
 package com.example.wenhai.listenall.moudle.artist.detail
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.TabLayout
 import android.support.v4.app.Fragment
@@ -30,7 +29,6 @@ import com.example.wenhai.listenall.extension.showToast
 import com.example.wenhai.listenall.moudle.detail.DetailContract
 import com.example.wenhai.listenall.moudle.detail.DetailFragment
 import com.example.wenhai.listenall.moudle.main.MainActivity
-import com.example.wenhai.listenall.moudle.play.PLayActivity
 import com.example.wenhai.listenall.moudle.play.service.PlayProxy
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
@@ -72,14 +70,11 @@ class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
     lateinit var mPresenter: ArtistDetailContract.Presenter
     lateinit var artist: Artist
 
-    private var shouldRestartPlayActivity = false
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         ArtistDetailPresenter(this)
         artist = arguments.getParcelable("artist")
-        shouldRestartPlayActivity = arguments.getBoolean("restartPlayActivity", false)
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -140,9 +135,6 @@ class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
     fun onClick(view: View) {
         when (view.id) {
             R.id.action_bar_back -> {
-                if (shouldRestartPlayActivity) {
-                    activity.startActivityForResult(Intent(context, PLayActivity::class.java), MainActivity.REQUSET_CODE)
-                }
                 FragmentUtil.removeFragment(fragmentManager, this)
             }
         }

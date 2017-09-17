@@ -1,7 +1,6 @@
 package com.example.wenhai.listenall.moudle.detail
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
@@ -29,7 +28,6 @@ import com.example.wenhai.listenall.extension.hide
 import com.example.wenhai.listenall.extension.show
 import com.example.wenhai.listenall.extension.showToast
 import com.example.wenhai.listenall.moudle.main.MainActivity
-import com.example.wenhai.listenall.moudle.play.PLayActivity
 import com.example.wenhai.listenall.moudle.play.service.PlayProxy
 import com.example.wenhai.listenall.moudle.ranking.RankingContract
 import com.example.wenhai.listenall.utils.DAOUtil
@@ -66,7 +64,6 @@ class DetailFragment : Fragment(), DetailContract.View {
     private lateinit var mAlbum: Album
     private lateinit var mCollect: Collect
 
-    private var shouldRestartPlayActivity = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,7 +74,6 @@ class DetailFragment : Fragment(), DetailContract.View {
         val contentView = inflater !!.inflate(R.layout.fragment_detail, container, false)
         mUnBinder = ButterKnife.bind(this, contentView)
         mLoadType = arguments.getSerializable(DetailContract.ARGS_LOAD_TYPE) as DetailContract.LoadType
-        shouldRestartPlayActivity = arguments.getBoolean("restartPlayActivity", false)
         initView()
         return contentView
     }
@@ -129,9 +125,6 @@ class DetailFragment : Fragment(), DetailContract.View {
     fun onClick(view: View) {
         when (view.id) {
             R.id.action_bar_back -> {
-                if (shouldRestartPlayActivity) {
-                    activity.startActivityForResult(Intent(context, PLayActivity::class.java), MainActivity.REQUSET_CODE)
-                }
                 FragmentUtil.removeFragment(fragmentManager, this)
             }
             R.id.detail_play_all -> {

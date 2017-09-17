@@ -126,7 +126,6 @@ class SongOpsDialog(context: Context, val song: Song, private val activity: Frag
             FragmentUtil.addFragmentToMainView(activity.supportFragmentManager, detailFragment)
         } else {
             val intent = Intent()
-            data.putBoolean("restartPlayActivity", true)
             intent.putExtras(data)
             activity.setResult(MainActivity.RESULT_SHOW_ALBUM, intent)
             activity.finish()
@@ -142,7 +141,6 @@ class SongOpsDialog(context: Context, val song: Song, private val activity: Frag
             FragmentUtil.addFragmentToMainView(activity.supportFragmentManager, artistDetailFragment)
         } else {
             val intent = Intent()
-            data.putBoolean("restartPlayActivity", true)
             intent.putExtras(data)
             activity.setResult(MainActivity.RESULT_SHOW_ARTIST, intent)
             activity.finish()

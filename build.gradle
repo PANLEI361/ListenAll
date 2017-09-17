@@ -10,6 +10,9 @@ buildscript {
         google()
         jcenter()
         mavenCentral()
+        maven {
+            url  "https://dl.bintray.com/wenhaiz/wenhaiz"
+        }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.0.0-beta6'

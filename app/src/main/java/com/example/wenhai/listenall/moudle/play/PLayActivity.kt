@@ -10,6 +10,7 @@ import android.os.IBinder
 import android.support.v4.view.PagerAdapter
 import android.support.v4.view.ViewPager
 import android.support.v7.app.AppCompatActivity
+import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -35,8 +36,12 @@ import com.example.wenhai.listenall.moudle.play.service.PlayStatusObserver
 import com.example.wenhai.listenall.utils.DAOUtil
 import com.example.wenhai.listenall.utils.GlideApp
 import com.example.wenhai.listenall.utils.LogUtil
+import com.example.wenhai.listenall.widget.Lyric
+import com.example.wenhai.listenall.widget.LyricUtils
+import com.example.wenhai.listenall.widget.LyricView
 import com.example.wenhai.listenall.widget.PlayListDialog
 import com.example.wenhai.listenall.widget.SongOpsDialog
+import java.net.URL
 
 class PLayActivity : AppCompatActivity(), PlayStatusObserver, PlayProxy {
     @BindView(R.id.play_song_name)
@@ -78,7 +83,8 @@ class PLayActivity : AppCompatActivity(), PlayStatusObserver, PlayProxy {
     private lateinit var mBtnDownload: ImageView
     private lateinit var mBtnMore: ImageView
 
-    lateinit var lyricView: LinearLayout
+    lateinit var lyricFragment: LinearLayout
+    lateinit var lyricView: LyricView
 
     private lateinit var connection: ServiceConnection
     private lateinit var mUnBinder: Unbinder
@@ -95,8 +101,8 @@ class PLayActivity : AppCompatActivity(), PlayStatusObserver, PlayProxy {
         setContentView(R.layout.activity_play)
         //init coverView
         coverView = LayoutInflater.from(this).inflate(R.layout.fragment_play_cover, null, false) as RelativeLayout
-        //init lyricView
-        lyricView = LayoutInflater.from(this).inflate(R.layout.fragment_play_lyric, null, false) as LinearLayout
+        //init lyricFragment
+        lyricFragment = LayoutInflater.from(this).inflate(R.layout.fragment_play_lyric, null, false) as LinearLayout
         mUnBinder = ButterKnife.bind(this)
         initView()
         initPlayService()
@@ -144,7 +150,33 @@ class PLayActivity : AppCompatActivity(), PlayStatusObserver, PlayProxy {
         })
 
         initCoverView()
+        initLyricView()
+    }
 
+    private fun initLyricView() {
+        lyricView = lyricFragment.findViewById(R.id.lyric)
+    }
+
+    private fun parseLyric(lyricUrl: String?) {
+        if (lyricUrl != null) {
+            val thread = Thread {
+                kotlin.run {
+                    val url = URL(lyricUrl)
+                    val inputStream = url.openConnection().getInputStream()
+                    val lyric = LyricUtils.parseLyric(inputStream, "utf-8")
+                    onLyricLoaded(lyric)
+                }
+            }
+            thread.start()
+        } else {
+            lyricView.lyric = null
+        }
+    }
+
+    private fun onLyricLoaded(lyric: Lyric?) {
+        runOnUiThread {
+            lyricView.lyric = lyric
+        }
     }
 
     private fun initCoverView() {
@@ -346,10 +378,12 @@ class PLayActivity : AppCompatActivity(), PlayStatusObserver, PlayProxy {
             if (isLiked) {
                 mBtnLiked.setImageResource(R.drawable.ic_liked)
             }
+            if (! TextUtils.isEmpty(mCurrentSong !!.lyricUrl)) {
+                parseLyric(mCurrentSong !!.lyricUrl)
+            }
         }
         mCurrentPlayList = playStatus.currentList
-        mSeekBar.progress = playStatus.playProgress.toInt()
-        setCurTime(playStatus.playProgress)
+        onPlayProgressUpdate(playStatus.playProgress)
     }
 
     override fun onPlayStart() {
@@ -383,6 +417,11 @@ class PLayActivity : AppCompatActivity(), PlayStatusObserver, PlayProxy {
             try {
                 mSeekBar.progress = percent.toInt()
                 setCurTime(percent)
+                if (lyricView.hasLyric()) {
+                    val timeInMills = (percent * mCurrentSong !!.length * 10).toLong()
+                    LogUtil.d("test", "percent=$percent, length = ${mCurrentSong?.length},timeInMills=$timeInMills")
+                    lyricView.updateTime(timeInMills)
+                }
             } catch (e: Exception) {
                 LogUtil.e("playException", e.localizedMessage)
             }
@@ -400,6 +439,7 @@ class PLayActivity : AppCompatActivity(), PlayStatusObserver, PlayProxy {
     override fun onNewSong(song: Song) {
         runOnUiThread {
             mCurrentSong = song
+            parseLyric(mCurrentSong?.lyricUrl)
             mSongName.text = mCurrentSong !!.name
             setCover(mCurrentSong !!.albumCoverUrl)
             mTvArtistName.text = mCurrentSong !!.displayArtistName
@@ -450,8 +490,8 @@ class PLayActivity : AppCompatActivity(), PlayStatusObserver, PlayProxy {
                 container !!.addView(coverView, 0)
                 coverView
             } else {
-                container !!.addView(lyricView, 1)
-                lyricView
+                container !!.addView(lyricFragment, 1)
+                lyricFragment
             }
         }
 
