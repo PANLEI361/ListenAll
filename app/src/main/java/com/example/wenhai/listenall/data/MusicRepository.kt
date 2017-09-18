@@ -4,7 +4,7 @@ import android.content.Context
 import com.example.wenhai.listenall.data.bean.Artist
 import com.example.wenhai.listenall.data.bean.Song
 import com.example.wenhai.listenall.data.onlineprovider.Xiami
-import com.example.wenhai.listenall.moudle.ranking.RankingContract
+import com.example.wenhai.listenall.module.ranking.RankingContract
 
 internal class MusicRepository(context: Context) : MusicSource {
 

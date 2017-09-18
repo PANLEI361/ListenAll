@@ -8,7 +8,7 @@
     android:focusable="true"
     android:focusableInTouchMode="true"
     android:orientation="vertical"
-    tools:context=".moudle.main.MainActivity">
+    tools:context=".module.main.MainActivity">
 
 
     <!--search-->

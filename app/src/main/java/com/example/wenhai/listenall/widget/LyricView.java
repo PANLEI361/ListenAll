@@ -205,7 +205,9 @@ public class LyricView extends View {
     }
 
     public boolean hasLyric() {
-        return mLyric != null;
+        if (mLyric == null) {
+            return false;
+        } else return !mLyric.getSentenceList().isEmpty();
     }
 
     private void reset() {

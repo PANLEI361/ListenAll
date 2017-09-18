@@ -14,11 +14,11 @@ import com.example.wenhai.listenall.data.bean.Song
 import com.example.wenhai.listenall.extension.hide
 import com.example.wenhai.listenall.extension.show
 import com.example.wenhai.listenall.extension.showToast
-import com.example.wenhai.listenall.moudle.artist.detail.ArtistDetailFragment
-import com.example.wenhai.listenall.moudle.detail.DetailContract
-import com.example.wenhai.listenall.moudle.detail.DetailFragment
-import com.example.wenhai.listenall.moudle.main.MainActivity
-import com.example.wenhai.listenall.moudle.play.service.PlayProxy
+import com.example.wenhai.listenall.module.artist.detail.ArtistDetailFragment
+import com.example.wenhai.listenall.module.detail.DetailContract
+import com.example.wenhai.listenall.module.detail.DetailFragment
+import com.example.wenhai.listenall.module.main.MainActivity
+import com.example.wenhai.listenall.module.play.service.PlayProxy
 import com.example.wenhai.listenall.utils.FragmentUtil
 
 class SongOpsDialog(context: Context, val song: Song, private val activity: FragmentActivity) : BaseBottomDialog(context) {

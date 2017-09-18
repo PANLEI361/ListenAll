@@ -29,7 +29,7 @@ import com.example.wenhai.listenall.data.bean.Banner
 import com.example.wenhai.listenall.data.bean.BannerType
 import com.example.wenhai.listenall.data.bean.Collect
 import com.example.wenhai.listenall.data.bean.Song
-import com.example.wenhai.listenall.moudle.ranking.RankingContract
+import com.example.wenhai.listenall.module.ranking.RankingContract
 import com.example.wenhai.listenall.utils.BaseResponseCallback
 import com.example.wenhai.listenall.utils.LogUtil
 import com.example.wenhai.listenall.utils.OkHttpUtil

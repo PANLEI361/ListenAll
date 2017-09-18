@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="265dp"
     android:layout_height="match_parent"
     android:layout_gravity="start"
@@ -13,7 +14,8 @@
         android:layout_height="130dp"
         android:layout_marginTop="15dp"
         android:scaleType="fitCenter"
-        android:src="@drawable/ic_main_android" />
+        android:src="@mipmap/ic_launcher"
+        tools:ignore="ContentDescription" />
 
     <TextView
         android:id="@+id/slide_menu_title"
