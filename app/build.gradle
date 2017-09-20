@@ -11,7 +11,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 26
         versionCode 1
-        versionName "1.0.0"
+        versionName "1.0.0 Preview"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -55,6 +55,8 @@ dependencies {
     compile 'org.greenrobot:greendao:3.2.2'
     //refresh
     compile 'com.scwang.smartrefresh:SmartRefreshLayout:1.0.3'
+    //LyricView
+//    compile 'com.wenhaiz:lyricview:1.0.0'
 }
 repositories {
     mavenCentral()

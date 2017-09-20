@@ -35,7 +35,7 @@ object FragmentUtil {
     @JvmStatic
     fun removeFragment(fragmentManager: FragmentManager, fragment: Fragment) {
         fragmentManager.beginTransaction()
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                 .remove(fragment)
                 .commit()
         fragmentManager.popBackStack()

@@ -265,6 +265,13 @@ public final class Song implements Parcelable, Serializable {
         return isPlaying;
     }
 
+    public Artist getArtist() {
+        Artist artist = new Artist();
+        artist.setArtistId(String.valueOf(artistId));
+        artist.setName(artistName);
+        return artist;
+    }
+
     public void setPlaying(boolean playing) {
         isPlaying = playing;
     }

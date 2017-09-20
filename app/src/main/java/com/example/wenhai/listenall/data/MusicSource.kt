@@ -6,7 +6,7 @@ import com.example.wenhai.listenall.data.bean.Artist
 import com.example.wenhai.listenall.data.bean.Banner
 import com.example.wenhai.listenall.data.bean.Collect
 import com.example.wenhai.listenall.data.bean.Song
-import com.example.wenhai.listenall.moudle.ranking.RankingContract
+import com.example.wenhai.listenall.module.ranking.RankingContract
 
 /**
  * 音乐数据接口类

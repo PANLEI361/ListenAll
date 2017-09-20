@@ -57,6 +57,13 @@
     <string name="liked">收藏成功</string>
     <string name="unliked">已取消收藏</string>
     <string name="no_songs_to_play">没有歌曲可以播放</string>
+    <string name="add_play_next">下一首播放</string>
+    <string name="add_to_collect">添加到歌单</string>
+    <string name="dialog_artist">歌手：</string>
+    <string name="dialog_album">专辑：</string>
+    <string name="delete">删除</string>
+    <string name="save_cover">保存封面图</string>
+    <string name="song_already_in_playlist">当前歌曲已在播放列表</string>
 
     <!--filter category-->
     <array name="filter_language">

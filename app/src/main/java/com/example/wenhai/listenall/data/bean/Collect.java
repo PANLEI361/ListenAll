@@ -25,6 +25,7 @@ public class Collect implements Parcelable {
     private long createDate;//创建时间
     private long updateDate;//更新时间
     private ArrayList<Song> songs;//歌曲
+    private boolean isFromUser = false;//是否是用户创建的
 
     public Collect() {
 
@@ -42,6 +43,7 @@ public class Collect implements Parcelable {
         createDate = in.readLong();
         updateDate = in.readLong();
         songs = in.createTypedArrayList(Song.CREATOR);
+        isFromUser = in.readInt() == 1;
     }
 
     public static final Creator<Collect> CREATOR = new Creator<Collect>() {
@@ -152,6 +154,14 @@ public class Collect implements Parcelable {
         this.playTimes = playTimes;
     }
 
+    public boolean isFromUser() {
+        return isFromUser;
+    }
+
+    public void setFromUser(boolean fromUser) {
+        isFromUser = fromUser;
+    }
+
     @Override
     public String toString() {
         return "Collect{" +
@@ -179,5 +189,6 @@ public class Collect implements Parcelable {
         parcel.writeLong(createDate);
         parcel.writeLong(updateDate);
         parcel.writeTypedList(songs);
+        parcel.writeInt(isFromUser ? 1 : 0);
     }
 }

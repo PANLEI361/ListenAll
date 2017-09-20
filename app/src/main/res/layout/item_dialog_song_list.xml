@@ -25,6 +25,7 @@
             android:paddingEnd="5dp"
             android:paddingStart="5dp"
             android:text="St.Patric's Day - John Mayer"
+            android:textColor="@color/colorBlack"
             android:textSize="17sp"
             tools:ignore="NestedWeights" />
 

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.wenhai.listenall">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -10,11 +11,11 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        tools:ignore="AllowBackup,GoogleAppIndexingWarning">
         <activity
-            android:name=".moudle.main.MainActivity"
+            android:name=".module.main.MainActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden|adjustPan">
             <intent-filter>
@@ -25,11 +26,11 @@
         </activity>
 
         <service
-            android:name=".moudle.play.service.PlayService"
+            android:name=".module.play.service.PlayService"
             android:enabled="true"
-            android:exported="false"></service>
+            android:exported="false" />
 
-        <activity android:name=".moudle.play.PLayActivity"></activity>
+        <activity android:name=".module.play.PLayActivity" />
     </application>
 
 </manifest>

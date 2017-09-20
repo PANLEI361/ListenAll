@@ -15,4 +15,10 @@ object ScreenUtil {
         val density = context.resources.displayMetrics.density
         return (dp * density + 0.5f).toInt()
     }
+
+    @JvmStatic
+    fun sp2px(context: Context, spValue: Float): Int {
+        val fontScale = context.resources.displayMetrics.scaledDensity
+        return (spValue * fontScale + 0.5f).toInt()
+    }
 }
