@@ -2,7 +2,7 @@
 
 buildscript {
     ext.kotlin_version = '1.1.4-3'
-    ext.support_version = "26.0.2"
+    ext.support_version = "26.1.0"
     ext.glide_version = "4.0.0"
     ext.butterknife_version = "8.7.0"
 
@@ -10,9 +10,6 @@ buildscript {
         google()
         jcenter()
         mavenCentral()
-        maven {
-            url  "https://dl.bintray.com/wenhaiz/wenhaiz"
-        }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.0.0-beta6'

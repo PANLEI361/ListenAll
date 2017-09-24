@@ -36,11 +36,11 @@ import com.example.wenhai.listenall.module.play.service.PlayStatusObserver
 import com.example.wenhai.listenall.utils.DAOUtil
 import com.example.wenhai.listenall.utils.GlideApp
 import com.example.wenhai.listenall.utils.LogUtil
-import com.example.wenhai.listenall.widget.Lyric
-import com.example.wenhai.listenall.widget.LyricUtils
-import com.example.wenhai.listenall.widget.LyricView
 import com.example.wenhai.listenall.widget.PlayListDialog
 import com.example.wenhai.listenall.widget.SongOpsDialog
+import com.wenhaiz.lyricview.LyricView
+import com.wenhaiz.lyricview.bean.Lyric
+import com.wenhaiz.lyricview.utils.LyricUtil
 import java.net.URL
 
 class PLayActivity : AppCompatActivity(), PlayStatusObserver, PlayProxy {
@@ -75,7 +75,7 @@ class PLayActivity : AppCompatActivity(), PlayStatusObserver, PlayProxy {
     @BindView(R.id.play_btn_song_list)
     lateinit var mBtnSongList: ImageButton
 
-    lateinit var coverView: RelativeLayout
+    lateinit var coverFragment: RelativeLayout
     private lateinit var mTvArtistName: TextView
     private lateinit var mTvProvider: TextView
     private lateinit var mIvCover: ImageView
@@ -99,8 +99,8 @@ class PLayActivity : AppCompatActivity(), PlayStatusObserver, PlayProxy {
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_play)
-        //init coverView
-        coverView = LayoutInflater.from(this).inflate(R.layout.fragment_play_cover, null, false) as RelativeLayout
+        //init coverFragment
+        coverFragment = LayoutInflater.from(this).inflate(R.layout.fragment_play_cover, null, false) as RelativeLayout
         //init lyricFragment
         lyricFragment = LayoutInflater.from(this).inflate(R.layout.fragment_play_lyric, null, false) as LinearLayout
         mUnBinder = ButterKnife.bind(this)
@@ -111,13 +111,18 @@ class PLayActivity : AppCompatActivity(), PlayStatusObserver, PlayProxy {
 
     private fun initView() {
         mSongName.isSelected = true //validate marquee
+        initViewPager()
+        initSeekBar()
+        initCoverView()
+        initLyricView()
+    }
+
+    private fun initViewPager() {
         mPager.adapter = PlayPagerAdapter()
         mPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
-            override fun onPageScrollStateChanged(state: Int) {
-            }
+            override fun onPageScrollStateChanged(state: Int) {}
 
-            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
-            }
+            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
 
             override fun onPageSelected(position: Int) {
                 if (position == 0) {
@@ -130,6 +135,9 @@ class PLayActivity : AppCompatActivity(), PlayStatusObserver, PlayProxy {
             }
 
         })
+    }
+
+    private fun initSeekBar() {
         mSeekBar.max = 100
         mSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -148,46 +156,20 @@ class PLayActivity : AppCompatActivity(), PlayStatusObserver, PlayProxy {
             }
 
         })
-
-        initCoverView()
-        initLyricView()
-    }
-
-    private fun initLyricView() {
-        lyricView = lyricFragment.findViewById(R.id.lyric)
-    }
-
-    private fun parseLyric(lyricUrl: String?) {
-        if (lyricUrl != null) {
-            val thread = Thread {
-                kotlin.run {
-                    val url = URL(lyricUrl)
-                    val inputStream = url.openConnection().getInputStream()
-                    val lyric = LyricUtils.parseLyric(inputStream, "utf-8")
-                    onLyricLoaded(lyric)
-                }
-            }
-            thread.start()
-        } else {
-            lyricView.lyric = null
-        }
-    }
-
-    private fun onLyricLoaded(lyric: Lyric?) {
-        runOnUiThread {
-            lyricView.lyric = lyric
-        }
     }
 
     private fun initCoverView() {
-        mIvCover = coverView.findViewById(R.id.play_cover)
-        mTvArtistName = coverView.findViewById(R.id.play_artist_name)
+        coverFragment.setOnClickListener {
+            mPager.setCurrentItem(1, false)
+        }
+        mIvCover = coverFragment.findViewById(R.id.play_cover)
+        mTvArtistName = coverFragment.findViewById(R.id.play_artist_name)
         //TextView 跑马灯需要设置 selected=true
         mTvArtistName.isSelected = true
-        mTvProvider = coverView.findViewById(R.id.play_provider)
-        mBtnLiked = coverView.findViewById(R.id.play_btn_like)
-        mBtnDownload = coverView.findViewById(R.id.play_btn_download)
-        mBtnMore = coverView.findViewById(R.id.play_btn_more_operation)
+        mTvProvider = coverFragment.findViewById(R.id.play_provider)
+        mBtnLiked = coverFragment.findViewById(R.id.play_btn_like)
+        mBtnDownload = coverFragment.findViewById(R.id.play_btn_download)
+        mBtnMore = coverFragment.findViewById(R.id.play_btn_more_operation)
         mBtnLiked.setOnClickListener {
             likeCurrentSong()
         }
@@ -223,6 +205,39 @@ class PLayActivity : AppCompatActivity(), PlayStatusObserver, PlayProxy {
             likedSongDao.delete(likedSong)
             mBtnLiked.setImageResource(R.drawable.ic_like_border)
             showToast(R.string.unliked)
+        }
+    }
+
+    private fun initLyricView() {
+        lyricFragment.setOnClickListener {
+            mPager.setCurrentItem(0, false)
+        }
+        lyricView = lyricFragment.findViewById(R.id.lyric)
+    }
+
+    private fun parseLyric(lyricUrl: String?) {
+        if (lyricUrl != null) {
+            val thread = Thread {
+                kotlin.run {
+                    try {
+                        val url = URL(lyricUrl)
+                        val inputStream = url.openConnection().getInputStream()
+                        val lyric = LyricUtil.parseLyric(inputStream, "utf-8")
+                        onLyricLoaded(lyric)
+                    } catch (e: Exception) {
+
+                    }
+                }
+            }
+            thread.start()
+        } else {
+            lyricView.lyric = null
+        }
+    }
+
+    private fun onLyricLoaded(lyric: Lyric?) {
+        runOnUiThread {
+            lyricView.lyric = lyric
         }
     }
 
@@ -486,8 +501,8 @@ class PLayActivity : AppCompatActivity(), PlayStatusObserver, PlayProxy {
     inner class PlayPagerAdapter : PagerAdapter() {
         override fun instantiateItem(container: ViewGroup?, position: Int): Any {
             return if (position == 0) {
-                container !!.addView(coverView, 0)
-                coverView
+                container !!.addView(coverFragment, 0)
+                coverFragment
             } else {
                 container !!.addView(lyricFragment, 1)
                 lyricFragment

@@ -56,7 +56,7 @@ dependencies {
     //refresh
     compile 'com.scwang.smartrefresh:SmartRefreshLayout:1.0.3'
     //LyricView
-//    compile 'com.wenhaiz:lyricview:1.0.0'
+    compile 'com.wenhaiz:lyricview:1.0.0'
 }
 repositories {
     mavenCentral()

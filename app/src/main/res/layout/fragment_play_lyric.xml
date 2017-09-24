@@ -6,7 +6,7 @@
     android:gravity="center"
     android:orientation="vertical">
 
-    <com.example.wenhai.listenall.widget.LyricView
+    <com.wenhaiz.lyricview.LyricView
         android:id="@+id/lyric"
         app:lrcTextSize="16sp"
         android:layout_width="match_parent"
