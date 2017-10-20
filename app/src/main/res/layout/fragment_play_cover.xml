@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:gravity="center_horizontal">
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal">
 
     <!--artist name-->
     <LinearLayout
@@ -17,7 +17,7 @@
         <View
             android:layout_width="30dp"
             android:layout_height="1dp"
-            android:background="@color/colorDivider" />
+            android:background="@color/colorDivider"/>
 
         <TextView
             android:id="@+id/play_artist_name"
@@ -26,16 +26,16 @@
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
             android:ellipsize="marquee"
+            android:maxLines="1"
             android:maxWidth="190dp"
-            android:singleLine="true"
             android:text="John Mayer"
             android:textColor="@color/colorBlack"
-            android:textSize="18sp" />
+            android:textSize="18sp"/>
 
         <View
             android:layout_width="30dp"
             android:layout_height="1dp"
-            android:background="@color/colorDivider" />
+            android:background="@color/colorDivider"/>
 
     </LinearLayout>
 
@@ -44,9 +44,9 @@
         android:id="@+id/play_ll_cover"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/play_ll_provider"
         android:layout_below="@id/play_ll_artist_name"
         android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
         android:gravity="center">
 
         <ImageView
@@ -55,7 +55,8 @@
             android:layout_height="265dp"
             android:background="@drawable/bg_cover"
             android:padding="1dp"
-            tools:ignore="ContentDescription" />
+            android:scaleType="centerCrop"
+            tools:ignore="ContentDescription"/>
     </LinearLayout>
 
     <!--provider-->
@@ -63,8 +64,9 @@
         android:id="@+id/play_ll_provider"
         android:layout_width="match_parent"
         android:layout_height="30dp"
-        android:layout_above="@id/play_ll_operation"
-        android:layout_marginBottom="7dp"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/play_ll_cover"
+        android:layout_marginTop="25dp"
         android:gravity="center"
         android:orientation="horizontal">
 
@@ -74,7 +76,7 @@
             android:gravity="center_horizontal"
             android:text="Provided by "
             android:textColor="@color/colorGray"
-            android:textSize="12sp" />
+            android:textSize="12sp"/>
 
         <TextView
             android:id="@+id/play_provider"
@@ -83,7 +85,7 @@
             android:layout_marginStart="3dp"
             android:gravity="center_horizontal"
             android:text="虾米音乐"
-            android:textColor="@color/colorBlack" />
+            android:textColor="@color/colorBlack"/>
     </LinearLayout>
 
     <!--operation-->
@@ -92,7 +94,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="5dp"
+        android:layout_alignParentStart="true"
+        android:layout_below="@id/play_ll_provider"
         android:gravity="center"
         android:orientation="horizontal">
 
@@ -102,7 +105,7 @@
             android:layout_height="35dp"
             android:background="@drawable/selector_white"
             android:src="@drawable/ic_like_border"
-            tools:ignore="ContentDescription" />
+            tools:ignore="ContentDescription"/>
 
         <ImageView
             android:id="@+id/play_btn_download"
@@ -112,7 +115,7 @@
             android:layout_marginStart="65dp"
             android:background="@drawable/selector_white"
             android:src="@drawable/ic_main_download"
-            tools:ignore="ContentDescription" />
+            tools:ignore="ContentDescription"/>
 
         <ImageView
             android:id="@+id/play_btn_more_operation"
@@ -120,7 +123,7 @@
             android:layout_height="35dp"
             android:background="@drawable/selector_white"
             android:src="@drawable/ic_more_vertical"
-            tools:ignore="ContentDescription" />
+            tools:ignore="ContentDescription"/>
 
     </LinearLayout>
 
