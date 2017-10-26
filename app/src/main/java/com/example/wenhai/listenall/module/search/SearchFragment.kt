@@ -23,6 +23,7 @@ import com.example.wenhai.listenall.data.bean.SearchHistoryDao
 import com.example.wenhai.listenall.data.bean.Song
 import com.example.wenhai.listenall.extension.hide
 import com.example.wenhai.listenall.extension.show
+import com.example.wenhai.listenall.extension.showToast
 import com.example.wenhai.listenall.module.main.MainFragment
 import com.example.wenhai.listenall.module.play.service.PlayProxy
 import com.example.wenhai.listenall.utils.DAOUtil
@@ -54,7 +55,7 @@ class SearchFragment : Fragment(), SearchContract.View {
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val contentView = inflater !!.inflate(R.layout.fragment_search, container, false)
+        val contentView = inflater!!.inflate(R.layout.fragment_search, container, false)
         mUnBinder = ButterKnife.bind(this, contentView)
         initView()
         return contentView
@@ -88,7 +89,7 @@ class SearchFragment : Fragment(), SearchContract.View {
     }
 
     fun beginSearch(keyword: String) {
-        if (! TextUtils.isEmpty(keyword)) {
+        if (!TextUtils.isEmpty(keyword)) {
             val mainFragment: MainFragment = fragmentManager.findFragmentById(R.id.main_container) as MainFragment
             mainFragment.hideSoftInput()
             mPresenter.searchByKeyWord(keyword)
@@ -174,11 +175,14 @@ class SearchFragment : Fragment(), SearchContract.View {
 
     override fun onFailure(msg: String) {
         activity.runOnUiThread {
-            mLoadFailed.show()
-            mLoading.hide()
-            mContentList.hide()
-            mSearchView.hide()
-//            ToastUtil.showToast(context, msg)
+            if (msg == SearchContract.SONG_NOT_AVAILABLE) {
+                context.showToast(getString(R.string.song_not_avaliable))
+            } else {
+                mLoadFailed.show()
+                mLoading.hide()
+                mContentList.hide()
+                mSearchView.hide()
+            }
         }
     }
 
@@ -243,7 +247,7 @@ class SearchFragment : Fragment(), SearchContract.View {
 
         override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
             val searchHistory = history[position]
-            holder !!.historyKeyword.text = searchHistory.keyword
+            holder!!.historyKeyword.text = searchHistory.keyword
             holder.deleteHistory.setOnClickListener {
                 DAOUtil.getSession(context).searchHistoryDao.delete(searchHistory)
                 showSearchHistory()
@@ -281,7 +285,7 @@ class SearchFragment : Fragment(), SearchContract.View {
 
         override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
             val recommendKeyword = keywords[position]
-            holder !!.keyword.text = recommendKeyword
+            holder!!.keyword.text = recommendKeyword
             holder.item.setOnClickListener {
                 searchKeyword = recommendKeyword
                 val mainFragment: MainFragment = fragmentManager.findFragmentById(R.id.main_container) as MainFragment

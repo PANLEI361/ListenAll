@@ -54,7 +54,7 @@ internal class SearchPresenter(val view: SearchContract.View) : SearchContract.P
             }
 
             override fun onFailure(msg: String) {
-                view.onFailure(msg)
+                view.onFailure(SearchContract.SONG_NOT_AVAILABLE)
             }
 
             override fun onSuccess(loadedSong: Song) {

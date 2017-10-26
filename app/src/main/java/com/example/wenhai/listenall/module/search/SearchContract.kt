@@ -5,7 +5,9 @@ import com.example.wenhai.listenall.base.BaseView
 import com.example.wenhai.listenall.data.bean.Song
 
 class SearchContract {
-
+    companion object {
+        val SONG_NOT_AVAILABLE = "songNotAvailable"
+    }
     interface View : BaseView<Presenter> {
         fun onSearchResult(songs: List<Song>)
         fun onSearchRecommendLoaded(recommends: List<String>)
@@ -13,7 +15,6 @@ class SearchContract {
     }
 
     interface Presenter : BasePresenter {
-
         fun searchByKeyWord(keyword: String)
         fun loadSearchRecommend(keyword: String)
         fun loadSongDetail(song: Song)

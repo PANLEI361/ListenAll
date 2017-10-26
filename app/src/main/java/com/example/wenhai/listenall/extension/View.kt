@@ -13,11 +13,3 @@ fun View.show() {
 fun View.isShowing(): Boolean {
     return visibility == View.VISIBLE
 }
-
-fun View.toggleVisibility() {
-    visibility = if (visibility == View.VISIBLE) {
-        View.GONE
-    } else {
-        View.VISIBLE
-    }
-}
