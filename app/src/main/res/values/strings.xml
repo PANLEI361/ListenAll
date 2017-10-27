@@ -64,8 +64,8 @@
     <string name="delete">删除</string>
     <string name="save_cover">保存封面图</string>
     <string name="song_already_in_playlist">当前歌曲已在播放列表</string>
-    <string name="song_not_avaliable">当前歌曲无法播放，请尝试其他平台</string>
-    <string name="create_new_collect">创建新歌单</string>
+    <string name="song_not_available">当前歌曲无法播放，请尝试其他平台</string>
+    <string name="create_collect">新建歌单</string>
 
     <!--filter category-->
     <array name="filter_language">

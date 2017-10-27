@@ -176,7 +176,7 @@ class SearchFragment : Fragment(), SearchContract.View {
     override fun onFailure(msg: String) {
         activity.runOnUiThread {
             if (msg == SearchContract.SONG_NOT_AVAILABLE) {
-                context.showToast(getString(R.string.song_not_avaliable))
+                context.showToast(getString(R.string.song_not_available))
             } else {
                 mLoadFailed.show()
                 mLoading.hide()
