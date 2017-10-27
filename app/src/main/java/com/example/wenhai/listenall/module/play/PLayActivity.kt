@@ -66,14 +66,14 @@ class PLayActivity : AppCompatActivity(), PlayStatusObserver, PlayProxy {
     //    control bar
     @BindView(R.id.play_btn_mode)
     lateinit var mBtnPlayMode: ImageButton
-    @BindView(R.id.play_btn_previous)
-    lateinit var mBtnPrevious: ImageButton
     @BindView(R.id.play_btn_start_pause)
     lateinit var mBtnPause: ImageButton
-    @BindView(R.id.play_btn_next)
-    lateinit var mBtnNext: ImageButton
-    @BindView(R.id.play_btn_song_list)
-    lateinit var mBtnSongList: ImageButton
+//    @BindView(R.id.play_btn_previous)
+//    lateinit var mBtnPrevious: ImageButton
+//    @BindView(R.id.play_btn_next)
+//    lateinit var mBtnNext: ImageButton
+//    @BindView(R.id.play_btn_song_list)
+//    lateinit var mBtnSongList: ImageButton
 
     lateinit var coverFragment: RelativeLayout
     private lateinit var mTvArtistName: TextView
@@ -152,16 +152,13 @@ class PLayActivity : AppCompatActivity(), PlayStatusObserver, PlayProxy {
             }
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                playService.seekTo(seekBar !!.progress.toFloat())
+                playService.seekTo(seekBar!!.progress.toFloat())
             }
 
         })
     }
 
     private fun initCoverView() {
-        coverFragment.setOnClickListener {
-            mPager.setCurrentItem(1, false)
-        }
         mIvCover = coverFragment.findViewById(R.id.play_cover)
         mTvArtistName = coverFragment.findViewById(R.id.play_artist_name)
         //TextView 跑马灯需要设置 selected=true
@@ -176,7 +173,7 @@ class PLayActivity : AppCompatActivity(), PlayStatusObserver, PlayProxy {
 
         mBtnMore.setOnClickListener {
             if (mCurrentSong != null) {
-                val dialog = SongOpsDialog(this, mCurrentSong !!, this)
+                val dialog = SongOpsDialog(this, mCurrentSong!!, this)
                 dialog.canSaveCover = true
                 dialog.showDelete = false
                 dialog.show()
@@ -190,7 +187,7 @@ class PLayActivity : AppCompatActivity(), PlayStatusObserver, PlayProxy {
     private fun likeCurrentSong() {
         val likedSongDao = DAOUtil.getSession(this).likedSongDao
         val queryList = likedSongDao.queryBuilder()
-                .where(LikedSongDao.Properties.SongId.eq(mCurrentSong !!.songId))
+                .where(LikedSongDao.Properties.SongId.eq(mCurrentSong!!.songId))
                 .list()
         if (queryList.isEmpty()) {
             //添加当前歌曲到喜欢列表
@@ -209,9 +206,6 @@ class PLayActivity : AppCompatActivity(), PlayStatusObserver, PlayProxy {
     }
 
     private fun initLyricView() {
-        lyricFragment.setOnClickListener {
-            mPager.setCurrentItem(0, false)
-        }
         lyricView = lyricFragment.findViewById(R.id.lyric)
     }
 
@@ -306,7 +300,7 @@ class PLayActivity : AppCompatActivity(), PlayStatusObserver, PlayProxy {
 
     private fun setCurTime(progress: Float) {
         if (mCurrentSong != null) {
-            mTvCurTime.text = getMinuteLength((progress / 100 * mCurrentSong !!.length).toInt())
+            mTvCurTime.text = getMinuteLength((progress / 100 * mCurrentSong!!.length).toInt())
         }
     }
 
@@ -382,19 +376,19 @@ class PLayActivity : AppCompatActivity(), PlayStatusObserver, PlayProxy {
         mSeekBar.secondaryProgress = playStatus.bufferedProgress
         mCurrentSong = playStatus.currentSong
         if (mCurrentSong != null) {
-            mSongName.text = mCurrentSong !!.name
-            mTvArtistName.text = mCurrentSong !!.displayArtistName
+            mSongName.text = mCurrentSong!!.name
+            mTvArtistName.text = mCurrentSong!!.displayArtistName
             setProvider()
-            setCover(mCurrentSong !!.albumCoverUrl)
-            mTvTotalTime.text = getMinuteLength(mCurrentSong !!.length)
+            setCover(mCurrentSong!!.albumCoverUrl)
+            mTvTotalTime.text = getMinuteLength(mCurrentSong!!.length)
             val isLiked = DAOUtil.getSession(this).likedSongDao.queryBuilder()
-                    .where(LikedSongDao.Properties.SongId.eq(mCurrentSong !!.songId))
+                    .where(LikedSongDao.Properties.SongId.eq(mCurrentSong!!.songId))
                     .list().size > 0
             if (isLiked) {
                 mBtnLiked.setImageResource(R.drawable.ic_liked)
             }
-            if (! TextUtils.isEmpty(mCurrentSong !!.lyricUrl)) {
-                parseLyric(mCurrentSong !!.lyricUrl)
+            if (!TextUtils.isEmpty(mCurrentSong!!.lyricUrl)) {
+                parseLyric(mCurrentSong!!.lyricUrl)
             }
         }
         mCurrentPlayList = playStatus.currentList
@@ -433,7 +427,7 @@ class PLayActivity : AppCompatActivity(), PlayStatusObserver, PlayProxy {
                 mSeekBar.progress = percent.toInt()
                 setCurTime(percent)
                 if (lyricView.hasLyric()) {
-                    val timeInMills = (percent * mCurrentSong !!.length * 10).toLong()
+                    val timeInMills = (percent * mCurrentSong!!.length * 10).toLong()
                     lyricView.updateTime(timeInMills)
                 }
             } catch (e: Exception) {
@@ -454,14 +448,14 @@ class PLayActivity : AppCompatActivity(), PlayStatusObserver, PlayProxy {
         runOnUiThread {
             mCurrentSong = song
             parseLyric(mCurrentSong?.lyricUrl)
-            mSongName.text = mCurrentSong !!.name
-            setCover(mCurrentSong !!.albumCoverUrl)
-            mTvArtistName.text = mCurrentSong !!.displayArtistName
+            mSongName.text = mCurrentSong!!.name
+            setCover(mCurrentSong!!.albumCoverUrl)
+            mTvArtistName.text = mCurrentSong!!.displayArtistName
             setProvider()
-            setTotalTime(mCurrentSong !!.length)
+            setTotalTime(mCurrentSong!!.length)
             setCurTime(0f)
             val isLiked = DAOUtil.getSession(this).likedSongDao.queryBuilder()
-                    .where(LikedSongDao.Properties.SongId.eq(mCurrentSong !!.songId))
+                    .where(LikedSongDao.Properties.SongId.eq(mCurrentSong!!.songId))
                     .list().size > 0
             if (isLiked) {
                 mBtnLiked.setImageResource(R.drawable.ic_liked)
@@ -477,7 +471,7 @@ class PLayActivity : AppCompatActivity(), PlayStatusObserver, PlayProxy {
 
     @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
     private fun setProvider() {
-        val provider = mCurrentSong !!.supplier
+        val provider = mCurrentSong!!.supplier
         val providerStr = when (provider) {
             MusicProvider.XIAMI -> {
                 getString(R.string.provider_xiami)
@@ -501,10 +495,10 @@ class PLayActivity : AppCompatActivity(), PlayStatusObserver, PlayProxy {
     inner class PlayPagerAdapter : PagerAdapter() {
         override fun instantiateItem(container: ViewGroup?, position: Int): Any {
             return if (position == 0) {
-                container !!.addView(coverFragment, 0)
+                container!!.addView(coverFragment, 0)
                 coverFragment
             } else {
-                container !!.addView(lyricFragment, 1)
+                container!!.addView(lyricFragment, 1)
                 lyricFragment
             }
         }
@@ -514,7 +508,7 @@ class PLayActivity : AppCompatActivity(), PlayStatusObserver, PlayProxy {
         override fun getCount(): Int = 2
 
         override fun destroyItem(container: ViewGroup?, position: Int, `object`: Any?) {
-            container !!.removeViewAt(position)
+            container!!.removeViewAt(position)
             super.destroyItem(container, position, `object`)
         }
     }
