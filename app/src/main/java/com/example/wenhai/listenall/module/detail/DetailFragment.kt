@@ -17,13 +17,7 @@ import butterknife.ButterKnife
 import butterknife.OnClick
 import butterknife.Unbinder
 import com.example.wenhai.listenall.R
-import com.example.wenhai.listenall.data.bean.Album
-import com.example.wenhai.listenall.data.bean.Collect
-import com.example.wenhai.listenall.data.bean.LikedAlbum
-import com.example.wenhai.listenall.data.bean.LikedAlbumDao
-import com.example.wenhai.listenall.data.bean.LikedCollect
-import com.example.wenhai.listenall.data.bean.LikedCollectDao
-import com.example.wenhai.listenall.data.bean.Song
+import com.example.wenhai.listenall.data.bean.*
 import com.example.wenhai.listenall.extension.hide
 import com.example.wenhai.listenall.extension.show
 import com.example.wenhai.listenall.extension.showToast
@@ -31,9 +25,9 @@ import com.example.wenhai.listenall.module.main.MainActivity
 import com.example.wenhai.listenall.module.play.service.PlayProxy
 import com.example.wenhai.listenall.module.ranking.RankingContract
 import com.example.wenhai.listenall.utils.DAOUtil
-import com.example.wenhai.listenall.utils.DateUtil
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
+import com.example.wenhai.listenall.utils.getDate
 import com.example.wenhai.listenall.widget.SongOpsDialog
 
 class DetailFragment : Fragment(), DetailContract.View {
@@ -236,7 +230,7 @@ class DetailFragment : Fragment(), DetailContract.View {
             GlideApp.with(context).load(collect.coverUrl)
                     .placeholder(R.drawable.ic_main_all_music)
                     .into(mCover)
-            val displayDate = "更新时间：${DateUtil.getDate(collect.updateDate)}"
+            val displayDate = "更新时间：${getDate(collect.updateDate)}"
             mDate.text = displayDate
             mSongListAdapter.setData(collect.songs)
 
@@ -278,7 +272,7 @@ class DetailFragment : Fragment(), DetailContract.View {
             mTitle.text = album.title
             mArtist.show()
             mArtist.text = album.artist
-            val displayDate = "发行时间：${DateUtil.getDate(album.publishDate)}"
+            val displayDate = "发行时间：${getDate(album.publishDate)}"
             GlideApp.with(context).load(album.coverUrl)
                     .placeholder(R.drawable.ic_main_all_music)
                     .into(mCover)

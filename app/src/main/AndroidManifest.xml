@@ -14,6 +14,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
+        <!--主界面-->
         <activity
             android:name=".module.main.MainActivity"
             android:screenOrientation="portrait"
@@ -25,11 +26,13 @@
             </intent-filter>
         </activity>
 
+        <!--后台音乐播放 Service-->
         <service
             android:name=".module.play.service.PlayService"
             android:enabled="true"
             android:exported="false" />
 
+        <!--播放界面-->
         <activity android:name=".module.play.PLayActivity" />
     </application>
 
