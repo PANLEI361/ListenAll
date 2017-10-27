@@ -14,7 +14,7 @@
     <!--main-->
     <string name="main_mine">我的</string>
     <string name="main_discover_music">发现音乐</string>
-    <string name="main_my_song_list">自建歌单</string>
+    <string name="main_my_song_list">我的歌单</string>
     <string name="main_liked_list">收藏歌单</string>
     <string name="main_local_songs">本地歌曲</string>
     <string name="main_recent_play">最近播放</string>
@@ -23,7 +23,7 @@
     <string name="main_ranking_list">排行榜</string>
     <string name="main_hot_collect">热门歌单</string>
     <string name="main_new_songs">最新音乐</string>
-    <string name="main_i_like">我喜欢</string>
+    <string name="main_like">收藏</string>
     <string name="detail_like">收藏</string>
     <string name="detail_add_to_play">添加到播放</string>
     <string name="detail_download_all">下载</string>
@@ -65,6 +65,7 @@
     <string name="save_cover">保存封面图</string>
     <string name="song_already_in_playlist">当前歌曲已在播放列表</string>
     <string name="song_not_avaliable">当前歌曲无法播放，请尝试其他平台</string>
+    <string name="create_new_collect">创建新歌单</string>
 
     <!--filter category-->
     <array name="filter_language">

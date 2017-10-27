@@ -18,6 +18,9 @@ import butterknife.Unbinder
 import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.data.bean.Collect
 import com.example.wenhai.listenall.data.bean.LikedCollectDao
+import com.example.wenhai.listenall.extension.hide
+import com.example.wenhai.listenall.extension.show
+import com.example.wenhai.listenall.extension.showToast
 import com.example.wenhai.listenall.module.detail.DetailContract
 import com.example.wenhai.listenall.module.detail.DetailFragment
 import com.example.wenhai.listenall.module.liked.LikedFragment
@@ -36,23 +39,21 @@ class LocalFragment : android.support.v4.app.Fragment() {
     lateinit var mBtnLikedCollect: Button
     @BindView(R.id.main_local_btn_my_collect)
     lateinit var mBtnMyCollect: Button
-    @BindView(R.id.main_local_btn_liked)
-    lateinit var mBtnLiked: ImageButton
-    @BindView(R.id.main_local_btn_songs)
-    lateinit var mBtnSongs: ImageButton
-    @BindView(R.id.main_local_btn_recent_play)
-    lateinit var mBtnRecentPlay: ImageButton
+    @BindView(R.id.main_local_create_collect)
+    lateinit var mBtnCreateCollect: ImageButton
+//    @BindView(R.id.main_local_btn_liked)
+//    lateinit var mBtnLiked: ImageButton
+//    @BindView(R.id.main_local_btn_songs)
+//    lateinit var mBtnSongs: ImageButton
+//    @BindView(R.id.main_local_btn_recent_play)
+//    lateinit var mBtnRecentPlay: ImageButton
 
     private lateinit var mUnBinder: Unbinder
     private lateinit var mCollectAdapter: CollectAdapter
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
-
+    private var curShowType = MY_COLLECT
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        val rootView = inflater !!.inflate(R.layout.fragment_main_local, container, false)
+        val rootView = inflater!!.inflate(R.layout.fragment_main_local, container, false)
         mUnBinder = ButterKnife.bind(this, rootView)
         initView()
         return rootView
@@ -67,11 +68,11 @@ class LocalFragment : android.support.v4.app.Fragment() {
 
     override fun onResume() {
         super.onResume()
-        showCollects(MY_COLLECT)
+        showCollects()
     }
 
     @OnClick(R.id.main_local_btn_songs, R.id.main_local_btn_recent_play, R.id.main_local_btn_liked,
-            R.id.main_local_btn_my_collect, R.id.main_local_btn_liked_collect)
+            R.id.main_local_btn_my_collect, R.id.main_local_btn_liked_collect, R.id.main_local_create_collect)
     fun onClick(v: View) {
         when (v.id) {
             R.id.main_local_btn_songs -> {
@@ -83,21 +84,28 @@ class LocalFragment : android.support.v4.app.Fragment() {
                 FragmentUtil.addFragmentToMainView(fragmentManager, LikedFragment())
             }
             R.id.main_local_btn_my_collect -> {
-                showCollects(MY_COLLECT)
+                curShowType = MY_COLLECT
+                showCollects()
             }
             R.id.main_local_btn_liked_collect -> {
-                showCollects(LIKED_COLLECT)
+                curShowType = LIKED_COLLECT
+                showCollects()
+            }
+            R.id.main_local_create_collect -> {
+                context.showToast("创建歌单")
             }
         }
 
     }
 
-    private fun showCollects(select: Int) {
-        setButtonTextColor(select)
-        if (select == MY_COLLECT) {
+    private fun showCollects() {
+        setButtonTextColor(curShowType)
+        if (curShowType == MY_COLLECT) {//显示自建歌单
+            mBtnCreateCollect.show()
             val myCollects = ArrayList<Collect>()
             mCollectAdapter.setData(myCollects)
-        } else {
+        } else {//显示收藏歌单
+            mBtnCreateCollect.hide()
             val dao = DAOUtil.getSession(context).likedCollectDao
             val likedCollectList = dao.queryBuilder()
                     .orderDesc(LikedCollectDao.Properties.LikedTime)
@@ -148,7 +156,7 @@ class LocalFragment : android.support.v4.app.Fragment() {
 
         override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
             val collect = collects[position]
-            holder !!.name.text = collect.title
+            holder!!.name.text = collect.title
             val displaySongNumber = "${collect.songCount}首"
             holder.songNumber.text = displaySongNumber
             GlideApp.with(context)

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="60dp"
-    android:background="@drawable/selector_white"
-    android:gravity="center_vertical"
-    android:orientation="horizontal">
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="60dp"
+              android:background="@drawable/selector_white"
+              android:gravity="center_vertical"
+              android:orientation="horizontal">
 
     <ImageView
         android:id="@+id/liked_collect_cover"
@@ -14,13 +14,13 @@
         android:layout_margin="5dp"
         android:scaleType="centerCrop"
         android:src="@drawable/ic_main_all_music"
-        tools:ignore="ContentDescription" />
+        tools:ignore="ContentDescription"/>
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center_vertical"
-        android:orientation="vertical">
+        >
 
         <TextView
             android:id="@+id/liked_collect_name"
@@ -32,7 +32,8 @@
             android:maxLines="1"
             android:text="Best of Ed Sheeran"
             android:textColor="@color/colorBlack"
-            android:textSize="16sp" />
+            android:textSize="16sp"/>
+
 
         <TextView
             android:id="@+id/liked_collect_song_number"
@@ -41,13 +42,13 @@
             android:layout_alignStart="@id/liked_collect_name"
             android:layout_below="@+id/liked_collect_name"
             android:layout_marginTop="5dp"
-            android:text="23首"
-            android:textSize="13sp" />
+            android:text="22首"
+            android:textSize="12sp"/>
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1px"
             android:layout_alignParentBottom="true"
-            android:background="@color/colorDivider" />
+            android:background="@color/colorDivider"/>
     </RelativeLayout>
 </LinearLayout>

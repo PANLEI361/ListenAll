@@ -38,7 +38,7 @@ class LikedFragment : Fragment() {
     }
 
     private fun initView() {
-        mTitle.text = getString(R.string.main_i_like)
+        mTitle.text = getString(R.string.main_like)
         mPager.adapter = PagerAdapter(childFragmentManager)
         mTab.setupWithViewPager(mPager)
     }
