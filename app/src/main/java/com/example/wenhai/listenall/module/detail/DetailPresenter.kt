@@ -7,8 +7,10 @@ import com.example.wenhai.listenall.data.LoadSongDetailCallback
 import com.example.wenhai.listenall.data.MusicRepository
 import com.example.wenhai.listenall.data.bean.Album
 import com.example.wenhai.listenall.data.bean.Collect
+import com.example.wenhai.listenall.data.bean.CollectDao
 import com.example.wenhai.listenall.data.bean.Song
 import com.example.wenhai.listenall.module.ranking.RankingContract
+import com.example.wenhai.listenall.utils.DAOUtil
 
 internal class DetailPresenter(val view: DetailContract.View) : DetailContract.Presenter {
 
@@ -35,21 +37,30 @@ internal class DetailPresenter(val view: DetailContract.View) : DetailContract.P
         })
     }
 
-    override fun loadCollectDetail(id: Long) {
-        musicRepository.loadCollectDetail(id, object : LoadCollectDetailCallback {
-            override fun onStart() {
-                view.onLoading()
-            }
+    override fun loadCollectDetail(id: Long, isFromUser: Boolean) {
+        if (isFromUser) {
+            view.onLoading()
+            val collectDao = DAOUtil.getSession(view.getViewContext()).collectDao
+            val collect = collectDao.queryBuilder()
+                    .where(CollectDao.Properties.Id.eq(id))
+                    .unique()
+            view.onCollectDetailLoad(collect)
+        } else {
+            musicRepository.loadCollectDetail(id, object : LoadCollectDetailCallback {
+                override fun onStart() {
+                    view.onLoading()
+                }
 
-            override fun onFailure(msg: String) {
-                view.onFailure(msg)
-            }
+                override fun onFailure(msg: String) {
+                    view.onFailure(msg)
+                }
 
-            override fun onSuccess(collect: Collect) {
-                view.onCollectDetailLoad(collect)
-            }
+                override fun onSuccess(collect: Collect) {
+                    view.onCollectDetailLoad(collect)
+                }
 
-        })
+            })
+        }
 
     }
 

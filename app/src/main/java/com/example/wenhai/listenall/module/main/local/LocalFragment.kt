@@ -1,5 +1,6 @@
 package com.example.wenhai.listenall.module.main.local
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -41,12 +42,6 @@ class LocalFragment : android.support.v4.app.Fragment() {
     lateinit var mBtnMyCollect: Button
     @BindView(R.id.main_local_create_collect)
     lateinit var mBtnCreateCollect: ImageButton
-//    @BindView(R.id.main_local_btn_liked)
-//    lateinit var mBtnLiked: ImageButton
-//    @BindView(R.id.main_local_btn_songs)
-//    lateinit var mBtnSongs: ImageButton
-//    @BindView(R.id.main_local_btn_recent_play)
-//    lateinit var mBtnRecentPlay: ImageButton
 
     private lateinit var mUnBinder: Unbinder
     private lateinit var mCollectAdapter: CollectAdapter
@@ -92,17 +87,20 @@ class LocalFragment : android.support.v4.app.Fragment() {
                 showCollects()
             }
             R.id.main_local_create_collect -> {
-                context.showToast("创建歌单")
+                val intent = Intent(context, EditCollectActivity::class.java)
+                intent.action = EditCollectActivity.ACTION_CREATE
+                startActivityForResult(intent, REQUEST_CREATE_COLLECT)
             }
         }
 
     }
 
-    private fun showCollects() {
+    fun showCollects() {
         setButtonTextColor(curShowType)
         if (curShowType == MY_COLLECT) {//显示自建歌单
             mBtnCreateCollect.show()
-            val myCollects = ArrayList<Collect>()
+            val collectDao = DAOUtil.getSession(context).collectDao
+            val myCollects = collectDao.queryBuilder().build().list()
             mCollectAdapter.setData(myCollects)
         } else {//显示收藏歌单
             mBtnCreateCollect.hide()
@@ -131,10 +129,23 @@ class LocalFragment : android.support.v4.app.Fragment() {
     fun showCollectDetail(collect: Collect) {
         val data = Bundle()
         val detailFragment = DetailFragment()
-        data.putLong(DetailContract.ARGS_ID, collect.id)
+        if (curShowType == MY_COLLECT) {
+            data.putLong(DetailContract.ARGS_ID, collect.id)
+            data.putBoolean(DetailContract.ARGS_IS_USER_COLLECT, true)
+        } else {
+            data.putLong(DetailContract.ARGS_ID, collect.collectId)
+            data.putBoolean(DetailContract.ARGS_IS_USER_COLLECT, false)
+        }
         data.putSerializable(DetailContract.ARGS_LOAD_TYPE, DetailContract.LoadType.COLLECT)
         detailFragment.arguments = data
         FragmentUtil.addFragmentToMainView(fragmentManager, detailFragment)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_CREATE_COLLECT && resultCode == RESULT_COLLECT_CREATED) {
+            context.showToast("歌单创建成功")
+        }
     }
 
     override fun onDestroyView() {
@@ -146,6 +157,8 @@ class LocalFragment : android.support.v4.app.Fragment() {
         val TAG = "LocalFragment"
         val MY_COLLECT = 1
         val LIKED_COLLECT = 2
+        val REQUEST_CREATE_COLLECT = 0x00
+        val RESULT_COLLECT_CREATED = 0x01
     }
 
     inner class CollectAdapter(var collects: List<Collect>) : RecyclerView.Adapter<CollectAdapter.ViewHolder>() {
@@ -157,10 +170,16 @@ class LocalFragment : android.support.v4.app.Fragment() {
         override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
             val collect = collects[position]
             holder!!.name.text = collect.title
-            val displaySongNumber = "${collect.songCount}首"
+            val songCount = if (collect.isFromUser) {
+                collect.songs.size
+            } else {
+                collect.songCount
+            }
+            val displaySongNumber = "$songCount 首"
             holder.songNumber.text = displaySongNumber
             GlideApp.with(context)
                     .load(collect.coverUrl)
+                    .error(R.drawable.ic_main_all_music)
                     .placeholder(R.drawable.ic_main_all_music)
                     .into(holder.cover)
             holder.itemView.setOnClickListener {

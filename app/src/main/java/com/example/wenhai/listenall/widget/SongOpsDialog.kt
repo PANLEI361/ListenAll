@@ -36,12 +36,6 @@ class SongOpsDialog(context: Context, val song: Song, private val activity: Frag
 
     @BindView(R.id.song_name)
     lateinit var songNameTv: TextView
-    @BindView(R.id.add_play_next)
-    lateinit var playNext: LinearLayout
-    @BindView(R.id.add_to_collect)
-    lateinit var addToCollect: LinearLayout
-    @BindView(R.id.download)
-    lateinit var downLoad: LinearLayout
     @BindView(R.id.save_cover)
     lateinit var saveCover: LinearLayout
     @BindView(R.id.artist_detail)
@@ -57,9 +51,8 @@ class SongOpsDialog(context: Context, val song: Song, private val activity: Frag
 
     var deleteListener: View.OnClickListener? = null
 
-
-    var showAlbum = true
-    var showArtist = true
+    private var showAlbum = true
+    private var showArtist = true
     var showDelete = false
     var canSaveCover = false
 
@@ -82,20 +75,21 @@ class SongOpsDialog(context: Context, val song: Song, private val activity: Frag
             deleteSong.hide()
         }
 
-        if (! showArtist) {
+        if (!showArtist) {
             artistDetail.hide()
         }
 
-        if (! canSaveCover) {
+        if (!canSaveCover) {
             saveCover.hide()
         }
     }
 
-    @OnClick(R.id.add_play_next, R.id.delete, R.id.artist_detail, R.id.album_detail)
+    @OnClick(R.id.add_play_next, R.id.delete, R.id.artist_detail, R.id.album_detail,
+            R.id.add_to_collect)
     fun onClick(view: View) {
         when (view.id) {
             R.id.add_play_next -> {
-                if (playProxy !!.setNextSong(song)) {
+                if (playProxy!!.setNextSong(song)) {
                     context.showToast(R.string.play_has_set_to_next)
                 } else {
                     context.showToast(context.getString(R.string.song_already_in_playlist))
@@ -104,6 +98,7 @@ class SongOpsDialog(context: Context, val song: Song, private val activity: Frag
             }
             R.id.delete -> {
                 deleteListener?.onClick(view)
+                dismiss()
             }
             R.id.artist_detail -> {
                 showArtistDetail()
@@ -111,6 +106,13 @@ class SongOpsDialog(context: Context, val song: Song, private val activity: Frag
             }
             R.id.album_detail -> {
                 showAlbumDetail()
+                dismiss()
+            }
+            R.id.add_to_collect -> {
+                //显示歌单界面
+                SelectCollectDialog(context)
+                        .setChosenSong(song)
+                        .show()
                 dismiss()
             }
         }

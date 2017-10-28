@@ -66,6 +66,7 @@
     <string name="song_already_in_playlist">当前歌曲已在播放列表</string>
     <string name="song_not_available">当前歌曲无法播放，请尝试其他平台</string>
     <string name="create_collect">新建歌单</string>
+    <string name="edit_collect">编辑歌单信息</string>
 
     <!--filter category-->
     <array name="filter_language">
