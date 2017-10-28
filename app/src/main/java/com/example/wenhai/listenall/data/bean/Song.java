@@ -2,23 +2,29 @@ package com.example.wenhai.listenall.data.bean;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.Keep;
 import android.support.annotation.NonNull;
 
 import com.example.wenhai.listenall.data.MusicProvider;
 
+import org.greenrobot.greendao.annotation.Entity;
+import org.greenrobot.greendao.annotation.Generated;
+import org.greenrobot.greendao.annotation.Id;
+import org.greenrobot.greendao.annotation.Transient;
+
 import java.io.Serializable;
 
-
+@Entity
 public final class Song implements Parcelable, Serializable {
-    private long serialVersionUID = 10001;
+    @Id
+    private Long id;
+
+    private static final long serialVersionUID = 10001;
     private long songId;
     private String name;
     private int length;//second
     private String listenFileUrl;//xiami
     private String lyricUrl;//lyric
-    private int payFlag;//是否需要付费
-    private boolean canFreeListen;
-    private boolean canFreeDownload;
     private String artistName;
     private String displayArtistName;
     private String artistLogo;
@@ -27,7 +33,10 @@ public final class Song implements Parcelable, Serializable {
     private String albumName;
     private String albumCoverUrl;
     private String miniAlbumCoverUrl;
+    @Transient
     private MusicProvider supplier;
+    private String providerName;
+//    private boolean isDownload;
 
     private boolean isPlaying = false;
 
@@ -38,9 +47,6 @@ public final class Song implements Parcelable, Serializable {
         dest.writeInt(length);
         dest.writeString(listenFileUrl);
         dest.writeString(lyricUrl);
-        dest.writeInt(payFlag);
-        dest.writeInt(canFreeListen ? 1 : 0);
-        dest.writeInt(canFreeDownload ? 1 : 0);
         dest.writeString(artistName);
         dest.writeString(displayArtistName);
         dest.writeString(artistLogo);
@@ -74,9 +80,6 @@ public final class Song implements Parcelable, Serializable {
         length = in.readInt();
         listenFileUrl = in.readString();
         lyricUrl = in.readString();
-        payFlag = in.readInt();
-        canFreeListen = in.readInt() == 0;
-        canFreeDownload = in.readInt() == 0;
         artistName = in.readString();
         displayArtistName = in.readString();
         artistLogo = in.readString();
@@ -98,6 +101,29 @@ public final class Song implements Parcelable, Serializable {
         }
         isPlaying = in.readInt() == 1;
 
+    }
+
+    @Generated(hash = 1874810466)
+    public Song(Long id, long songId, String name, int length, String listenFileUrl,
+                String lyricUrl, String artistName, String displayArtistName, String artistLogo,
+                long artistId, long albumId, String albumName, String albumCoverUrl,
+                String miniAlbumCoverUrl, String providerName, boolean isPlaying) {
+        this.id = id;
+        this.songId = songId;
+        this.name = name;
+        this.length = length;
+        this.listenFileUrl = listenFileUrl;
+        this.lyricUrl = lyricUrl;
+        this.artistName = artistName;
+        this.displayArtistName = displayArtistName;
+        this.artistLogo = artistLogo;
+        this.artistId = artistId;
+        this.albumId = albumId;
+        this.albumName = albumName;
+        this.albumCoverUrl = albumCoverUrl;
+        this.miniAlbumCoverUrl = miniAlbumCoverUrl;
+        this.providerName = providerName;
+        this.isPlaying = isPlaying;
     }
 
     @Override
@@ -122,6 +148,7 @@ public final class Song implements Parcelable, Serializable {
         return artistName;
     }
 
+    @Keep
     public void setArtistName(String artistName) {
         this.artistName = artistName;
         String[] split = artistName.split(";");
@@ -189,30 +216,6 @@ public final class Song implements Parcelable, Serializable {
         this.lyricUrl = lyricUrl;
     }
 
-    public int getPayFlag() {
-        return payFlag;
-    }
-
-    public void setPayFlag(int payFlag) {
-        this.payFlag = payFlag;
-    }
-
-    public boolean isCanFreeListen() {
-        return canFreeListen;
-    }
-
-    public void setCanFreeListen(boolean canFreeListen) {
-        this.canFreeListen = canFreeListen;
-    }
-
-    public boolean isCanFreeDownload() {
-        return canFreeDownload;
-    }
-
-    public void setCanFreeDownload(boolean canFreeDownload) {
-        this.canFreeDownload = canFreeDownload;
-    }
-
     public long getArtistId() {
         return artistId;
     }
@@ -251,6 +254,7 @@ public final class Song implements Parcelable, Serializable {
 
     public void setSupplier(MusicProvider supplier) {
         this.supplier = supplier;
+        this.providerName = supplier.name();
     }
 
     public String getMiniAlbumCoverUrl() {
@@ -261,19 +265,11 @@ public final class Song implements Parcelable, Serializable {
         this.miniAlbumCoverUrl = miniAlbumCoverUrl;
     }
 
-    public boolean isPlaying() {
-        return isPlaying;
-    }
-
     public Artist getArtist() {
         Artist artist = new Artist();
         artist.setArtistId(String.valueOf(artistId));
         artist.setName(artistName);
         return artist;
-    }
-
-    public void setPlaying(boolean playing) {
-        isPlaying = playing;
     }
 
     @Override
@@ -295,9 +291,6 @@ public final class Song implements Parcelable, Serializable {
                 ", length=" + length +
                 ", listenFileUrl='" + listenFileUrl + '\'' +
                 ", lyricUrl='" + lyricUrl + '\'' +
-                ", payFlag=" + payFlag +
-                ", canFreeListen=" + canFreeListen +
-                ", canFreeDownload=" + canFreeDownload +
                 ", artistName='" + artistName + '\'' +
                 ", artistLogo='" + artistLogo + '\'' +
                 ", artistId=" + artistId +
@@ -307,5 +300,29 @@ public final class Song implements Parcelable, Serializable {
                 ", miniAlbumCoverUrl='" + miniAlbumCoverUrl + '\'' +
                 ", supplier=" + supplier +
                 '}';
+    }
+
+    public Long getId() {
+        return this.id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getProviderName() {
+        return this.providerName;
+    }
+
+    public void setProviderName(String providerName) {
+        this.providerName = providerName;
+    }
+
+    public boolean getIsPlaying() {
+        return this.isPlaying;
+    }
+
+    public void setIsPlaying(boolean isPlaying) {
+        this.isPlaying = isPlaying;
     }
 }
