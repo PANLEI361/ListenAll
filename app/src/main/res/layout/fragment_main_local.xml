@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
 
     <ScrollView
         android:id="@+id/main_local_scroll"
@@ -37,18 +37,18 @@
                         android:layout_height="@dimen/main_song_type_btn_size"
                         android:scaleType="centerCrop"
                         android:src="@drawable/ic_main_all_music"
-                        tools:ignore="ContentDescription" />
+                        tools:ignore="ContentDescription"/>
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/main_local_songs"
-                        android:textColor="@color/colorBlack" />
+                        android:textColor="@color/colorBlack"/>
                 </LinearLayout>
 
                 <android.support.v4.widget.Space
                     android:layout_width="40dp"
-                    android:layout_height="match_parent" />
+                    android:layout_height="match_parent"/>
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -63,19 +63,19 @@
                         android:layout_height="@dimen/main_song_type_btn_size"
                         android:scaleType="centerCrop"
                         android:src="@drawable/ic_main_play_history"
-                        tools:ignore="ContentDescription" />
+                        tools:ignore="ContentDescription"/>
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/main_recent_play"
-                        android:textColor="@color/colorBlack" />
+                        android:textColor="@color/colorBlack"/>
 
                 </LinearLayout>
 
                 <android.support.v4.widget.Space
                     android:layout_width="40dp"
-                    android:layout_height="match_parent" />
+                    android:layout_height="match_parent"/>
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -90,43 +90,64 @@
                         android:layout_height="@dimen/main_song_type_btn_size"
                         android:scaleType="centerCrop"
                         android:src="@drawable/ic_liked"
-                        tools:ignore="ContentDescription" />
+                        tools:ignore="ContentDescription"/>
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/main_i_like"
-                        android:textColor="@color/colorBlack" />
+                        android:text="@string/main_like"
+                        android:textColor="@color/colorBlack"/>
 
                 </LinearLayout>
             </LinearLayout>
 
             <!--tab-->
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
+                android:layout_marginTop="5dp"
                 android:orientation="horizontal">
 
-                <Button
-                    android:id="@+id/main_local_btn_my_collect"
-                    style="?android:attr/buttonBarButtonStyle"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:text="@string/main_my_song_list"
-                    android:textColor="@color/colorBlack"
-                    android:textSize="@dimen/main_tab_btn_text_size" />
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:layout_gravity="center_horizontal"
+                    android:gravity="center">
 
-                <Button
-                    android:id="@+id/main_local_btn_liked_collect"
+                    <Button
+                        android:id="@+id/main_local_btn_my_collect"
+                        style="?android:attr/buttonBarButtonStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="end"
+                        android:text="@string/main_my_song_list"
+                        android:textColor="@color/colorBlack"
+                        android:textSize="@dimen/main_tab_btn_text_size"/>
+
+                    <Button
+                        android:id="@+id/main_local_btn_liked_collect"
+                        style="?android:attr/buttonBarButtonStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="start"
+                        android:text="@string/main_liked_list"
+                        android:textColor="@color/colorBlack"
+                        android:textSize="@dimen/main_tab_btn_text_size"/>
+
+                </LinearLayout>
+
+                <ImageButton
+                    android:id="@+id/main_local_create_collect"
                     style="?android:attr/buttonBarButtonStyle"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:text="@string/main_liked_list"
-                    android:textColor="@color/colorBlack"
-                    android:textSize="@dimen/main_tab_btn_text_size" />
-            </LinearLayout>
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_add"
+                    />
+            </RelativeLayout>
 
             <!--song list-->
             <android.support.v7.widget.RecyclerView

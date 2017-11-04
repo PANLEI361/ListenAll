@@ -7,11 +7,8 @@ import android.content.Context
  *
  * Created by Wenhai on 2017/8/4.
  */
-object AppUtil {
-    @JvmStatic
-    fun getAppVersionName(context: Context): String {
-        return context.packageManager
-                .getPackageInfo(context.packageName, 0)
-                .versionName
-    }
+fun getAppVersionName(context: Context): String {
+    return context.packageManager
+            .getPackageInfo(context.packageName, 0)
+            .versionName
 }

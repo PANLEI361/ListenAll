@@ -170,7 +170,7 @@ internal class Xiami(val context: Context) : MusicSource {
                         val id = parseIdFromHref(ref)
                         val coverUrl = a.select("img").first().attr("src")
                         val collect = Collect()
-                        collect.id = id.toLong()
+                        collect.collectId = id.toLong()
                         collect.title = title
                         collect.coverUrl = coverUrl.substring(0, coverUrl.length - 11)
                         collect.source = MusicProvider.XIAMI
@@ -265,7 +265,7 @@ internal class Xiami(val context: Context) : MusicSource {
     private fun parseCollectFormJson(data: JSONObject): Collect {
         val collect = Collect()
         collect.source = MusicProvider.XIAMI
-        collect.id = data.getLong("list_id")
+        collect.collectId = data.getLong("list_id")
         collect.title = data.getString("collect_name")
         collect.coverUrl = data.getString("logo")
         collect.songCount = data.getInt("songs_count")
@@ -298,7 +298,7 @@ internal class Xiami(val context: Context) : MusicSource {
                 val artistBuilder = StringBuilder()
                 for (artist in artists) {
                     artistBuilder.append(artist)
-                    artistBuilder.append("&")
+                    artistBuilder.append("/")
                 }
                 song.artistName = artistBuilder.substring(0, artistBuilder.length - 1)
             }
@@ -330,10 +330,10 @@ internal class Xiami(val context: Context) : MusicSource {
                         if (TextUtils.isEmpty(song.listenFileUrl)) {
                             song.listenFileUrl = getListenUrlFromLocation(track.getString("location"))
                         }
-                        val canFreeListen = track.getJSONObject("purviews").getJSONObject("LISTEN").getString("LOW")
-                        song.isCanFreeListen = canFreeListen == "FREE"
-                        val canFreeDownload = track.getJSONObject("purviews").getJSONObject("DOWNLOAD").getString("LOW")
-                        song.isCanFreeDownload = canFreeDownload == "FREE"
+//                        val canFreeListen = track.getJSONObject("purviews").getJSONObject("LISTEN").getString("LOW")
+//                        song.isCanFreeListen = canFreeListen == "FREE"
+//                        val canFreeDownload = track.getJSONObject("purviews").getJSONObject("DOWNLOAD").getString("LOW")
+//                        song.isCanFreeDownload = canFreeDownload == "FREE"
                         song.length = track.getInt("length")
                         try {
                             song.lyricUrl = track.getString("lyric_url")
@@ -347,6 +347,7 @@ internal class Xiami(val context: Context) : MusicSource {
                         song.albumId = track.getLong("album_id")
                         song.artistName = track.getString("artist")
                         song.artistId = track.getLong("artist_id")
+                        song.supplier = MusicProvider.XIAMI
                         LogUtil.d(TAG, "artistId=${song.artistId}")
                         callback.onSuccess(song)
                     } else {
@@ -724,7 +725,7 @@ internal class Xiami(val context: Context) : MusicSource {
             val id = parseIdFromHref(ref)
             val coverUrl = a.select("img").first().attr("src")
             val collect = Collect()
-            collect.id = id.toLong()
+            collect.collectId = id.toLong()
             collect.title = title
             collect.coverUrl = coverUrl.substring(0, coverUrl.length - 11)
             collect.source = MusicProvider.XIAMI

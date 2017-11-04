@@ -97,7 +97,7 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
         mHotCollects.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
             val collect = mHotCollectAdapter.hotCollects[position]
             val data = Bundle()
-            data.putLong(DetailContract.ARGS_ID, collect.id)
+            data.putLong(DetailContract.ARGS_ID, collect.collectId)
             data.putSerializable(DetailContract.ARGS_LOAD_TYPE, DetailContract.LoadType.COLLECT)
             showDetail(data)
         }

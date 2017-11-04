@@ -17,7 +17,7 @@ interface DetailContract {
 
     interface Presenter : BasePresenter {
         fun loadAlbumDetail(id: Long)
-        fun loadCollectDetail(id: Long)
+        fun loadCollectDetail(id: Long, isFromUser: Boolean)
         fun loadSongDetail(id: Long)
         fun loadGlobalRanking(ranking: RankingContract.GlobalRanking)
     }
@@ -30,6 +30,7 @@ interface DetailContract {
     companion object {
         const val ARGS_ID = "id"
         const val ARGS_COLLECT = "collect"
+        const val ARGS_IS_USER_COLLECT = "isUserCollect"
         const val ARGS_LOAD_TYPE = "type"
         const val ARGS_GLOBAL_RANKING = "ranking"
     }

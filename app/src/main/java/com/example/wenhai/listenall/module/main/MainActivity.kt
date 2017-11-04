@@ -11,12 +11,7 @@ import android.support.v7.app.AppCompatActivity
 import android.view.Gravity
 import android.view.KeyEvent
 import android.view.View
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.Switch
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
@@ -29,10 +24,10 @@ import com.example.wenhai.listenall.module.play.PLayActivity
 import com.example.wenhai.listenall.module.play.service.PlayProxy
 import com.example.wenhai.listenall.module.play.service.PlayService
 import com.example.wenhai.listenall.module.play.service.PlayStatusObserver
-import com.example.wenhai.listenall.utils.AppUtil
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
 import com.example.wenhai.listenall.utils.LogUtil
+import com.example.wenhai.listenall.utils.getAppVersionName
 import com.example.wenhai.listenall.widget.PlayListDialog
 import com.example.wenhai.listenall.widget.ProgressImageButton
 
@@ -99,7 +94,7 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver, PlayProxy {
 
     private fun initSlideMenu() {
         // TODO: 2017/8/4  初始化侧滑菜单
-        val appVersion = AppUtil.getAppVersionName(this)
+        val appVersion = getAppVersionName(this)
         val displayAppVersion = "V $appVersion"
         smTvAppVersion.text = displayAppVersion
         smTvAppVersion.isSelected = true
@@ -147,7 +142,7 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver, PlayProxy {
     fun onPlayBarClick(view: View) {
         when (view.id) {
             R.id.play_bar_control -> {
-                if (! isPlaying) {
+                if (!isPlaying) {
                     playService.start()
                 } else {
                     playService.pause()
@@ -225,9 +220,9 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver, PlayProxy {
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            if (backKeyEventListeners != null && backKeyEventListeners !!.size > 0) {
-                for (i in 0 until backKeyEventListeners !!.size) {
-                    backKeyEventListeners !![i].onBackKeyPressed()
+            if (backKeyEventListeners != null && backKeyEventListeners!!.size > 0) {
+                for (i in 0 until backKeyEventListeners!!.size) {
+                    backKeyEventListeners!![i].onBackKeyPressed()
                 }
                 return true
             }
@@ -247,9 +242,9 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver, PlayProxy {
     override fun onPlayInit(playStatus: PlayService.PlayStatus) {
         currentSong = playStatus.currentSong
         if (currentSong != null) {
-            mSongName.text = currentSong !!.name
-            mSingerOrLyric.text = currentSong !!.displayArtistName
-            setCover(currentSong !!.miniAlbumCoverUrl)
+            mSongName.text = currentSong!!.name
+            mSingerOrLyric.text = currentSong!!.displayArtistName
+            setCover(currentSong!!.miniAlbumCoverUrl)
         }
         isPlaying = playStatus.isPlaying
         setControlIcon(isPlaying)
@@ -295,7 +290,7 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver, PlayProxy {
             //设置侧滑菜单顶部图标
             smCover.setImageResource(R.mipmap.ic_launcher)
             smTitle.text = getString(R.string.app_name)
-            smTvAppVersion.text = AppUtil.getAppVersionName(this)
+            smTvAppVersion.text = getAppVersionName(this)
         }
     }
 

@@ -50,7 +50,7 @@ public class LikedCollect {
     public LikedCollect(Collect collect) {
         this.title = collect.getTitle();
         this.desc = collect.getDesc();
-        this.collectId = collect.getId();
+        this.collectId = collect.getCollectId();
         this.coverUrl = collect.getCoverUrl();
         this.coverDrawable = collect.getCoverDrawable();
         this.songCount = collect.getSongCount();
@@ -66,7 +66,7 @@ public class LikedCollect {
         Collect collect = new Collect();
         collect.setTitle(title);
         collect.setDesc(desc);
-        collect.setId(collectId);
+        collect.setCollectId(collectId);
         collect.setCoverUrl(coverUrl);
         collect.setCoverDrawable(coverDrawable);
         collect.setSongCount(songCount);

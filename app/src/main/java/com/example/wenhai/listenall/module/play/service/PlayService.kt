@@ -25,6 +25,12 @@ import java.io.Serializable
 import java.util.Random
 import java.util.Timer
 import java.util.TimerTask
+import kotlin.collections.ArrayList
+import kotlin.collections.List
+import kotlin.collections.filterNot
+import kotlin.collections.firstOrNull
+import kotlin.collections.forEach
+import kotlin.collections.indexOf
 
 class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
         MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnCompletionListener,
@@ -46,7 +52,7 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent !!.action == ACTION_INIT) {
+        if (intent!!.action == ACTION_INIT) {
         }
         if (intent.action == ACTION_NEW_SONG) {
             val song = intent.getParcelableExtra<Song>("song")
@@ -97,7 +103,7 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
             notifyStatusChanged(STATUS_PLAY_PROCESS_UPDATE, playStatus.playProgress)
         }
         if (isFirstStart && playStatus.currentSong != null) {
-            setCurSongAndPrepareAsync(playStatus.currentSong !!)
+            setCurSongAndPrepareAsync(playStatus.currentSong!!)
         }
 
     }
@@ -107,8 +113,8 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
         var newPlaySong = newSong
         //choose the same song,if media player is pause,then start;or do nothing
         if (playStatus.currentSong != null &&
-                playStatus.currentSong !!.songId == newPlaySong.songId) {
-            if (! isMediaPlaying()) {
+                playStatus.currentSong!!.songId == newPlaySong.songId) {
+            if (!isMediaPlaying()) {
                 start()
             }
             return
@@ -183,8 +189,8 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
             seekTo(playStatus.playProgress)
             isFirstStart = false
         } else {
-            if (playStatus.currentSong !!.length == 0) {
-                playStatus.currentSong !!.length = mediaPlayer.duration / 1000
+            if (playStatus.currentSong!!.length == 0) {
+                playStatus.currentSong!!.length = mediaPlayer.duration / 1000
             }
             start()
         }
@@ -201,7 +207,7 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
         notifyStatusChanged(STATUS_PAUSE, null)
 
         notifyStatusChanged(STATUS_SONG_COMPLETED, null)
-        updateProgressTask !!.cancel()
+        updateProgressTask!!.cancel()
         insertOrUpdatePlayHistory()
         //adjust progress
         playStatus.playProgress = 100f
@@ -216,7 +222,7 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
     private fun insertOrUpdatePlayHistory() {
         val dao = DAOUtil.getSession(this).playHistoryDao
         val queryList = dao.queryBuilder()
-                .where(PlayHistoryDao.Properties.SongId.eq(playStatus.currentSong !!.songId))
+                .where(PlayHistoryDao.Properties.SongId.eq(playStatus.currentSong!!.songId))
                 .build()
                 .list()
         if (queryList.size > 0) {
@@ -226,7 +232,7 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
             dao.update(playHistory)
         } else {
             val song = playStatus.currentSong
-            val playHistory = PlayHistory(null, System.currentTimeMillis(), 1, song !!.name,
+            val playHistory = PlayHistory(null, System.currentTimeMillis(), 1, song!!.name,
                     song.songId, song.artistId, song.albumId,
                     song.albumCoverUrl, song.artistName, song.albumName,
                     song.listenFileUrl, song.miniAlbumCoverUrl, song.supplier.name)
@@ -238,7 +244,7 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
         if (playStatus.currentSong == null) {
             notifyStatusChanged(STATUS_INFO, "当前没有歌曲播放")
         } else {
-            if (! mediaPlayer.isPlaying) {
+            if (!mediaPlayer.isPlaying) {
                 mediaPlayer.start()
                 playStatus.isPlaying = true
                 notifyStatusChanged(STATUS_START, null)
@@ -547,7 +553,7 @@ class PlayService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErr
         val serialVersionUID: Long = 998
         var isPlaying: Boolean = false
             set(value) {
-                currentSong !!.isPlaying = value
+                currentSong!!.isPlaying = value
                 field = value
             }
         var currentSong: Song? = null
