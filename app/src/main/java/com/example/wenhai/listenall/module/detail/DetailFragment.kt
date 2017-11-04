@@ -32,12 +32,12 @@ import com.example.wenhai.listenall.extension.show
 import com.example.wenhai.listenall.extension.showToast
 import com.example.wenhai.listenall.module.main.MainActivity
 import com.example.wenhai.listenall.module.main.local.EditCollectActivity
+import com.example.wenhai.listenall.module.main.local.LocalFragment
 import com.example.wenhai.listenall.module.play.service.PlayProxy
 import com.example.wenhai.listenall.module.ranking.RankingContract
 import com.example.wenhai.listenall.utils.DAOUtil
 import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
-import com.example.wenhai.listenall.utils.LogUtil
 import com.example.wenhai.listenall.utils.ScreenUtil
 import com.example.wenhai.listenall.utils.getDate
 import com.example.wenhai.listenall.widget.CollectOpsDialog
@@ -79,6 +79,7 @@ class DetailFragment : Fragment(), DetailContract.View {
     private lateinit var mAlbum: Album
     private lateinit var mCollect: Collect
     private var isCollectFromUser: Boolean = false
+    var localFragment: LocalFragment? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -90,18 +91,21 @@ class DetailFragment : Fragment(), DetailContract.View {
         val contentView = inflater!!.inflate(R.layout.fragment_detail, container, false)
         mUnBinder = ButterKnife.bind(this, contentView)
         mLoadType = arguments.getSerializable(DetailContract.ARGS_LOAD_TYPE) as DetailContract.LoadType
+        //是否是用户自建歌单
         isCollectFromUser = arguments.getBoolean(DetailContract.ARGS_IS_USER_COLLECT, false)
         initView()
         return contentView
     }
 
-
     override fun initView() {
+        //根据加载类型设置标题
         mActionBarTitle.text = when (mLoadType) {
             DetailContract.LoadType.COLLECT -> getString(R.string.collect_detail)
             DetailContract.LoadType.ALBUM -> getString(R.string.album_detail)
             else -> ""
         }
+
+        //如果是自建歌单，隐藏收藏按钮并调整布局
         if (mLoadType == DetailContract.LoadType.COLLECT && isCollectFromUser) {
             mLiked.hide()
             mLikedSpace.hide()
@@ -112,32 +116,36 @@ class DetailFragment : Fragment(), DetailContract.View {
             mAddToPlay.layoutParams = lp
 
         }
+
         mSongListAdapter = SongListAdapter(context, ArrayList())
         mSongList.layoutManager = LinearLayoutManager(context)
         mSongList.adapter = mSongListAdapter
         loadDetail()
     }
 
+    /**
+     * 加载专辑或歌单详情
+     */
     private fun loadDetail() {
         when (mLoadType) {
-            DetailContract.LoadType.GLOBAL_RANKING -> {
+            DetailContract.LoadType.GLOBAL_RANKING -> {//全球排行榜
                 val ranking: RankingContract.GlobalRanking = arguments.getSerializable(DetailContract.ARGS_GLOBAL_RANKING) as RankingContract.GlobalRanking
                 mPresenter.loadGlobalRanking(ranking)
             }
-            DetailContract.LoadType.OFFICIAL_RANKING -> {
+            DetailContract.LoadType.OFFICIAL_RANKING -> {//官方排行榜
                 val collect: Collect = arguments.getParcelable(DetailContract.ARGS_COLLECT)
                 setRankingDetail(collect)
             }
-            DetailContract.LoadType.ALBUM -> {
+            DetailContract.LoadType.ALBUM -> {//专辑
                 val id = arguments.getLong(DetailContract.ARGS_ID)
                 mPresenter.loadAlbumDetail(id)
             }
-            DetailContract.LoadType.COLLECT -> {
+            DetailContract.LoadType.COLLECT -> {//歌单
                 val id = arguments.getLong(DetailContract.ARGS_ID)
                 //根据歌单来源加载歌曲列表
                 mPresenter.loadCollectDetail(id, isCollectFromUser)
             }
-            DetailContract.LoadType.SONG -> {
+            DetailContract.LoadType.SONG -> {//歌曲
                 val id = arguments.getLong(DetailContract.ARGS_ID)
                 mPresenter.loadSongDetail(id)
             }
@@ -152,46 +160,34 @@ class DetailFragment : Fragment(), DetailContract.View {
             R.id.detail_add_to_play, R.id.detail_liked, R.id.loading_failed, R.id.detail_more)
     fun onClick(view: View) {
         when (view.id) {
-            R.id.action_bar_back -> {
+            R.id.action_bar_back -> {//返回
                 FragmentUtil.removeFragment(fragmentManager, this)
             }
-            R.id.detail_play_all -> {
+            R.id.detail_play_all -> {//播放全部
                 (activity as MainActivity).playService.replaceList(mSongListAdapter.songList)
             }
-            R.id.detail_add_to_play -> {
+            R.id.detail_add_to_play -> {//将全部歌曲添加到当前播放列表
                 (activity as MainActivity).playService.addToPlayList(mSongListAdapter.songList)
             }
-            R.id.detail_liked -> {
+            R.id.detail_liked -> {//收藏歌单或专辑
                 switchLikedState()
             }
-            R.id.detail_download_all -> {
+            R.id.detail_download_all -> {//下载全部
                 context.showToast("download all")
             }
-            R.id.loading_failed -> {
+            R.id.loading_failed -> {//加载失败后点击，重新加载
                 loadDetail()
             }
-            R.id.detail_more -> {
-                val collectOpsDialog = CollectOpsDialog(context)
-                        .setCollectId(mCollect.id)
-                collectOpsDialog.onCollectOperationListener = object : CollectOpsDialog.OnCollectOperationListener {
-                    override fun onUpdate() {
-                        LogUtil.d("debug", "collect update")
-                        val intent = Intent(context, EditCollectActivity::class.java)
-                        intent.action = EditCollectActivity.ACTION_UPDATE
-                        intent.putExtra("collectId", mCollect.id)
-                        startActivityForResult(intent, REQUEST_UPDATE)
-                    }
-
-                    override fun onDelete() {
-                        FragmentUtil.removeFragment(fragmentManager, this@DetailFragment)
-                    }
-
-                }
-                collectOpsDialog.show()
+            R.id.detail_more -> {//右上角更多操作，只在显示自建歌单时可见
+                showCollectOperationDialog()
             }
         }
     }
 
+
+    /**
+     * 切换收藏状态
+     */
     private fun switchLikedState() {
         if (mLoadType == DetailContract.LoadType.ALBUM) {
             val dao = DAOUtil.getSession(context).likedAlbumDao
@@ -224,7 +220,6 @@ class DetailFragment : Fragment(), DetailContract.View {
         }
     }
 
-
     private fun isCurAlbumLiked(): LikedAlbum? {
         var likedAlbum: LikedAlbum? = null
         val dao = DAOUtil.getSession(context).likedAlbumDao
@@ -251,7 +246,6 @@ class DetailFragment : Fragment(), DetailContract.View {
         return likedCollect
     }
 
-
     private fun setLikedIcon(isLiked: Boolean) {
         if (isLiked) {
             mLikedIcon.setImageResource(R.drawable.ic_liked)
@@ -260,10 +254,44 @@ class DetailFragment : Fragment(), DetailContract.View {
         }
     }
 
+    private fun showCollectOperationDialog() {
+        val collectOpsDialog = CollectOpsDialog(context)
+        //监听对歌单进行的操作
+        collectOpsDialog.onCollectOperationListener = object : CollectOpsDialog.OnCollectOperationListener {
+            override fun onUpdate() {
+                editCurCollect()
+            }
+
+            override fun onDelete() {
+                deleteCurCollect()
+                //更新主界面的歌单显示
+                localFragment?.showCollects()
+                FragmentUtil.removeFragment(fragmentManager, this@DetailFragment)
+            }
+
+        }
+        collectOpsDialog.show()
+    }
+
+    private fun editCurCollect() {
+        val intent = Intent(context, EditCollectActivity::class.java)
+        intent.action = EditCollectActivity.ACTION_UPDATE
+        intent.putExtra("collectId", mCollect.id)
+        startActivityForResult(intent, REQUEST_UPDATE)
+    }
+
+    private fun deleteCurCollect() {
+        val collectId = mCollect.id
+        val collectDao = DAOUtil.getSession(context).collectDao
+        collectDao.deleteByKey(collectId)
+        val relationDao = DAOUtil.getSession(context).joinCollectsWithSongsDao
+        val existRelations = relationDao.queryBuilder().where(JoinCollectsWithSongsDao.Properties.CollectId.eq(collectId)).list()
+        relationDao.deleteInTx(existRelations)
+    }
+
     override fun setPresenter(presenter: DetailContract.Presenter) {
         mPresenter = presenter
     }
-
 
     override fun getViewContext(): Context {
         return context
@@ -296,6 +324,12 @@ class DetailFragment : Fragment(), DetailContract.View {
         })
     }
 
+    override fun onGlobalRankingLoad(collect: Collect) {
+        activity.runOnUiThread {
+            setRankingDetail(collect)
+        }
+    }
+
     private fun setRankingDetail(collect: Collect) {
         activity.runOnUiThread({
             mActionBarTitle.text = collect.title
@@ -311,13 +345,6 @@ class DetailFragment : Fragment(), DetailContract.View {
             mSongList.show()
         })
     }
-
-    override fun onGlobalRankingLoad(collect: Collect) {
-        activity.runOnUiThread {
-            setRankingDetail(collect)
-        }
-    }
-
 
     override fun onAlbumDetailLoad(album: Album) {
         activity.runOnUiThread {
@@ -351,7 +378,9 @@ class DetailFragment : Fragment(), DetailContract.View {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+        //修改歌单信息完成后回调
         if (requestCode == REQUEST_UPDATE && resultCode == RESULT_UPDATED) {
+            //重新加载歌单信息
             loadDetail()
         }
     }

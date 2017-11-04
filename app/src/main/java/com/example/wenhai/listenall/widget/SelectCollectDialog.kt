@@ -97,6 +97,9 @@ class SelectCollectDialog(context: Context) : BaseBottomDialog(context) {
                 val relation = JoinCollectsWithSongs.newRecord(songId, collectId)
                 if (dao.insert(relation) > 0) {
                     context.showToast("添加成功")
+                    //更新歌单修改时间
+                    collect.updateDate = System.currentTimeMillis() / 1000
+                    DAOUtil.getSession(context).collectDao.update(collect)
                     //刷新数据，防止缓存导致的数据不更新
                     collect.resetSongs()
                 } else {

@@ -298,7 +298,7 @@ internal class Xiami(val context: Context) : MusicSource {
                 val artistBuilder = StringBuilder()
                 for (artist in artists) {
                     artistBuilder.append(artist)
-                    artistBuilder.append("&")
+                    artistBuilder.append("/")
                 }
                 song.artistName = artistBuilder.substring(0, artistBuilder.length - 1)
             }

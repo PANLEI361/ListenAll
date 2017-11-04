@@ -110,8 +110,9 @@ class EditCollectActivity : AppCompatActivity() {
     private fun insertCollect(title: String, intro: String, collectDao: CollectDao) {
         mCollect = Collect()
         mCollect?.isFromUser = true
-        mCollect?.createDate = System.currentTimeMillis()
-        mCollect?.updateDate = System.currentTimeMillis()
+        //为了和网络加载的时间保持格式统一
+        mCollect?.createDate = System.currentTimeMillis() / 1000
+        mCollect?.updateDate = System.currentTimeMillis() / 1000
         mCollect?.title = title
         mCollect?.desc = intro
         val collectId = collectDao.insert(mCollect)

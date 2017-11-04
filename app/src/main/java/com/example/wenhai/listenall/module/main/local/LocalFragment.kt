@@ -10,7 +10,6 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.ImageView
-import android.widget.ScrollView
 import android.widget.TextView
 import butterknife.BindView
 import butterknife.ButterKnife
@@ -34,8 +33,8 @@ import com.example.wenhai.listenall.utils.GlideApp
 class LocalFragment : android.support.v4.app.Fragment() {
     @BindView(R.id.main_song_list)
     lateinit var mCollects: RecyclerView
-    @BindView(R.id.main_local_scroll)
-    lateinit var mScrollView: ScrollView
+    //    @BindView(R.id.main_local_scroll)
+//    lateinit var mScrollView: ScrollView
     @BindView(R.id.main_local_btn_liked_collect)
     lateinit var mBtnLikedCollect: Button
     @BindView(R.id.main_local_btn_my_collect)
@@ -45,7 +44,7 @@ class LocalFragment : android.support.v4.app.Fragment() {
 
     private lateinit var mUnBinder: Unbinder
     private lateinit var mCollectAdapter: CollectAdapter
-    private var curShowType = MY_COLLECT
+    private var curShowType = MY_COLLECT//当前显示的歌单类型（收藏歌单或者自建歌单）
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val rootView = inflater!!.inflate(R.layout.fragment_main_local, container, false)
@@ -70,23 +69,28 @@ class LocalFragment : android.support.v4.app.Fragment() {
             R.id.main_local_btn_my_collect, R.id.main_local_btn_liked_collect, R.id.main_local_create_collect)
     fun onClick(v: View) {
         when (v.id) {
-            R.id.main_local_btn_songs -> {
+            R.id.main_local_btn_songs -> {//本地歌曲
             }
-            R.id.main_local_btn_recent_play -> {
+
+            R.id.main_local_btn_recent_play -> {//最近播放
                 FragmentUtil.addFragmentToMainView(fragmentManager, PlayHistoryFragment())
             }
-            R.id.main_local_btn_liked -> {
+
+            R.id.main_local_btn_liked -> {//收藏
                 FragmentUtil.addFragmentToMainView(fragmentManager, LikedFragment())
             }
-            R.id.main_local_btn_my_collect -> {
+
+            R.id.main_local_btn_my_collect -> {//我的歌单
                 curShowType = MY_COLLECT
                 showCollects()
             }
-            R.id.main_local_btn_liked_collect -> {
+
+            R.id.main_local_btn_liked_collect -> {//收藏歌单
                 curShowType = LIKED_COLLECT
                 showCollects()
             }
-            R.id.main_local_create_collect -> {
+
+            R.id.main_local_create_collect -> {//创建歌单
                 val intent = Intent(context, EditCollectActivity::class.java)
                 intent.action = EditCollectActivity.ACTION_CREATE
                 startActivityForResult(intent, REQUEST_CREATE_COLLECT)
@@ -95,6 +99,9 @@ class LocalFragment : android.support.v4.app.Fragment() {
 
     }
 
+    /**
+     * 显示歌单
+     */
     fun showCollects() {
         setButtonTextColor(curShowType)
         if (curShowType == MY_COLLECT) {//显示自建歌单
@@ -126,12 +133,14 @@ class LocalFragment : android.support.v4.app.Fragment() {
         }
     }
 
-    fun showCollectDetail(collect: Collect) {
+    private fun showCollectDetail(collect: Collect) {
         val data = Bundle()
         val detailFragment = DetailFragment()
         if (curShowType == MY_COLLECT) {
             data.putLong(DetailContract.ARGS_ID, collect.id)
             data.putBoolean(DetailContract.ARGS_IS_USER_COLLECT, true)
+            //用于删除歌单时刷新显示
+            detailFragment.localFragment = this
         } else {
             data.putLong(DetailContract.ARGS_ID, collect.collectId)
             data.putBoolean(DetailContract.ARGS_IS_USER_COLLECT, false)
@@ -161,7 +170,8 @@ class LocalFragment : android.support.v4.app.Fragment() {
         val RESULT_COLLECT_CREATED = 0x01
     }
 
-    inner class CollectAdapter(var collects: List<Collect>) : RecyclerView.Adapter<CollectAdapter.ViewHolder>() {
+    inner class CollectAdapter(var collects: List<Collect>)
+        : RecyclerView.Adapter<CollectAdapter.ViewHolder>() {
         override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
             val itemView = LayoutInflater.from(context).inflate(R.layout.item_liked_collect, parent, false)
             return ViewHolder(itemView)
