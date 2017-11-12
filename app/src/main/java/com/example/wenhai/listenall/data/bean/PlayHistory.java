@@ -49,7 +49,7 @@ public class PlayHistory {
 
     public PlayHistory(Song song) {
         this.playTimeInMills = System.currentTimeMillis();
-        this.playTimes = 0;
+        this.playTimes = 1;
         this.songName = song.getName();
         this.songId = song.getSongId();
         this.artistId = song.getArtistId();

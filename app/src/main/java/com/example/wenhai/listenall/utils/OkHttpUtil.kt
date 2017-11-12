@@ -18,6 +18,10 @@ import java.util.concurrent.TimeUnit
 
 object OkHttpUtil {
     const val TAG = "OkHttpUtil"
+    private const val NETWORK_NOT_AVAILABLE = 0
+    const val NETWORK_AVAILABLE = 1
+    const val ARG_NETWORK_STATE = "state"
+    const val ARG_NETWORK_DESC = "msg"
 
     @JvmStatic
     private var client: OkHttpClient? = null
@@ -43,22 +47,22 @@ object OkHttpUtil {
         val connect = if (activeNetwork != null && activeNetwork.isConnected) {
             activeNetwork.type
         } else {
-            - 1
+            -1
         }
         val bundle = Bundle()
-        if (connect != - 1) {//有网络连接
+        if (connect != -1) {//有网络连接
             val sp = context.getSharedPreferences(Config.NAME, Context.MODE_PRIVATE)
             val onlyWifi = sp.getBoolean(Config.ONLY_WIFI, false)
             //判断用户设置
-            if (onlyWifi && connect == ConnectivityManager.TYPE_WIFI || ! onlyWifi) {
-                bundle.putInt("state", 1)
+            if (onlyWifi && connect == ConnectivityManager.TYPE_WIFI || !onlyWifi) {
+                bundle.putInt(ARG_NETWORK_STATE, NETWORK_AVAILABLE)
             } else {
-                bundle.putInt("state", 0)
-                bundle.putString("msg", "非wifi网络自动停止加载")
+                bundle.putInt(ARG_NETWORK_STATE, NETWORK_NOT_AVAILABLE)
+                bundle.putString(ARG_NETWORK_DESC, "非wifi网络自动停止加载")
             }
         } else {//没有网络连接
-            bundle.putInt("state", 0)
-            bundle.putString("msg", "没有网络")
+            bundle.putInt(ARG_NETWORK_STATE, NETWORK_NOT_AVAILABLE)
+            bundle.putString(ARG_NETWORK_DESC, "没有网络")
         }
         return bundle
     }
@@ -99,7 +103,7 @@ object OkHttpUtil {
                 if (response == null) {
                     callback.onFailure("response == null")
                 } else {
-                    val body = response.body() !!.string()
+                    val body = response.body()!!.string()
                     when {
                         body.startsWith("jsonp") -> {
                             val realJsonStr = body.substring(body.indexOf("(") + 1, body.lastIndexOf(")"))
