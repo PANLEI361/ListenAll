@@ -36,10 +36,10 @@ import com.example.wenhai.listenall.module.main.local.LocalFragment
 import com.example.wenhai.listenall.module.play.service.PlayProxy
 import com.example.wenhai.listenall.module.ranking.RankingContract
 import com.example.wenhai.listenall.utils.DAOUtil
-import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
 import com.example.wenhai.listenall.utils.ScreenUtil
 import com.example.wenhai.listenall.utils.getDate
+import com.example.wenhai.listenall.utils.removeFragment
 import com.example.wenhai.listenall.widget.CollectOpsDialog
 import com.example.wenhai.listenall.widget.SongOpsDialog
 
@@ -161,7 +161,7 @@ class DetailFragment : Fragment(), DetailContract.View {
     fun onClick(view: View) {
         when (view.id) {
             R.id.action_bar_back -> {//返回
-                FragmentUtil.removeFragment(fragmentManager, this)
+                removeFragment(fragmentManager, this)
             }
             R.id.detail_play_all -> {//播放全部
                 (activity as MainActivity).playService.replaceList(mSongListAdapter.songList)
@@ -266,7 +266,7 @@ class DetailFragment : Fragment(), DetailContract.View {
                 deleteCurCollect()
                 //更新主界面的歌单显示
                 localFragment?.showCollects()
-                FragmentUtil.removeFragment(fragmentManager, this@DetailFragment)
+                removeFragment(fragmentManager, this@DetailFragment)
             }
 
         }

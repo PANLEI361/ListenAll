@@ -30,8 +30,9 @@ import com.example.wenhai.listenall.module.detail.DetailContract
 import com.example.wenhai.listenall.module.detail.DetailFragment
 import com.example.wenhai.listenall.module.main.MainActivity
 import com.example.wenhai.listenall.module.play.service.PlayProxy
-import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
+import com.example.wenhai.listenall.utils.addFragmentToMainView
+import com.example.wenhai.listenall.utils.removeFragment
 import com.scwang.smartrefresh.layout.SmartRefreshLayout
 
 class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
@@ -135,7 +136,7 @@ class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
     fun onClick(view: View) {
         when (view.id) {
             R.id.action_bar_back -> {
-                FragmentUtil.removeFragment(fragmentManager, this)
+                removeFragment(fragmentManager, this)
             }
         }
     }
@@ -316,7 +317,7 @@ class ArtistDetailFragment : Fragment(), ArtistDetailContract.View {
                 data.putLong(DetailContract.ARGS_ID, album.id)
                 data.putSerializable(DetailContract.ARGS_LOAD_TYPE, DetailContract.LoadType.ALBUM)
                 detailFragment.arguments = data
-                FragmentUtil.addFragmentToMainView(fragmentManager, detailFragment)
+                addFragmentToMainView(fragmentManager, detailFragment)
 
             }
         }

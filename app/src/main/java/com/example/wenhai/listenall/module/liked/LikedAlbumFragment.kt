@@ -19,8 +19,8 @@ import com.example.wenhai.listenall.data.bean.LikedAlbumDao
 import com.example.wenhai.listenall.module.detail.DetailContract
 import com.example.wenhai.listenall.module.detail.DetailFragment
 import com.example.wenhai.listenall.utils.DAOUtil
-import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
+import com.example.wenhai.listenall.utils.addFragmentToMainView
 
 class LikedAlbumFragment : Fragment() {
 
@@ -55,7 +55,7 @@ class LikedAlbumFragment : Fragment() {
         data.putSerializable(DetailContract.ARGS_LOAD_TYPE, DetailContract.LoadType.ALBUM)
         val detailFragment = DetailFragment()
         detailFragment.arguments = data
-        FragmentUtil.addFragmentToMainView(parentFragment.fragmentManager, detailFragment)
+        addFragmentToMainView(parentFragment.fragmentManager, detailFragment)
     }
 
 

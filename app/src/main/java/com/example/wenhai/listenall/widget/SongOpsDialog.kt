@@ -19,7 +19,7 @@ import com.example.wenhai.listenall.module.detail.DetailContract
 import com.example.wenhai.listenall.module.detail.DetailFragment
 import com.example.wenhai.listenall.module.main.MainActivity
 import com.example.wenhai.listenall.module.play.service.PlayProxy
-import com.example.wenhai.listenall.utils.FragmentUtil
+import com.example.wenhai.listenall.utils.addFragmentToMainView
 
 class SongOpsDialog(context: Context, val song: Song, private val activity: FragmentActivity) : BaseBottomDialog(context) {
     private var playProxy: PlayProxy? = null
@@ -125,7 +125,7 @@ class SongOpsDialog(context: Context, val song: Song, private val activity: Frag
         if (isMainActivity) {
             val detailFragment = DetailFragment()
             detailFragment.arguments = data
-            FragmentUtil.addFragmentToMainView(activity.supportFragmentManager, detailFragment)
+            addFragmentToMainView(activity.supportFragmentManager, detailFragment)
         } else {
             val intent = Intent()
             intent.putExtras(data)
@@ -140,7 +140,7 @@ class SongOpsDialog(context: Context, val song: Song, private val activity: Frag
         if (isMainActivity) {
             val artistDetailFragment = ArtistDetailFragment()
             artistDetailFragment.arguments = data
-            FragmentUtil.addFragmentToMainView(activity.supportFragmentManager, artistDetailFragment)
+            addFragmentToMainView(activity.supportFragmentManager, artistDetailFragment)
         } else {
             val intent = Intent()
             intent.putExtras(data)

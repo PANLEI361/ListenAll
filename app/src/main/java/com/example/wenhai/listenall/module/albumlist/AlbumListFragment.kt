@@ -23,8 +23,9 @@ import com.example.wenhai.listenall.extension.show
 import com.example.wenhai.listenall.extension.showToast
 import com.example.wenhai.listenall.module.detail.DetailContract
 import com.example.wenhai.listenall.module.detail.DetailFragment
-import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
+import com.example.wenhai.listenall.utils.addFragmentToMainView
+import com.example.wenhai.listenall.utils.removeFragment
 import com.scwang.smartrefresh.layout.SmartRefreshLayout
 
 class AlbumListFragment : Fragment(), AlbumListContract.View {
@@ -120,14 +121,14 @@ class AlbumListFragment : Fragment(), AlbumListContract.View {
         data.putSerializable(DetailContract.ARGS_LOAD_TYPE, DetailContract.LoadType.ALBUM)
         val detailFragment = DetailFragment()
         detailFragment.arguments = data
-        FragmentUtil.addFragmentToMainView(fragmentManager, detailFragment)
+        addFragmentToMainView(fragmentManager, detailFragment)
     }
 
     @OnClick(R.id.action_bar_back, R.id.loading_failed)
     fun onClick(view: View) {
         when (view.id) {
             R.id.action_bar_back -> {
-                FragmentUtil.removeFragment(fragmentManager, this)
+                removeFragment(fragmentManager, this)
             }
             R.id.loading_failed -> {
                 mPresenter.loadNewAlbums(curPage)

@@ -24,8 +24,9 @@ import com.example.wenhai.listenall.extension.hide
 import com.example.wenhai.listenall.extension.show
 import com.example.wenhai.listenall.module.detail.DetailContract
 import com.example.wenhai.listenall.module.detail.DetailFragment
-import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
+import com.example.wenhai.listenall.utils.addFragmentToMainView
+import com.example.wenhai.listenall.utils.removeFragment
 
 class RankingFragment : Fragment(), RankingContract.View {
     @BindView(R.id.action_bar_title)
@@ -50,7 +51,7 @@ class RankingFragment : Fragment(), RankingContract.View {
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val contentView: View = inflater !!.inflate(R.layout.fragment_ranking, container, false)
+        val contentView: View = inflater!!.inflate(R.layout.fragment_ranking, container, false)
         mUnbinder = ButterKnife.bind(this, contentView)
         initView()
         return contentView
@@ -86,7 +87,7 @@ class RankingFragment : Fragment(), RankingContract.View {
             args.putSerializable(DetailContract.ARGS_GLOBAL_RANKING, ranking)
             args.putSerializable(DetailContract.ARGS_LOAD_TYPE, DetailContract.LoadType.GLOBAL_RANKING)
             detailFragment.arguments = args
-            FragmentUtil.addFragmentToMainView(fragmentManager, detailFragment)
+            addFragmentToMainView(fragmentManager, detailFragment)
         }
     }
 
@@ -94,7 +95,7 @@ class RankingFragment : Fragment(), RankingContract.View {
     fun onClick(view: View) {
         when (view.id) {
             R.id.action_bar_back -> {
-                FragmentUtil.removeFragment(fragmentManager, this)
+                removeFragment(fragmentManager, this)
             }
             R.id.loading_failed -> {
                 mPresenter.loadOfficialRanking(MusicProvider.XIAMI)
@@ -127,7 +128,7 @@ class RankingFragment : Fragment(), RankingContract.View {
         args.putParcelable(DetailContract.ARGS_COLLECT, collect)
         args.putSerializable(DetailContract.ARGS_LOAD_TYPE, DetailContract.LoadType.OFFICIAL_RANKING)
         detailFragment.arguments = args
-        FragmentUtil.addFragmentToMainView(fragmentManager, detailFragment)
+        addFragmentToMainView(fragmentManager, detailFragment)
     }
 
     override fun onLoading() {

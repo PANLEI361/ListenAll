@@ -20,7 +20,7 @@ import com.example.wenhai.listenall.data.bean.PlayHistory
 import com.example.wenhai.listenall.data.bean.Song
 import com.example.wenhai.listenall.extension.showToast
 import com.example.wenhai.listenall.module.main.MainActivity
-import com.example.wenhai.listenall.utils.FragmentUtil
+import com.example.wenhai.listenall.utils.removeFragment
 import com.example.wenhai.listenall.widget.SongOpsDialog
 
 class PlayHistoryFragment : Fragment(), PlayHistoryContract.View {
@@ -57,7 +57,7 @@ class PlayHistoryFragment : Fragment(), PlayHistoryContract.View {
     fun onClick(view: View) {
         when (view.id) {
             R.id.action_bar_back -> {
-                FragmentUtil.removeFragment(fragmentManager, this)
+                removeFragment(fragmentManager, this)
             }
             R.id.play_history_shuffle_all -> {
                 if (mPlayHistoryAdapter.playHistoryList.isEmpty()) {

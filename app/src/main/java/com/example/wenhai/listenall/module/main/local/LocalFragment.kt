@@ -26,8 +26,8 @@ import com.example.wenhai.listenall.module.detail.DetailFragment
 import com.example.wenhai.listenall.module.liked.LikedFragment
 import com.example.wenhai.listenall.module.playhistory.PlayHistoryFragment
 import com.example.wenhai.listenall.utils.DAOUtil
-import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
+import com.example.wenhai.listenall.utils.addFragmentToMainView
 
 
 class LocalFragment : android.support.v4.app.Fragment() {
@@ -73,11 +73,11 @@ class LocalFragment : android.support.v4.app.Fragment() {
             }
 
             R.id.main_local_btn_recent_play -> {//最近播放
-                FragmentUtil.addFragmentToMainView(fragmentManager, PlayHistoryFragment())
+                addFragmentToMainView(fragmentManager, PlayHistoryFragment())
             }
 
             R.id.main_local_btn_liked -> {//收藏
-                FragmentUtil.addFragmentToMainView(fragmentManager, LikedFragment())
+                addFragmentToMainView(fragmentManager, LikedFragment())
             }
 
             R.id.main_local_btn_my_collect -> {//我的歌单
@@ -147,7 +147,7 @@ class LocalFragment : android.support.v4.app.Fragment() {
         }
         data.putSerializable(DetailContract.ARGS_LOAD_TYPE, DetailContract.LoadType.COLLECT)
         detailFragment.arguments = data
-        FragmentUtil.addFragmentToMainView(fragmentManager, detailFragment)
+        addFragmentToMainView(fragmentManager, detailFragment)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

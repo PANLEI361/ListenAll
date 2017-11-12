@@ -14,7 +14,7 @@ import butterknife.ButterKnife
 import butterknife.OnClick
 import butterknife.Unbinder
 import com.example.wenhai.listenall.R
-import com.example.wenhai.listenall.utils.FragmentUtil
+import com.example.wenhai.listenall.utils.removeFragment
 
 class LikedFragment : Fragment() {
     @BindView(R.id.action_bar_title)
@@ -47,7 +47,7 @@ class LikedFragment : Fragment() {
     fun onClick(view: View) {
         when (view.id) {
             R.id.action_bar_back -> {
-                FragmentUtil.removeFragment(fragmentManager, this)
+                removeFragment(fragmentManager, this)
             }
         }
     }

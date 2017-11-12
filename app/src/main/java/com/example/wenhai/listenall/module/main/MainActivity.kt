@@ -11,7 +11,12 @@ import android.support.v7.app.AppCompatActivity
 import android.view.Gravity
 import android.view.KeyEvent
 import android.view.View
-import android.widget.*
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.Switch
+import android.widget.TextView
+import android.widget.Toast
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
@@ -24,9 +29,10 @@ import com.example.wenhai.listenall.module.play.PLayActivity
 import com.example.wenhai.listenall.module.play.service.PlayProxy
 import com.example.wenhai.listenall.module.play.service.PlayService
 import com.example.wenhai.listenall.module.play.service.PlayStatusObserver
-import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
 import com.example.wenhai.listenall.utils.LogUtil
+import com.example.wenhai.listenall.utils.addFragmentToActivity
+import com.example.wenhai.listenall.utils.addFragmentToMainView
 import com.example.wenhai.listenall.utils.getAppVersionName
 import com.example.wenhai.listenall.widget.PlayListDialog
 import com.example.wenhai.listenall.widget.ProgressImageButton
@@ -86,7 +92,7 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver, PlayProxy {
         var mainFragment: MainFragment? = supportFragmentManager.findFragmentById(R.id.main_container) as? MainFragment
         if (mainFragment == null) {
             mainFragment = MainFragment()
-            FragmentUtil.addFragmentToActivity(supportFragmentManager, mainFragment, R.id.main_container)
+            addFragmentToActivity(supportFragmentManager, mainFragment, R.id.main_container)
         }
         initSlideMenu()
         initPlayService()
@@ -182,13 +188,13 @@ class MainActivity : AppCompatActivity(), PlayStatusObserver, PlayProxy {
     private fun showArtistDetail(data: Intent?) {
         val artistDetailFragment = ArtistDetailFragment()
         artistDetailFragment.arguments = data?.extras
-        FragmentUtil.addFragmentToMainView(supportFragmentManager, artistDetailFragment)
+        addFragmentToMainView(supportFragmentManager, artistDetailFragment)
     }
 
     private fun showAlbumDetail(data: Intent?) {
         val detailFragment = DetailFragment()
         detailFragment.arguments = data?.extras
-        FragmentUtil.addFragmentToMainView(supportFragmentManager, detailFragment)
+        addFragmentToMainView(supportFragmentManager, detailFragment)
     }
 
     fun openDrawer() {

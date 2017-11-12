@@ -34,11 +34,10 @@ import com.example.wenhai.listenall.module.collectlist.CollectListFragment
 import com.example.wenhai.listenall.module.detail.DetailContract
 import com.example.wenhai.listenall.module.detail.DetailFragment
 import com.example.wenhai.listenall.module.ranking.RankingFragment
-import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
 import com.example.wenhai.listenall.utils.LogUtil
+import com.example.wenhai.listenall.utils.addFragmentToMainView
 import com.scwang.smartrefresh.layout.SmartRefreshLayout
-import com.scwang.smartrefresh.layout.header.ClassicsHeader
 import com.youth.banner.BannerConfig
 import com.youth.banner.Transformer
 import com.youth.banner.loader.ImageLoader
@@ -54,8 +53,8 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
     lateinit var mScrollView: ScrollView
     @BindView(R.id.refresh)
     lateinit var mRefreshLayout: SmartRefreshLayout
-    @BindView(R.id.refresh_header)
-    lateinit var mRefreshHeader: ClassicsHeader
+    //    @BindView(R.id.refresh_header)
+//    lateinit var mRefreshHeader: ClassicsHeader
     @BindView(R.id.loading)
     lateinit var mLoading: LinearLayout
     @BindView(R.id.loading_failed)
@@ -77,9 +76,8 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
     }
 
 
-
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        val rootView = inflater !!.inflate(R.layout.fragment_main_online, container, false)
+        val rootView = inflater!!.inflate(R.layout.fragment_main_online, container, false)
         mUnBinder = ButterKnife.bind(this, rootView)
         initView()
         return rootView
@@ -106,7 +104,7 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
     private fun showDetail(data: Bundle) {
         val detailFragment = DetailFragment()
         detailFragment.arguments = data
-        FragmentUtil.addFragmentToMainView(fragmentManager, detailFragment)
+        addFragmentToMainView(fragmentManager, detailFragment)
     }
 
     private fun initNewAlbumsGridView() {
@@ -160,19 +158,19 @@ class OnLineFragment : android.support.v4.app.Fragment(), OnLineContract.View {
     fun onClick(view: View) {
         when (view.id) {
             R.id.main_btn_more_collect -> {
-                FragmentUtil.addFragmentToMainView(fragmentManager, CollectListFragment())
+                addFragmentToMainView(fragmentManager, CollectListFragment())
             }
             R.id.main_btn_more_albums -> {
-                FragmentUtil.addFragmentToMainView(fragmentManager, AlbumListFragment())
+                addFragmentToMainView(fragmentManager, AlbumListFragment())
             }
             R.id.main_online_btn_singer -> {
-                FragmentUtil.addFragmentToMainView(fragmentManager, ArtistListFragment())
+                addFragmentToMainView(fragmentManager, ArtistListFragment())
             }
             R.id.main_online_btn_collect -> {
-                FragmentUtil.addFragmentToMainView(fragmentManager, CollectFilterFragment())
+                addFragmentToMainView(fragmentManager, CollectFilterFragment())
             }
             R.id.main_online_btn_ranking_list -> {
-                FragmentUtil.addFragmentToMainView(fragmentManager, RankingFragment())
+                addFragmentToMainView(fragmentManager, RankingFragment())
             }
             R.id.loading_failed -> {
                 loadData()

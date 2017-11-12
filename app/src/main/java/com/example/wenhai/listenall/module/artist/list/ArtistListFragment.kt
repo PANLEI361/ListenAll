@@ -24,8 +24,9 @@ import com.example.wenhai.listenall.extension.isShowing
 import com.example.wenhai.listenall.extension.show
 import com.example.wenhai.listenall.extension.showToast
 import com.example.wenhai.listenall.module.artist.detail.ArtistDetailFragment
-import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
+import com.example.wenhai.listenall.utils.addFragmentToMainView
+import com.example.wenhai.listenall.utils.removeFragment
 import com.scwang.smartrefresh.layout.SmartRefreshLayout
 
 class ArtistListFragment : Fragment(), ArtistListContract.View {
@@ -127,7 +128,7 @@ class ArtistListFragment : Fragment(), ArtistListContract.View {
     fun onClick(view: View) {
         when (view.id) {
             R.id.action_bar_back -> {
-                FragmentUtil.removeFragment(fragmentManager, this)
+                removeFragment(fragmentManager, this)
             }
             R.id.loading_failed -> {
                 mPresenter.loadArtists(curRegion, curPage)
@@ -193,7 +194,7 @@ class ArtistListFragment : Fragment(), ArtistListContract.View {
                 val data = Bundle()
                 data.putParcelable("artist", artist)
                 artistDetailFragment.arguments = data
-                FragmentUtil.addFragmentToMainView(fragmentManager, artistDetailFragment)
+                addFragmentToMainView(fragmentManager, artistDetailFragment)
             }
         }
 

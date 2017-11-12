@@ -29,8 +29,9 @@ import com.example.wenhai.listenall.extension.show
 import com.example.wenhai.listenall.module.main.local.LocalFragment
 import com.example.wenhai.listenall.module.main.online.OnLineFragment
 import com.example.wenhai.listenall.module.search.SearchFragment
-import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.LogUtil
+import com.example.wenhai.listenall.utils.addFragmentToView
+import com.example.wenhai.listenall.utils.removeFragment
 
 class MainFragment : Fragment() {
 
@@ -112,7 +113,7 @@ class MainFragment : Fragment() {
         mEtSearch.removeTextChangedListener(textWatch)
         textWatch = null
         mCancelSearch.hide()
-        FragmentUtil.removeFragment(fragmentManager, searchFragment)
+        removeFragment(fragmentManager, searchFragment)
         hideSoftInput()
     }
 
@@ -125,7 +126,7 @@ class MainFragment : Fragment() {
     @Suppress("DEPRECATION")
     private fun showSearchBar() {
         searchFragment = SearchFragment()
-        FragmentUtil.addFragmentToView(fragmentManager, searchFragment, R.id.main_pager_container)
+        addFragmentToView(fragmentManager, searchFragment, R.id.main_pager_container)
 
         mTab.hide()
         mBtnSearch.hide()

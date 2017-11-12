@@ -23,8 +23,9 @@ import com.example.wenhai.listenall.extension.show
 import com.example.wenhai.listenall.extension.showToast
 import com.example.wenhai.listenall.module.detail.DetailContract
 import com.example.wenhai.listenall.module.detail.DetailFragment
-import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
+import com.example.wenhai.listenall.utils.addFragmentToMainView
+import com.example.wenhai.listenall.utils.removeFragment
 import com.scwang.smartrefresh.layout.SmartRefreshLayout
 
 internal class CollectListFragment : Fragment(), CollectListContract.View {
@@ -68,7 +69,7 @@ internal class CollectListFragment : Fragment(), CollectListContract.View {
                 mPresenter.loadCollects(curLoadPage)
             }
             R.id.action_bar_back -> {
-                FragmentUtil.removeFragment(fragmentManager, this)
+                removeFragment(fragmentManager, this)
             }
         }
     }
@@ -164,7 +165,7 @@ internal class CollectListFragment : Fragment(), CollectListContract.View {
                     data.putLong(DetailContract.ARGS_ID, collect.collectId)
                     data.putSerializable(DetailContract.ARGS_LOAD_TYPE, DetailContract.LoadType.COLLECT)
                     detailFragment.arguments = data
-                    FragmentUtil.addFragmentToMainView(fragmentManager, detailFragment)
+                    addFragmentToMainView(fragmentManager, detailFragment)
                 }
             }
         }

@@ -23,8 +23,10 @@ import com.example.wenhai.listenall.extension.show
 import com.example.wenhai.listenall.extension.showToast
 import com.example.wenhai.listenall.module.detail.DetailContract
 import com.example.wenhai.listenall.module.detail.DetailFragment
-import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.GlideApp
+import com.example.wenhai.listenall.utils.addFragmentToMainView
+import com.example.wenhai.listenall.utils.addFragmentToView
+import com.example.wenhai.listenall.utils.removeFragment
 import com.scwang.smartrefresh.layout.SmartRefreshLayout
 
 class CollectFilterFragment : Fragment(), CollectFilterContract.View {
@@ -58,7 +60,7 @@ class CollectFilterFragment : Fragment(), CollectFilterContract.View {
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val contentView = inflater !!.inflate(R.layout.fragment_collect, container, false)
+        val contentView = inflater!!.inflate(R.layout.fragment_collect, container, false)
         mUnbinder = ButterKnife.bind(this, contentView)
         initView()
         return contentView
@@ -106,18 +108,18 @@ class CollectFilterFragment : Fragment(), CollectFilterContract.View {
                 if (isFilterShown) {
                     mCollectCategoryFragment.onFilterChosen(curCategory)
                 } else {
-                    FragmentUtil.removeFragment(fragmentManager, this)
+                    removeFragment(fragmentManager, this)
                 }
             }
             R.id.collect_filter -> {
-                if (! isFilterShown) {
+                if (!isFilterShown) {
                     mCollectCategoryFragment = CollectCategoryFragment()
                     val curCategory = mFilterTitle.text.toString()
                     val data = Bundle()
                     data.putString("curCategory", curCategory)
                     mCollectCategoryFragment.arguments = data
                     mCollectCategoryFragment.setTargetFragment(this, 0)
-                    FragmentUtil.addFragmentToView(fragmentManager, mCollectCategoryFragment, R.id.collect_list_container)
+                    addFragmentToView(fragmentManager, mCollectCategoryFragment, R.id.collect_list_container)
                     setFilterTitleIcon(true)
                 } else {
                     mCollectCategoryFragment.onFilterChosen(curCategory)
@@ -168,7 +170,7 @@ class CollectFilterFragment : Fragment(), CollectFilterContract.View {
             if (mRefreshLayout.isLoading) {
                 mRefreshLayout.finishLoadmore(200, true)
             }
-            curPage ++
+            curPage++
             mCollectAdapter.addData(collects)
             if (mLoading.isShowing()) {
                 mLoading.hide()
@@ -218,7 +220,7 @@ class CollectFilterFragment : Fragment(), CollectFilterContract.View {
                     data.putLong(DetailContract.ARGS_ID, collect.collectId)
                     data.putSerializable(DetailContract.ARGS_LOAD_TYPE, DetailContract.LoadType.COLLECT)
                     detailFragment.arguments = data
-                    FragmentUtil.addFragmentToMainView(fragmentManager, detailFragment)
+                    addFragmentToMainView(fragmentManager, detailFragment)
                 }
             }
         }

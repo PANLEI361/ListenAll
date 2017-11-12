@@ -17,8 +17,8 @@ import butterknife.OnClick
 import butterknife.Unbinder
 import com.example.wenhai.listenall.R
 import com.example.wenhai.listenall.module.main.MainActivity
-import com.example.wenhai.listenall.utils.FragmentUtil
 import com.example.wenhai.listenall.utils.ScreenUtil
+import com.example.wenhai.listenall.utils.removeFragment
 
 
 class CollectCategoryFragment : Fragment(), MainActivity.OnBackKeyEventListener {
@@ -166,7 +166,7 @@ class CollectCategoryFragment : Fragment(), MainActivity.OnBackKeyEventListener 
             textView.setBackgroundColor(context.resources.getColor(R.color.colorWhite))
         }
         (targetFragment as CollectFilterFragment).setFilterTitle(filter)
-        FragmentUtil.removeFragment(fragmentManager, this)
+        removeFragment(fragmentManager, this)
     }
 
     @SuppressLint("InflateParams")
@@ -203,7 +203,7 @@ class CollectCategoryFragment : Fragment(), MainActivity.OnBackKeyEventListener 
     }
 
     override fun onBackKeyPressed() {
-        FragmentUtil.removeFragment(fragmentManager, this)
+        removeFragment(fragmentManager, this)
         (targetFragment as CollectFilterFragment).setFilterTitleIcon(false)
     }
 
